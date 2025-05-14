@@ -11,35 +11,35 @@
          <Image url="@../image/Map/Arena.jpg" />
       </image>
    </ImageView>
-   <Button fx:id="button1" layoutX="332.0" layoutY="244.0" mnemonicParsing="false"   prefHeight="50.0" prefWidth="50.0" text="Button" />
-   <Button layoutX="282.0" layoutY="244.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="Button" />
-   <Button layoutX="232.0" layoutY="244.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="Button" />
-   <Button layoutX="232.0" layoutY="294.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="Button" />
-   <Button layoutX="282.0" layoutY="294.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="Button" />
-   <Button layoutX="382.0" layoutY="294.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="Button" />
-   <Button layoutX="332.0" layoutY="294.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="Button" />
-   <Button layoutX="382.0" layoutY="244.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="Button" />
-   <Button layoutX="182.0" layoutY="294.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="Button" />
-   <Button layoutX="182.0" layoutY="344.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="Button" />
-   <Button layoutX="232.0" layoutY="344.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="Button" />
-   <Button layoutX="282.0" layoutY="344.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="Button" />
-   <Button layoutX="332.0" layoutY="344.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="Button" />
-   <Button layoutX="382.0" layoutY="344.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="Button" />
-   <Button layoutX="432.0" layoutY="344.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="Button" />
-   <Button layoutX="332.0" layoutY="194.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="Button" />
-   <Button layoutX="232.0" layoutY="394.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="Button" />
-   <Button layoutX="282.0" layoutY="394.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="Button" />
-   <Button layoutX="332.0" layoutY="394.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="Button" />
-   <Button layoutX="382.0" layoutY="394.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="Button" />
-   <Button layoutX="432.0" layoutY="294.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="Button" />
-   <Button layoutX="282.0" layoutY="444.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="Button" />
-   <Button layoutX="332.0" layoutY="444.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="Button" />
+   <Button fx:id="button1" layoutX="332.0" layoutY="244.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" styleClass="tile-button" text="Button" />
+   <Button layoutX="282.0" layoutY="244.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" styleClass="tile-button" text="Button" />
+   <Button layoutX="232.0" layoutY="244.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" styleClass="tile-button" text="Button" />
+   <Button layoutX="232.0" layoutY="294.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" styleClass="tile-button" text="Button" />
+   <Button layoutX="282.0" layoutY="294.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" styleClass="tile-button" text="Button" />
+   <Button layoutX="382.0" layoutY="294.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" styleClass="tile-button" text="Button" />
+   <Button layoutX="332.0" layoutY="294.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" styleClass="tile-button" text="Button" />
+   <Button layoutX="382.0" layoutY="244.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" styleClass="tile-button" text="Button" />
+   <Button layoutX="182.0" layoutY="294.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" styleClass="tile-button" text="Button" />
+   <Button layoutX="182.0" layoutY="344.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" styleClass="tile-button" text="Button" />
+   <Button layoutX="232.0" layoutY="344.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" styleClass="tile-button" text="Button" />
+   <Button layoutX="282.0" layoutY="344.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" styleClass="tile-button" text="Button" />
+   <Button layoutX="332.0" layoutY="344.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" styleClass="tile-button" text="Button" />
+   <Button layoutX="382.0" layoutY="344.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" styleClass="tile-button" text="Button" />
+   <Button layoutX="432.0" layoutY="344.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" styleClass="tile-button" text="Button" />
+   <Button layoutX="332.0" layoutY="194.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" styleClass="tile-button" text="Button" />
+   <Button layoutX="232.0" layoutY="394.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" styleClass="tile-button" text="Button" />
+   <Button layoutX="282.0" layoutY="394.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" styleClass="tile-button" text="Button" />
+   <Button layoutX="332.0" layoutY="394.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" styleClass="tile-button" text="Button" />
+   <Button layoutX="382.0" layoutY="394.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" styleClass="tile-button" text="Button" />
+   <Button layoutX="432.0" layoutY="294.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" styleClass="tile-button" text="Button" />
+   <Button layoutX="282.0" layoutY="444.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" styleClass="tile-button" text="Button" />
+   <Button layoutX="332.0" layoutY="444.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" styleClass="tile-button" text="Button" />
    <ImageView fitHeight="315.0" fitWidth="105.0" layoutX="541.0" layoutY="194.0" pickOnBounds="true" preserveRatio="true">
       <image>
          <Image url="@../image/WaterMeter/0.png" />
       </image>
    </ImageView>
-   <Button layoutX="282.0" layoutY="194.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" text="Button" />
+   <Button layoutX="282.0" layoutY="194.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="50.0" styleClass="tile-button" text="Button" />
    <ImageView disable="true" fitHeight="50.0" fitWidth="50.0" layoutX="282.0" layoutY="194.0" pickOnBounds="true" preserveRatio="true">
       <image>
          <Image url="@../image/Flood/1.png" />

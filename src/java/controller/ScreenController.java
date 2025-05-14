@@ -14,10 +14,6 @@ public class ScreenController {
     @FXML
     private Pane mainBoard;
 
-    // 声明一个Button对象，用于触发事件
-    @FXML
-    private Button button1;
-
     @FXML
     private Button move;
 
@@ -41,10 +37,6 @@ public class ScreenController {
 
     public Pane getMainBoard() {
         return mainBoard;
-    }
-
-    public Button getButton1() {
-        return button1;
     }
 
 
