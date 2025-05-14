@@ -31,7 +31,6 @@ public class ScreenController {
         forbiddenGameStarted = new ForbiddenGameStarted(this);
 
 
-
     }
 
 
