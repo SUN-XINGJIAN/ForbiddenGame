@@ -1,6 +1,6 @@
 package player;
 
-import map.Tile;
+import canvas.Tile;
 
 public class Pilot extends Player{
     private boolean specialFlightUsed = false;

@@ -1,6 +1,6 @@
 package player;
 
-import map.Tile;
+import canvas.Tile;
 
 public class Explorer extends Player{
     public Explorer(String name, Tile startingTile) {

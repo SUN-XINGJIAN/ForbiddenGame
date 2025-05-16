@@ -1,16 +1,20 @@
 package player;
 
-import map.Tile;
+import board.Treasure;
+import canvas.Tile;
+import cards.Card;
+import cards.TreasureCard;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public abstract class Player {
     private final String name;
     protected Tile currentTile; // -> map 中 tile类
-    // private final List<Card> hand = new ArrayList<>(); // 需要定义 Card 基类（包含 TreasureCard/SpecialActionCard）
+    private final List<Card> hand = new ArrayList<>(); // 需要定义 Card 基类（包含 TreasureCard/SpecialActionCard）
     private int actionsRemaining;
-    private final List<String> capturedTreasures = new ArrayList<>();
+    private final List<Treasure.Type> capturedTreasures = new ArrayList<>();
 
     public Player(String name, Tile startingTile) {
         this.name = name;
@@ -25,13 +29,26 @@ public abstract class Player {
             actionsRemaining--;
         }
     }
-//    protected abstract boolean isAdjacent(Tile targetTile);
-//    private boolean hasFourMatchingCards(String type) {
-//        return hand.stream().filter(c -> c.getType().equals(type)).count() >= 4;
-//    }
-//    private void discardCards(String type) {
-//        hand.removeIf(c -> c.getType().equals(type));
-//    }
+    // 判断手牌是否有指定类型卡片（至少指定数量）
+    public boolean hasCardsOfType(Treasure.Type type, int requiredCount) {
+        return hand.stream()
+                .filter(card -> card instanceof TreasureCard)
+                .map(card -> (TreasureCard) card)
+                .filter(tc -> tc.getTreasureType() == type)
+                .count() >= requiredCount;
+    }
+
+    // 丢弃指定类型的卡片
+    public void discardCards(Treasure.Type type, int count) {
+        List<Card> toDiscard = hand.stream()
+                .filter(card -> card instanceof TreasureCard)
+                .map(card -> (TreasureCard) card)
+                .filter(tc -> tc.getTreasureType() == type)
+                .limit(count)
+                .collect(Collectors.toList());
+
+        hand.removeAll(toDiscard);
+    }
 
     // Basic shore-up
     public void shoreUp(Tile targetTile) {
@@ -41,32 +58,37 @@ public abstract class Player {
         }
     }
 
-    // 传递卡片（需 Card 类实现 getType() 等方法）
-//    public void giveTreasureCard(Card card, Player recipient) {
-//        if (this.currentTile.equals(recipient.currentTile)) {
-//            this.hand.remove(card);
-//            recipient.receiveCard(card);
-//            actionsRemaining--;
-//        }
-//    }
-//
-//    // 捕获宝藏（需 Tile 类实现 getTreasureType() 方法）
-//    public void captureTreasure() {
-//        String treasureType = currentTile.getTreasureType();
-//        if (hasFourMatchingCards(treasureType) && currentTile.isTreasureSite()) {
-//            discardCards(treasureType);
-//            capturedTreasures.add(treasureType);
-//        }
-//    }
-//
-//
-//
-//    // 需要的外部方法
-//    public void receiveCard(Card card) {
-//        hand.add(card);
-//    }
+    // 传递卡片功能
+    public void giveCard(Card card, Player recipient) {
+        if (this.currentTile.equals(recipient.currentTile) && hand.contains(card)) {
+            hand.remove(card);
+            recipient.receiveCard(card);
+            actionsRemaining--;
+        }
+    }
 
-    // Getters
+    // 捕获宝藏功能
+    public boolean captureTreasure() {
+        if (!currentTile.isTreasureSite()) return false;
+
+        Treasure.Type treasureType = currentTile.getTreasureType();
+        if (treasureType != null && hasCardsOfType(treasureType, 4)) {
+            discardCards(treasureType, 4);
+            capturedTreasures.add(treasureType); // 类型匹配
+            return true;
+        }
+        return false;
+    }
+
+    public void receiveCard(Card card) {
+        hand.add(card);
+    }
+
+
+
+    //Getters
     public Tile getCurrentTile() { return currentTile; }
     public int getActionsRemaining() { return actionsRemaining; }
+    public List<Card> getHand() { return new ArrayList<>(hand); }
+    public List<Treasure.Type> getCapturedTreasures() { return new ArrayList<>(capturedTreasures); }
 }

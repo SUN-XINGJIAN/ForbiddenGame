@@ -1,6 +1,6 @@
 package player;
 
-import map.Tile;
+import canvas.Tile;
 
 public class Diver extends Player{
     public Diver(String name, Tile startingTile) {
