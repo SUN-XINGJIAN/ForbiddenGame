@@ -17,7 +17,8 @@ public class ScreenController {
     @FXML
     private Button move;
 
-
+    @FXML
+    private Button SelectFloodCards;
 
     // 声明一个PawnCanvas对象，用于绘制棋盘
     private ForbiddenGameStarted forbiddenGameStarted;
@@ -43,4 +44,9 @@ public class ScreenController {
     public Button getMove() {
         return move;
     }
+
+    public Button getSelectFloodCards() {
+        return SelectFloodCards;
+    }
+
 }
