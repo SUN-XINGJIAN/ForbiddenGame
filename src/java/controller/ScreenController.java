@@ -14,14 +14,11 @@ public class ScreenController {
     @FXML
     private Pane mainBoard;
 
-    // 声明一个Button对象，用于触发事件
-    @FXML
-    private Button button1;
-
     @FXML
     private Button move;
 
-
+    @FXML
+    private Button SelectFloodCards;
 
     // 声明一个PawnCanvas对象，用于绘制棋盘
     private ForbiddenGameStarted forbiddenGameStarted;
@@ -35,7 +32,6 @@ public class ScreenController {
         forbiddenGameStarted = new ForbiddenGameStarted(this);
 
 
-
     }
 
 
@@ -43,13 +39,14 @@ public class ScreenController {
         return mainBoard;
     }
 
-    public Button getButton1() {
-        return button1;
-    }
-
 
 
     public Button getMove() {
         return move;
     }
+
+    public Button getSelectFloodCards() {
+        return SelectFloodCards;
+    }
+
 }
