@@ -4,6 +4,7 @@ import canvas.PawnCanvas;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import logic.ForbiddenGameStarted;
@@ -20,6 +21,9 @@ public class ScreenController {
     @FXML
     private Button SelectFloodCards;
 
+    @FXML
+    private Button saveTheIsland;
+
     // 声明一个PawnCanvas对象，用于绘制棋盘
     private ForbiddenGameStarted forbiddenGameStarted;
 
@@ -33,6 +37,14 @@ public class ScreenController {
 
 
     }
+
+    @FXML
+    public Button getSaveTheIsland() {
+        return saveTheIsland;
+    }
+
+    @FXML
+    private Label messageLabel;
 
 
     public Pane getMainBoard() {

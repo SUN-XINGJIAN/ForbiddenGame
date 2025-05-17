@@ -1,6 +1,6 @@
 package player;
 
-import canvas.Tile;
+import board.Tile;
 
 public class Engineer extends Player{
 

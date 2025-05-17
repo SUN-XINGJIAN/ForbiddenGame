@@ -1,6 +1,5 @@
-package canvas;
+package board;
 
-import board.Treasure;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
@@ -53,9 +52,9 @@ public class Tile extends Canvas {
     // **下面的是新加的，为其他类正确运行所需要的方法，还没有进行整理
     // 为进行player类的书写：tile类需实现：
     // 坐标系统相关方法
-    public static boolean isAdjacent(canvas.Tile other) { return false;}
-    public boolean isDiagonallyAdjacent(canvas.Tile other) { return false;} // Explorer
-    public static boolean isPathValidForDiver(canvas.Tile target) {
+    public static boolean isAdjacent(Tile other) { return false;}
+    public boolean isDiagonallyAdjacent(Tile other) { return false;} // Explorer
+    public static boolean isPathValidForDiver(Tile target) {
         return false;
     } // Diver
 

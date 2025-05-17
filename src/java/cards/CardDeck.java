@@ -1,6 +1,6 @@
 package cards;
 
-import canvas.Tile;
+import board.Tile;
 
 import java.util.Collections;
 import java.util.List;

@@ -1,6 +1,6 @@
 package player;
 
-import canvas.Tile;
+import board.Tile;
 
 public class Navigator extends Player{
     public Navigator(String name, Tile startingTile) {

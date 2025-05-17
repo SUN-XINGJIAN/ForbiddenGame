@@ -1,7 +1,7 @@
 package player;
 
 import board.Treasure;
-import canvas.Tile;
+import board.Tile;
 import cards.Card;
 import cards.TreasureCard;
 

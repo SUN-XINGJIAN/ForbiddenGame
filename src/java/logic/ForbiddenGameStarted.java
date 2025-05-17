@@ -2,9 +2,13 @@ package logic;
 
 import canvas.PawnCanvas;
 import controller.ScreenController;
+import javafx.animation.PauseTransition;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
-import canvas.Tile;
+import board.Tile;
+import javafx.scene.layout.Region;
+import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,6 +24,8 @@ public class ForbiddenGameStarted {
     private boolean isMoveMode = false;
     private int[] random1= new int[24];
     private List<Tile> tiles = new ArrayList<>();
+    private boolean isSaveMode = false; // 是否进入 "save the island" 模式
+    private Label messageLabel;
 
     public ForbiddenGameStarted(ScreenController screenController) {
         // 初始化random1数组
@@ -57,6 +63,17 @@ public class ForbiddenGameStarted {
         // 为SelectFloodCards按钮添加点击事件处理程序
         screenController.getSelectFloodCards().setOnAction(event -> {
             selectRandomTile(); // 随机选择一个Tile并更改状态
+        });
+
+        screenController.getSaveTheIsland().setOnAction(event -> {
+            isSaveMode = !isSaveMode; // 切换保存模式
+            if (isSaveMode) {
+                screenController.getSaveTheIsland().setText("Cancel Save");
+                enableSaveMode(); // 启动保存模式
+            } else {
+                screenController.getSaveTheIsland().setText("Save the Island");
+                disableSaveMode(); // 取消保存模式
+            }
         });
 
     }
@@ -97,6 +114,8 @@ public class ForbiddenGameStarted {
 
 
 
+
+
     }
 
     private void drawPawn() {
@@ -118,7 +137,6 @@ public class ForbiddenGameStarted {
             // 如果 state >= 2，从列表和 UI 中移除
             tiles.remove(selectedTile); // 从列表中移除
             mainBoard.getChildren().remove(selectedTile); // 从 UI 中移除
-            System.out.println("Tile removed: " + selectedTile); // 打印日志
         } else {
             selectedTile.draw(); // 重新绘制
         }
@@ -152,7 +170,7 @@ public class ForbiddenGameStarted {
                         isMoveMode = false;
                         screenController.getMove().setText("Move");
                     } else {
-                        System.out.println("Target tile is not adjacent!");
+                        showMessage("Target tile is not adjacent!");
                     }
                 });
             }
@@ -161,4 +179,88 @@ public class ForbiddenGameStarted {
 
 
 
+
+    private void enableSaveMode() {
+        // 为所有 Tile 添加点击事件
+        for (Tile tile : tiles) {
+            tile.setOnMouseClicked(event -> handleTileSave(tile)); // 添加鼠标点击事件
+        }
+    }
+
+    private void disableSaveMode() {
+        // 禁用所有 Tile 的点击事件
+        for (Tile tile : tiles) {
+            tile.setOnMouseClicked(null); // 移除鼠标点击事件
+        }
+    }
+
+    private void handleTileSave(Tile tile) {
+        if (!isSaveMode) return; // 如果不在保存模式，则返回
+
+        int targetX = (int) tile.getLayoutX();
+        int targetY = (int) tile.getLayoutY();
+
+        int currX = (int) pawnCanvas.getLayoutX();
+        int currY = (int) pawnCanvas.getLayoutY();
+
+        int tileSize = 50;
+
+        boolean isAdjacentOrSame =
+                (Math.abs(targetX - currX) == tileSize && targetY == currY) ||
+                        (Math.abs(targetY - currY) == tileSize && targetX == currX) ||
+                        (targetX == currX && targetY == currY);
+
+        if (!isAdjacentOrSame) {
+            showMessage("The island is too far to save!");
+            isSaveMode = false;
+            screenController.getSaveTheIsland().setText("Save the Island");
+            disableSaveMode();
+            return;
+        }
+
+        if (tile.getState() == 1) {
+            tile.setState(0);
+            tile.draw();
+
+            showMessage("Island saved successfully!");
+            isSaveMode = false;
+            screenController.getSaveTheIsland().setText("Save the Island");
+            disableSaveMode();
+        } else {
+            showMessage("The island has either submerged or has not been flooded!");
+            isSaveMode = false;
+            screenController.getSaveTheIsland().setText("Save the Island");
+            disableSaveMode();
+        }
+    }
+
+
+    private void showMessage(String message) {
+        if (messageLabel == null) {
+            messageLabel = new Label();
+            messageLabel.setLayoutX(409.0);
+            messageLabel.setLayoutY(23.0);
+            messageLabel.setWrapText(true);
+
+            mainBoard.getChildren().add(messageLabel);
+        }
+
+        messageLabel.setText(message);
+
+        // 动态调整宽度和高度
+        messageLabel.setPrefWidth(200.0); // 设置最大宽度
+        messageLabel.setPrefHeight(Region.USE_COMPUTED_SIZE); // 根据内容自动计算高度
+
+        messageLabel.setVisible(true);
+
+        PauseTransition pause = new PauseTransition(Duration.seconds(2));
+        pause.setOnFinished(event -> messageLabel.setVisible(false));
+        pause.play();
+    }
+
+
+
 }
+
+
+

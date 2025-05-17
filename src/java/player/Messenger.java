@@ -1,6 +1,6 @@
 package player;
 
-import canvas.Tile;
+import board.Tile;
 
 public class Messenger extends Player{
     public Messenger(String name, Tile startingTile) {

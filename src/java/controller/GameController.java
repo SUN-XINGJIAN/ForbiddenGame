@@ -1,6 +1,6 @@
 package controller;
 
-import canvas.Tile;
+import board.Tile;
 import player.Player;
 
 public class GameController {

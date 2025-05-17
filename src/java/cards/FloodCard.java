@@ -1,6 +1,6 @@
 package cards;
 
-import canvas.Tile;
+import board.Tile;
 
 public class FloodCard extends Card{
     private final Tile targetTile; // 需要 board.Tile 类
