@@ -3,8 +3,11 @@ package logic;
 import canvas.PawnCanvas;
 import controller.ScreenController;
 import javafx.animation.PauseTransition;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import board.Tile;
 import javafx.scene.layout.Region;
@@ -140,6 +143,9 @@ public class ForbiddenGameStarted {
         } else {
             selectedTile.draw(); // 重新绘制
         }
+
+        // 在 FloodDeck 后面绘制选中的 Tile 的图片
+        drawFloodedTileOnDeck(selectedTile);
     }
 
 
@@ -178,6 +184,36 @@ public class ForbiddenGameStarted {
     }
 
 
+    private void drawFloodedTileOnDeck(Tile tile) {
+        // 获取 FloodDeck 的位置
+        double floodDeckX = screenController.getFloodDeck().getLayoutX();
+        double floodDeckY = screenController.getFloodDeck().getLayoutY();
+        double floodDeckWidth = 30;
+        double floodDeckHeight = 69;
+
+        // 计算新图片的偏移位置（每次向右偏移一定距离）
+        int offset = 30; // 每张图片的水平偏移量
+        int currentImageCount = (int) mainBoard.getChildren().stream()
+                .filter(node -> node instanceof Canvas && node.getLayoutY() == floodDeckY)
+                .count();
+
+        double newImageX = floodDeckX + offset * currentImageCount + 50;
+        double newImageY = floodDeckY;
+
+        // 创建一个新的 Canvas，用于绘制 Tile 的图片
+        Canvas floodedTileCanvas = new Canvas(floodDeckWidth, floodDeckHeight);
+        floodedTileCanvas.setLayoutX(newImageX);
+        floodedTileCanvas.setLayoutY(newImageY);
+
+        GraphicsContext gc = floodedTileCanvas.getGraphicsContext2D();
+
+        // 根据 Tile 的状态绘制正确的图片
+        String tileImagePath = tile.getTileName1();
+        gc.drawImage(new Image(getClass().getResourceAsStream(tileImagePath)), 0, 0, floodDeckWidth, floodDeckHeight);
+
+        // 将新的 Canvas 添加到主 Pane（mainBoard）中
+        mainBoard.getChildren().add(floodedTileCanvas);
+    }
 
 
     private void enableSaveMode() {

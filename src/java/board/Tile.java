@@ -6,13 +6,14 @@ import javafx.scene.image.Image;
 
 public class Tile extends Canvas {
     private String tileName1,tileName2;
+    private int num;
     private int state;
 
     public Tile(int number, int x, int y){
         super(50,50);
         this.setLayoutX(x);
         this.setLayoutY(y);
-
+        num = number;
             tileName1 = "/image/Tiles/" + number + ".png";
 
             tileName2 = "/image/SubmersedTiles/" + number + ".png";
@@ -45,6 +46,11 @@ public class Tile extends Canvas {
 
     public void incrementState() {
         this.state++;
+    }
+
+
+    public String getTileName1() {
+        return tileName1;
     }
 
 
@@ -103,5 +109,9 @@ public class Tile extends Canvas {
     private boolean isTreasureSite;
     public boolean isTreasureSite() {
         return isTreasureSite;
+    }
+
+    public String getName() {
+        return String.valueOf(num);
     }
 }
