@@ -36,7 +36,7 @@ public class ForbiddenGameStarted {
     private Label messageLabel;
     private List<Canvas> floodedTileCanvases = new ArrayList<>(); // 用于保存 FloodDeck 后面的所有图片
     private List<TreasureCard> DiverBag = new ArrayList<>(); // 用于保存 TreasureDeck 后面的所有图片
-    private int currentWaterMeterIndex = 0;
+    private int currentWaterMeterIndex = 1;
 
 
     public ForbiddenGameStarted(ScreenController screenController) {
@@ -149,8 +149,8 @@ public class ForbiddenGameStarted {
         WaterMeter waterMeter9 = new WaterMeter(8);
         Collections.addAll(waterMeters, waterMeter1, waterMeter2, waterMeter3, waterMeter4, waterMeter5, waterMeter6, waterMeter7, waterMeter8, waterMeter9);
 
-        mainBoard.getChildren().addAll(waterMeter1);
-        waterMeter1.draw();
+        mainBoard.getChildren().addAll(waterMeter2);
+        waterMeter2.draw();
 
     }
 
@@ -170,25 +170,45 @@ public class ForbiddenGameStarted {
     }
 
     private void selectRandomTile() {
-        if (tiles.isEmpty()) return; // 确保列表不为空
+        if (tiles.isEmpty()) return; // 如果没有岛屿，直接返回
 
         Random random = new Random();
-        int randomIndex = random.nextInt(tiles.size());
-        Tile selectedTile = tiles.get(randomIndex);
 
-        selectedTile.incrementState(); // 增加状态值
+        // 根据当前 WaterMeter 的 stage 值，决定淹没的岛屿数量
+        int floodCount = waterMeters.get(currentWaterMeterIndex).getStage();
 
-        if (selectedTile.getState() >= 2) {
-            // 如果 state >= 2，从列表和 UI 中移除
-            tiles.remove(selectedTile); // 从列表中移除
-            mainBoard.getChildren().remove(selectedTile); // 从 UI 中移除
-        } else {
-            selectedTile.draw(); // 重新绘制
+        // 创建一个临时列表，用于存储已经选中的岛屿
+        List<Tile> selectedTiles = new ArrayList<>();
+
+        for (int i = 0; i < floodCount; i++) {
+            // 随机选择一个岛屿
+            int randomIndex = random.nextInt(tiles.size());
+            Tile selectedTile = tiles.get(randomIndex);
+
+            // 增加状态值
+            selectedTile.incrementState();
+
+            if (selectedTile.getState() >= 2) {
+                // 如果 state >= 2，从列表和 UI 中移除
+                tiles.remove(selectedTile); // 从列表中移除
+                mainBoard.getChildren().remove(selectedTile); // 从 UI 中移除
+            } else {
+                selectedTile.draw(); // 重新绘制
+            }
+
+            // 在 FloodDeck 后面绘制选中的 Tile 的图片
+            drawFloodedTileOnDeck(selectedTile);
+
+            // 将选中的岛屿加入临时列表，并从原列表中移除，避免重复选择
+            selectedTiles.add(selectedTile);
+            tiles.remove(selectedTile);
         }
 
-        // 在 FloodDeck 后面绘制选中的 Tile 的图片
-        drawFloodedTileOnDeck(selectedTile);
+        // 将临时列表中的岛屿重新加入原列表，以恢复完整的岛屿状态
+        tiles.addAll(selectedTiles);
     }
+
+
 
 
     private void enableTileMovement() {

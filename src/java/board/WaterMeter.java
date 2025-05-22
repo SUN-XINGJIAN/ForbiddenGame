@@ -12,12 +12,14 @@ public class WaterMeter extends Canvas {
         this.setLayoutX(541);
         this.setLayoutY(194);
         pictureName = "/image/WaterMeter/" + number + ".png";
-        if(number <= 2 && number >= 0){
-            stage = 1;
-        }else if(number <= 5 && number >= 3){
+        if(number <= 2 && number >= 1){
             stage = 2;
-        }else if(number <= 9 && number >= 6){
+        }else if(number <= 5 && number >= 3){
             stage = 3;
+        }else if(number <= 7 && number >= 6){
+            stage = 4;
+        }else if(number <= 9 && number >= 8){
+            stage = 5;
         }
     }
 
