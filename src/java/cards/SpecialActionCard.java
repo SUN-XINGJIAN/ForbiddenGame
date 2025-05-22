@@ -4,11 +4,10 @@ public class SpecialActionCard extends Card{
     private final SpecialActionCardType actionType;
 
     public SpecialActionCard(SpecialActionCardType actionType) {
-        super(CardType.SPECIAL_ACTION, "Action: " + actionType.name());
+        super();
         this.actionType = actionType;
     }
 
-    @Override
     public void playEffect() {
         // 需要 GameController 实现具体效果：
         // - HELICOPTER_LIFT: 调用 GameController.helicopterTransport()

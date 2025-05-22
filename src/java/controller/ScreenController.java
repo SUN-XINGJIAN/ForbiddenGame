@@ -3,6 +3,7 @@ package controller;
 import canvas.PawnCanvas;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
@@ -23,7 +24,13 @@ public class ScreenController {
     private ImageView FloodDeck;
 
     @FXML
+    private ImageView DiverBag;
+
+    @FXML
     private Button SelectFloodCards;
+
+    @FXML
+    private Button TurnOver;
 
     @FXML
     private Button saveTheIsland;
@@ -51,6 +58,10 @@ public class ScreenController {
         return FloodDeck;
     }
 
+    public ImageView getDiverBag() {
+        return DiverBag;
+    }
+
     @FXML
     private Label messageLabel;
 
@@ -68,5 +79,8 @@ public class ScreenController {
     public Button getSelectFloodCards() {
         return SelectFloodCards;
     }
+
+    public Button getTurnOver() {return TurnOver;}
+
 
 }

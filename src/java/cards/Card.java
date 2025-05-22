@@ -1,17 +1,36 @@
 package cards;
 
-public abstract class Card {
-    protected final CardType type;
-    protected final String name;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 
-    protected Card(CardType type, String name) {
-        this.type = type;
-        this.name = name;
+//public abstract class Card {
+//    protected final CardType type;
+//    protected final String name;
+//
+//    protected Card(CardType type, String name) {
+//        this.type = type;
+//        this.name = name;
+//    }
+//
+//    public abstract void playEffect();
+//
+//    // Getters
+//    public CardType getType() { return type; }
+//    public String getName() { return name; }
+//}
+public class Card extends Canvas {
+
+    public String cardname;
+
+    public Card(){
+        super(30,50);
     }
 
-    public abstract void playEffect();
+    public void draw(){
 
-    // Getters
-    public CardType getType() { return type; }
-    public String getName() { return name; }
+        GraphicsContext gc = getGraphicsContext2D();
+        gc.clearRect(0, 0, getWidth(), getHeight());
+        gc.drawImage(new Image(getClass().getResourceAsStream(cardname)), 0, 0, getWidth(), getHeight());
+    }
 }

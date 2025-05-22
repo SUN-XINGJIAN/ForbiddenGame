@@ -1,8 +1,10 @@
 package logic;
 
 import canvas.PawnCanvas;
+import cards.TreasureCard;
 import controller.ScreenController;
 import javafx.animation.PauseTransition;
+import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
@@ -27,9 +29,12 @@ public class ForbiddenGameStarted {
     private boolean isMoveMode = false;
     private int[] random1= new int[24];
     private List<Tile> tiles = new ArrayList<>();
+    private List<TreasureCard> treasureCards = new ArrayList<>();
     private boolean isSaveMode = false; // 是否进入 "save the island" 模式
     private Label messageLabel;
     private List<Canvas> floodedTileCanvases = new ArrayList<>(); // 用于保存 FloodDeck 后面的所有图片
+    private List<TreasureCard> DiverBag = new ArrayList<>(); // 用于保存 TreasureDeck 后面的所有图片
+    private Button turnOverButton;
 
 
     public ForbiddenGameStarted(ScreenController screenController) {
@@ -81,6 +86,10 @@ public class ForbiddenGameStarted {
             }
         });
 
+        screenController.getTurnOver().setOnAction(event -> {
+            handleTurnOver();
+        });
+
     }
 
     private void initializeGame() {
@@ -111,17 +120,31 @@ public class ForbiddenGameStarted {
         // 将所有Tile对象添加到tiles列表中
         Collections.addAll(tiles, tile1, tile2, tile3, tile4, tile5, tile24, tile6, tile7, tile8, tile9, tile10, tile11, tile12, tile13, tile14, tile15, tile16, tile17, tile18, tile19, tile20, tile21, tile22, tile23);
 
+
+        TreasureCard soil = new TreasureCard(0);
+        TreasureCard cloud = new TreasureCard(5);
+        TreasureCard water = new TreasureCard(10);
+        TreasureCard fire = new TreasureCard(15);
+        TreasureCard helicopter = new TreasureCard(20);
+        TreasureCard sandbags = new TreasureCard(23);
+        TreasureCard waterrise = new TreasureCard(26);
+        Collections.addAll(treasureCards,soil,cloud, water, fire, helicopter, sandbags, waterrise);
+
         mainBoard.getChildren().addAll(tiles);
         for (Tile tile : tiles) {
             tile.draw();
         }
         drawPawn();
-
-
-
-
-
     }
+
+    private void setAllControlsDisabled(boolean disable) {
+        for (Node node : mainBoard.getChildren()) {
+            if (node instanceof Button || node instanceof Canvas) {
+                node.setDisable(disable); // 禁用或启用控件
+            }
+        }
+    }
+
 
     private void drawPawn() {
         pawnCanvas = new PawnCanvas(282, 194);
@@ -341,8 +364,112 @@ public class ForbiddenGameStarted {
     }
 
 
+    private void handleTurnOver() {
+        // 根据概率分配宝藏牌
+        List<TreasureCard> availableCards = new ArrayList<>();
+
+        // 每种宝藏牌按其概率加入到 availableCards 中
+        for (int i = 0; i < 5; i++) availableCards.add(new TreasureCard(0)); // soil
+        for (int i = 0; i < 5; i++) availableCards.add(new TreasureCard(5)); // cloud
+        for (int i = 0; i < 5; i++) availableCards.add(new TreasureCard(10)); // water
+        for (int i = 0; i < 5; i++) availableCards.add(new TreasureCard(15)); // fire
+        for (int i = 0; i < 3; i++) availableCards.add(new TreasureCard(20)); // helicopter
+        for (int i = 0; i < 3; i++) availableCards.add(new TreasureCard(26)); // waterrise
+        for (int i = 0; i < 2; i++) availableCards.add(new TreasureCard(23)); // sandbags
+
+        // 随机抽取两个宝藏牌
+        Random random = new Random();
+        TreasureCard card1 = availableCards.get(random.nextInt(availableCards.size()));
+        TreasureCard card2 = availableCards.get(random.nextInt(availableCards.size()));
+
+        DiverBag.add(card1);
+        DiverBag.add(card2);
+
+        drawAllTreasureCards();
+
+        if (DiverBag.size() > 5) {
+            promptDiscardCards();  // 弹出丢弃界面
+        }
+    }
+
+    private void promptDiscardCards() {
+        showMessage("You have too many cards! Please discard until only 5 remain.");
+
+        // 禁用所有其他控件
+        setAllControlsDisabled(true);
+
+        double centerX = mainBoard.getWidth() / 2;
+        double discardAreaY = screenController.getDiverBag().getLayoutY() - 150;
+
+        double cardWidth = 80;
+        double cardHeight = 120;
+        int offset = 90;
+
+        for (int i = 0; i < DiverBag.size(); i++) {
+            TreasureCard card = DiverBag.get(i);
+            double x = centerX - (DiverBag.size() * offset) / 2 + offset * i;
+            double y = discardAreaY;
+
+            Canvas cardCanvas = new Canvas(cardWidth, cardHeight);
+            cardCanvas.setLayoutX(x);
+            cardCanvas.setLayoutY(y);
+            cardCanvas.setUserData("discard");
+
+            GraphicsContext gc = cardCanvas.getGraphicsContext2D();
+            gc.drawImage(new Image(getClass().getResourceAsStream(card.cardname)), 0, 0, cardWidth, cardHeight);
+
+            // 每个卡片都可点击丢弃
+            int index = i;
+            cardCanvas.setOnMouseClicked(e -> confirmDiscard(index));
+
+            mainBoard.getChildren().add(cardCanvas);
+        }
+    }
+
+
+
+    private void confirmDiscard(int index) {
+        DiverBag.remove(index);
+
+        // 清除 discard 卡牌 UI
+        mainBoard.getChildren().removeIf(node -> "discard".equals(node.getUserData()));
+
+        drawAllTreasureCards();
+
+        if (DiverBag.size() > 5) {
+            promptDiscardCards();  // 继续丢弃
+        } else {
+            showMessage("You now have 5 cards or fewer.");
+
+            // 丢弃完成后，重新启用其他控件
+            setAllControlsDisabled(false);
+        }
+    }
+
+
+    private void drawAllTreasureCards() {
+        // 先移除旧的卡牌 Canvas
+        mainBoard.getChildren().removeIf(node -> node instanceof Canvas && "treasure".equals(node.getUserData()));
+
+        double diverBagX = screenController.getDiverBag().getLayoutX();
+        double diverBagY = screenController.getDiverBag().getLayoutY();
+        double cardWidth = 50;
+        double cardHeight = 69;
+        int offset = 50;
+
+        for (int i = 0; i < DiverBag.size(); i++) {
+            TreasureCard card = DiverBag.get(i);
+            double x = diverBagX + offset * i + 50;
+            double y = diverBagY;
+
+            Canvas cardCanvas = new Canvas(cardWidth, cardHeight);
+            cardCanvas.setLayoutX(x);
+            cardCanvas.setLayoutY(y);
+            cardCanvas.setUserData("treasure");  // 标记方便清除
+            GraphicsContext gc = cardCanvas.getGraphicsContext2D();
+            gc.drawImage(new Image(getClass().getResourceAsStream(card.cardname)), 0, 0, cardWidth, cardHeight);
+            mainBoard.getChildren().add(cardCanvas);
+        }
+    }
 
 }
-
-
-

@@ -6,11 +6,10 @@ public class FloodCard extends Card{
     private final Tile targetTile; // 需要 board.Tile 类
 
     public FloodCard(Tile tile) {
-        super(CardType.FLOOD, "Flood: " + tile.getPosition().toString());
+        super();
         this.targetTile = tile;
     }
 
-    @Override
     public void playEffect() {
         // 需要调用 Tile 类的双重淹没逻辑：
         if (targetTile.isFlooded()) {
