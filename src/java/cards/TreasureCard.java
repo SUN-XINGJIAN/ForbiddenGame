@@ -1,14 +1,38 @@
 package cards;
 
+import board.Tile;
 import board.Treasure;
 
 public class TreasureCard extends Card {
     public int num;
     private final Treasure.Type treasureType = null;
+    private Type type;
+
+    public String getImagePath() {
+        return cardname;
+    }
+
+    public enum Type {
+        SOIL, CLOUD, WATER, FIRE, HELICOPTER, SANDBAGS, WATERRISE
+    }
     public TreasureCard(int number) {
         cardname = "/image/TreasureCards/" + number + ".png";
         num = number;
+
+        switch (number) {
+            case 23:
+                this.type = Type.SANDBAGS;
+                break;
+            case 20:
+                this.type = Type.HELICOPTER;
+                break;
+        }
     }
+
+    public Type getType() {
+        return type;
+    }
+
     public Treasure.Type getTreasureType() { return treasureType; }
 
     public int getCardType() {

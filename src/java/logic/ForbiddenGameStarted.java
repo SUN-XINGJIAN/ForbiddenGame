@@ -16,10 +16,7 @@ import board.Tile;
 import javafx.scene.layout.Region;
 import javafx.util.Duration;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class ForbiddenGameStarted {
 
@@ -37,6 +34,8 @@ public class ForbiddenGameStarted {
     private List<Canvas> floodedTileCanvases = new ArrayList<>(); // 用于保存 FloodDeck 后面的所有图片
     private List<TreasureCard> DiverBag = new ArrayList<>(); // 用于保存 TreasureDeck 后面的所有图片
     private int currentWaterMeterIndex = 1;
+    private Button useSpecialCardButton;  // 用于触发使用特殊牌的按钮
+    private boolean isUsingSpecialCard = false; // 标记是否正在使用特殊牌
 
 
     public ForbiddenGameStarted(ScreenController screenController) {
@@ -90,6 +89,18 @@ public class ForbiddenGameStarted {
 
         screenController.getTurnOver().setOnAction(event -> {
             handleTurnOver();
+        });
+
+        useSpecialCardButton = new Button("Use Special Card");
+        useSpecialCardButton.setLayoutX(700);
+        useSpecialCardButton.setLayoutY(75);
+        useSpecialCardButton.setPrefWidth(120);
+        useSpecialCardButton.setPrefHeight(26);
+
+        mainBoard.getChildren().add(useSpecialCardButton); // 将按钮添加到 UI
+
+        useSpecialCardButton.setOnAction(event -> {
+            useSpecialCards(); // 触发特殊牌使用逻辑
         });
 
     }
@@ -539,4 +550,90 @@ public class ForbiddenGameStarted {
             showMessage("Water level is already at the maximum!");
         }
     }
+
+
+
+    private List<TreasureCard> getSpecialCards() {
+        List<TreasureCard> specialCards = new ArrayList<>();
+        for(TreasureCard card : DiverBag){
+            if(card.getType() == TreasureCard.Type.SANDBAGS){
+                specialCards.add(card);
+            }
+            if(card.getType() == TreasureCard.Type.HELICOPTER){
+                specialCards.add(card);
+            }
+        }
+        return specialCards;
+    }
+
+    private void useSpecialCards() {
+        showMessage("Choose the special card you want to use:");
+
+        double centerX = mainBoard.getWidth() / 2;
+        double discardAreaY = screenController.getDiverBag().getLayoutY() - 150;
+
+        double cardWidth = 80;
+        double cardHeight = 120;
+        int offset = 90;
+
+        for (int i = 0; i < getSpecialCards().size(); i++) {
+            TreasureCard card = getSpecialCards().get(i);
+            double x = 700 ;
+            double y = discardAreaY- (DiverBag.size() * offset) / 2 + offset * i - 30;
+
+            Canvas cardCanvas = new Canvas(cardWidth, cardHeight);
+            cardCanvas.setLayoutX(x);
+            cardCanvas.setLayoutY(y);
+            cardCanvas.setUserData("discard");
+
+            GraphicsContext gc = cardCanvas.getGraphicsContext2D();
+            gc.drawImage(new Image(getClass().getResourceAsStream(card.cardname)), 0, 0, cardWidth, cardHeight);
+
+            int index = i;
+            cardCanvas.setOnMouseClicked(e -> useThisCard(index));
+
+            mainBoard.getChildren().add(cardCanvas);
+        }
+    }
+
+    private void useThisCard(int index) {
+        List<TreasureCard> specialCards = getSpecialCards();
+        if (specialCards.get(index).getType() == TreasureCard.Type.SANDBAGS) {
+            for (Tile tile : tiles) {
+                tile.setOnMouseClicked(event -> {
+
+                    saveBySandbags(tile);
+                });
+            }
+        }
+    }
+
+    private void saveBySandbags(Tile tile) {
+
+        if (tile.getState() == 1) {
+            tile.setState(0);
+            tile.draw();
+
+            // 删除与当前 Tile 对应的图片
+            removeFloodedTileFromDeckByTile(tile);
+
+            showMessage("Island saved successfully!");
+            isSaveMode = false;
+            disableSaveMode();
+
+            for(TreasureCard card : DiverBag){
+                if(card.getType() == TreasureCard.Type.SANDBAGS){
+                    DiverBag.remove(card);
+                    break;
+                }
+            }
+            drawAllTreasureCards();
+            mainBoard.getChildren().removeIf(node -> "discard".equals(node.getUserData()));
+        } else {
+            showMessage("The island has either submerged or has not been flooded!");
+            isSaveMode = false;
+            disableSaveMode();
+        }
+    }
+
 }

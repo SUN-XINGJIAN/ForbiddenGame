@@ -21,6 +21,8 @@ public class Tile extends Canvas {
     }
 
 
+
+
     public void draw(){
         // 如果 state >= 2，不绘制
         if (state >= 2) {
