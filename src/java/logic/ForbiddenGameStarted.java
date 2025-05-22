@@ -29,6 +29,8 @@ public class ForbiddenGameStarted {
     private List<Tile> tiles = new ArrayList<>();
     private boolean isSaveMode = false; // 是否进入 "save the island" 模式
     private Label messageLabel;
+    private List<Canvas> floodedTileCanvases = new ArrayList<>(); // 用于保存 FloodDeck 后面的所有图片
+
 
     public ForbiddenGameStarted(ScreenController screenController) {
         // 初始化random1数组
@@ -193,9 +195,7 @@ public class ForbiddenGameStarted {
 
         // 计算新图片的偏移位置（每次向右偏移一定距离）
         int offset = 30; // 每张图片的水平偏移量
-        int currentImageCount = (int) mainBoard.getChildren().stream()
-                .filter(node -> node instanceof Canvas && node.getLayoutY() == floodDeckY)
-                .count();
+        int currentImageCount = floodedTileCanvases.size(); // 使用 floodedTileCanvases 的大小
 
         double newImageX = floodDeckX + offset * currentImageCount + 50;
         double newImageY = floodDeckY;
@@ -207,13 +207,56 @@ public class ForbiddenGameStarted {
 
         GraphicsContext gc = floodedTileCanvas.getGraphicsContext2D();
 
+        floodedTileCanvas.setUserData(tile.getTileName1());
+
         // 根据 Tile 的状态绘制正确的图片
         String tileImagePath = tile.getTileName1();
         gc.drawImage(new Image(getClass().getResourceAsStream(tileImagePath)), 0, 0, floodDeckWidth, floodDeckHeight);
 
         // 将新的 Canvas 添加到主 Pane（mainBoard）中
         mainBoard.getChildren().add(floodedTileCanvas);
+
+        // 将 Canvas 添加到列表中
+        floodedTileCanvases.add(floodedTileCanvas);
     }
+
+    private void removeFloodedTileFromDeckByTile(Tile tile) {
+        String tileImagePath = tile.getTileName1(); // 获取当前 Tile 的图片路径
+
+        // 遍历 floodedTileCanvases 列表，找到与 Tile 对应的 Canvas
+        for (int i = 0; i < floodedTileCanvases.size(); i++) {
+            Canvas canvas = floodedTileCanvases.get(i);
+
+            // 使用 UserData 存储图片路径
+            String canvasImagePath = (String) canvas.getUserData();
+
+            if (canvasImagePath != null && canvasImagePath.equals(tileImagePath)) {
+                // 从 UI 和列表中移除 Canvas
+                mainBoard.getChildren().remove(canvas);
+                floodedTileCanvases.remove(i);
+
+                // 更新剩余图片的位置
+                updateFloodDeckImagePositions();
+                break; // 找到后立即退出循环
+            }
+        }
+    }
+
+
+
+    private void updateFloodDeckImagePositions() {
+        double floodDeckX = screenController.getFloodDeck().getLayoutX();
+        double floodDeckY = screenController.getFloodDeck().getLayoutY();
+        int offset = 30;
+
+        for (int i = 0; i < floodedTileCanvases.size(); i++) {
+            Canvas canvas = floodedTileCanvases.get(i);
+            double newImageX = floodDeckX + offset * i + 50;
+            canvas.setLayoutX(newImageX);
+            canvas.setLayoutY(floodDeckY);
+        }
+    }
+
 
 
     private void enableSaveMode() {
@@ -257,6 +300,9 @@ public class ForbiddenGameStarted {
         if (tile.getState() == 1) {
             tile.setState(0);
             tile.draw();
+
+            // 删除与当前 Tile 对应的图片
+            removeFloodedTileFromDeckByTile(tile);
 
             showMessage("Island saved successfully!");
             isSaveMode = false;
