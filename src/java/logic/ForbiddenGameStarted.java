@@ -1,5 +1,6 @@
 package logic;
 
+import board.WaterMeter;
 import canvas.PawnCanvas;
 import cards.TreasureCard;
 import controller.ScreenController;
@@ -30,11 +31,12 @@ public class ForbiddenGameStarted {
     private int[] random1= new int[24];
     private List<Tile> tiles = new ArrayList<>();
     private List<TreasureCard> treasureCards = new ArrayList<>();
+    private List<WaterMeter> waterMeters = new ArrayList<>();
     private boolean isSaveMode = false; // 是否进入 "save the island" 模式
     private Label messageLabel;
     private List<Canvas> floodedTileCanvases = new ArrayList<>(); // 用于保存 FloodDeck 后面的所有图片
     private List<TreasureCard> DiverBag = new ArrayList<>(); // 用于保存 TreasureDeck 后面的所有图片
-    private Button turnOverButton;
+    private int currentWaterMeterIndex = 0;
 
 
     public ForbiddenGameStarted(ScreenController screenController) {
@@ -135,6 +137,21 @@ public class ForbiddenGameStarted {
             tile.draw();
         }
         drawPawn();
+
+        WaterMeter waterMeter1 = new WaterMeter(0);
+        WaterMeter waterMeter2 = new WaterMeter(1);
+        WaterMeter waterMeter3 = new WaterMeter(2);
+        WaterMeter waterMeter4 = new WaterMeter(3);
+        WaterMeter waterMeter5 = new WaterMeter(4);
+        WaterMeter waterMeter6 = new WaterMeter(5);
+        WaterMeter waterMeter7 = new WaterMeter(6);
+        WaterMeter waterMeter8 = new WaterMeter(7);
+        WaterMeter waterMeter9 = new WaterMeter(8);
+        Collections.addAll(waterMeters, waterMeter1, waterMeter2, waterMeter3, waterMeter4, waterMeter5, waterMeter6, waterMeter7, waterMeter8, waterMeter9);
+
+        mainBoard.getChildren().addAll(waterMeter1);
+        waterMeter1.draw();
+
     }
 
     private void setAllControlsDisabled(boolean disable) {
@@ -382,8 +399,20 @@ public class ForbiddenGameStarted {
         TreasureCard card1 = availableCards.get(random.nextInt(availableCards.size()));
         TreasureCard card2 = availableCards.get(random.nextInt(availableCards.size()));
 
-        DiverBag.add(card1);
-        DiverBag.add(card2);
+
+
+        // 检查是否抽到了 waterrise 卡片
+        if (card1.getCardType() == 26 ) {
+            updateWaterMeter();
+        }else{
+            DiverBag.add(card1);
+        }
+
+        if(card2.getCardType() == 26){
+            updateWaterMeter();
+        }else{
+            DiverBag.add(card2);
+        }
 
         drawAllTreasureCards();
 
@@ -472,4 +501,22 @@ public class ForbiddenGameStarted {
         }
     }
 
+    private void updateWaterMeter() {
+        if (currentWaterMeterIndex < waterMeters.size() - 1) {
+            // 从主 Pane 中移除当前 WaterMeter
+            mainBoard.getChildren().remove(waterMeters.get(currentWaterMeterIndex));
+
+            // 更新索引到下一个 WaterMeter
+            currentWaterMeterIndex++;
+
+            // 添加新的 WaterMeter 到主 Pane
+            WaterMeter nextWaterMeter = waterMeters.get(currentWaterMeterIndex);
+            nextWaterMeter.draw();
+            mainBoard.getChildren().add(nextWaterMeter);
+
+            showMessage("Water level has risen!");
+        } else {
+            showMessage("Water level is already at the maximum!");
+        }
+    }
 }

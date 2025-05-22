@@ -15,11 +15,6 @@
                <Image url="@../image/Map/Arena.jpg" />
             </image>
          </ImageView>
-         <ImageView fitHeight="315.0" fitWidth="105.0" layoutX="541.0" layoutY="194.0" pickOnBounds="true" preserveRatio="true">
-            <image>
-               <Image url="@../image/WaterMeter/0.png" />
-            </image>
-         </ImageView>
          <ImageView fx:id="DiverBag" fitHeight="77.0" fitWidth="50.0" layoutX="124.0" layoutY="517.0" pickOnBounds="true" preserveRatio="true">
             <image>
                <Image url="@../image/Adventurers/Diver.png" />
