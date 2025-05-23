@@ -3,17 +3,15 @@ package canvas;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import player.PlayerRole;
 
 public class PawnCanvas extends Canvas {
-    private int x,y;
-    private PlayerRole role;
 
-    public PawnCanvas(int x, int y, PlayerRole role) {
+    private int x,y;
+
+    public PawnCanvas(int x, int y) {
         super(20, 50);
         this.x = x;
         this.y = y;
-        this.role = role;
         this.setLayoutX(x);
         this.setLayoutY(y);
 
@@ -21,7 +19,7 @@ public class PawnCanvas extends Canvas {
     public void draw(){
         GraphicsContext gc = getGraphicsContext2D();
         gc.clearRect(0, 0, getWidth(), getHeight());
-        gc.drawImage(new Image(getClass().getResourceAsStream(role.getImagePath())), 0, 0, getWidth(), getHeight());
+        gc.drawImage(new Image(getClass().getResourceAsStream("/image/Pawns/@2x/Diver@2x.png")),0,0,getWidth(),getHeight());
     }
 
 

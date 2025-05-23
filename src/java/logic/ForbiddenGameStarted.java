@@ -16,10 +16,8 @@ import javafx.scene.layout.Pane;
 import board.Tile;
 import javafx.scene.layout.Region;
 import javafx.util.Duration;
-import player.PlayerRole;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static cards.TreasureCard.Type.*;
 
@@ -42,12 +40,9 @@ public class ForbiddenGameStarted {
     private int currentWaterMeterIndex = 1;
     private Button useSpecialCardButton;  // 用于触发使用特殊牌的按钮
     private boolean isUsingSpecialCard = false; // 标记是否正在使用特殊牌
-    private List<PawnCanvas> pawns = new ArrayList<>();
-    private int playerCount;
 
 
-    public ForbiddenGameStarted(ScreenController screenController, int playerCount) {
-        this.playerCount = playerCount;
+    public ForbiddenGameStarted(ScreenController screenController) {
         // 初始化random1数组
         random1 = new int[24];
         List<Integer> numbers = new ArrayList<>();
@@ -156,9 +151,7 @@ public class ForbiddenGameStarted {
         for (Tile tile : tiles) {
             tile.draw();
         }
-//        drawPawn();
-//
-//        generatePlayers();
+        drawPawn();
 
         WaterMeter waterMeter1 = new WaterMeter(0);
         WaterMeter waterMeter2 = new WaterMeter(1);
@@ -182,52 +175,7 @@ public class ForbiddenGameStarted {
 
         Collections.addAll(treasures, treasure1, treasure2, treasure3, treasure4);
         mainBoard.getChildren().addAll(treasures);
-        generatePlayers();
 
-    }
-
-    private void generatePlayers() {
-        pawns.forEach(pawn -> mainBoard.getChildren().remove(pawn));
-        pawns.clear();
-
-        List<PlayerRole> roles = new ArrayList<>(Arrays.asList(PlayerRole.values()));
-        Collections.shuffle(roles);
-
-        List<Tile> availableTiles = tiles.stream()
-                .filter(t -> t.getState() < 2 && !t.isRemoved())
-                .collect(Collectors.toList());
-
-        // 确保有足够的可用Tile
-        if (availableTiles.size() < playerCount) {
-            throw new IllegalStateException("Not enough available tiles for players");
-        }
-        Collections.shuffle(availableTiles);
-
-        // 生成玩家
-        for (int i = 0; i < playerCount; i++) {
-            PlayerRole role = roles.get(i);
-            Tile startTile = availableTiles.get(i);
-
-            PawnCanvas pawn = new PawnCanvas(
-                    startTile.getPositionX() + 30,
-                    startTile.getPositionY(),
-                    role
-            );
-            pawns.add(pawn);
-            mainBoard.getChildren().add(pawn);
-            pawn.draw();
-        }
-    }
-
-    public void cleanUp() {
-        // 清理所有玩家实例
-        pawns.forEach(pawn -> mainBoard.getChildren().remove(pawn));
-        pawns.clear();
-
-        // 清理其他游戏资源
-        mainBoard.getChildren().removeAll(tiles);
-        mainBoard.getChildren().removeAll(waterMeters);
-        mainBoard.getChildren().removeAll(treasures);
     }
 
     private void setAllControlsDisabled(boolean disable) {
@@ -239,11 +187,11 @@ public class ForbiddenGameStarted {
     }
 
 
-//    private void drawPawn() {
-//        pawnCanvas = new PawnCanvas(312, 194);
-//        mainBoard.getChildren().add(pawnCanvas);
-//        pawnCanvas.draw();
-//    }
+    private void drawPawn() {
+        pawnCanvas = new PawnCanvas(312, 194);
+        mainBoard.getChildren().add(pawnCanvas);
+        pawnCanvas.draw();
+    }
 
     private void selectRandomTile() {
         if (tiles.isEmpty()) return; // 如果没有岛屿，直接返回
