@@ -114,7 +114,7 @@ public class Tile extends Canvas {
     }
 
     /* 返回坐标对象 */
-    public Boolean getPosition() {
+    public boolean getPosition() {
         return false;
     }
 

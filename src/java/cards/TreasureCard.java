@@ -1,6 +1,5 @@
 package cards;
 
-import board.Tile;
 import board.Treasure;
 
 public class TreasureCard extends Card {
