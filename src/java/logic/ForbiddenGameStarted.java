@@ -188,7 +188,7 @@ public class ForbiddenGameStarted {
 
 
     private void drawPawn() {
-        pawnCanvas = new PawnCanvas(282, 194);
+        pawnCanvas = new PawnCanvas(312, 194);
         mainBoard.getChildren().add(pawnCanvas);
         pawnCanvas.draw();
     }
@@ -245,7 +245,7 @@ public class ForbiddenGameStarted {
                     int targetX = (int) tile.getLayoutX();
                     int targetY = (int) tile.getLayoutY();
 
-                    int currX = (int) pawnCanvas.getLayoutX();
+                    int currX = (int) pawnCanvas.getLayoutX()-30;
                     int currY = (int) pawnCanvas.getLayoutY();
 
                     int tileSize = 50;
@@ -255,7 +255,7 @@ public class ForbiddenGameStarted {
                                     (Math.abs(targetY - currY) == tileSize && targetX == currX);
 
                     if (isAdjacent) {
-                        pawnCanvas.setLayoutX(targetX);
+                        pawnCanvas.setLayoutX(targetX+30);
                         pawnCanvas.setX(targetX);
                         pawnCanvas.setLayoutY(targetY);
                         pawnCanvas.setY(targetY);
@@ -671,9 +671,13 @@ public class ForbiddenGameStarted {
         mainBoard.getChildren().removeIf(node -> "discard".equals(node.getUserData()));
         drawAllTreasureCards();
 
-        pawnCanvas.setLayoutX(targetX);
+        pawnCanvas.setLayoutX(targetX+30);
+        pawnCanvas.setX(targetX);
         pawnCanvas.setLayoutY(targetY);
+        pawnCanvas.setY(targetY);
         pawnCanvas.draw();
+
+        checkTreasureSubmit();
     }
 
     public Tile getTileByPawn(PawnCanvas pawn) {
