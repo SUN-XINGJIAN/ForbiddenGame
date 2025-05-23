@@ -601,8 +601,14 @@ public class ForbiddenGameStarted {
         if (specialCards.get(index).getType() == TreasureCard.Type.SANDBAGS) {
             for (Tile tile : tiles) {
                 tile.setOnMouseClicked(event -> {
-
                     saveBySandbags(tile);
+                });
+            }
+        }
+        if (specialCards.get(index).getType() == TreasureCard.Type.HELICOPTER) {
+            for (Tile tile : tiles) {
+                tile.setOnMouseClicked(event -> {
+                    moveByHelicopter(tile);
                 });
             }
         }
@@ -636,4 +642,21 @@ public class ForbiddenGameStarted {
         }
     }
 
+    private void moveByHelicopter(Tile tile) {
+        int targetX = (int) tile.getLayoutX();
+        int targetY = (int) tile.getLayoutY();
+
+        for(TreasureCard card : DiverBag){
+            if(card.getType() == TreasureCard.Type.HELICOPTER){
+                DiverBag.remove(card);
+                break;
+            }
+        }
+        mainBoard.getChildren().removeIf(node -> "discard".equals(node.getUserData()));
+        drawAllTreasureCards();
+
+        pawnCanvas.setLayoutX(targetX);
+        pawnCanvas.setLayoutY(targetY);
+        pawnCanvas.draw();
+    }
 }
