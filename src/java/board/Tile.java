@@ -8,9 +8,12 @@ public class Tile extends Canvas {
     private String tileName1,tileName2;
     private int num;
     private int state;
+    private int positionX,positionY;
 
     public Tile(int number, int x, int y){
         super(50,50);
+        this.positionX = x;
+        this.positionY = y;
         this.setLayoutX(x);
         this.setLayoutY(y);
         num = number;
@@ -55,6 +58,13 @@ public class Tile extends Canvas {
         return tileName1;
     }
 
+    public int getPositionX(){
+        return positionX;
+    }
+
+    public int getPositionY(){
+        return positionY;
+    }
 
 
     // **下面的是新加的，为其他类正确运行所需要的方法，还没有进行整理

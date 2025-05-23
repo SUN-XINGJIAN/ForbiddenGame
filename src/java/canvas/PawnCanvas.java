@@ -10,6 +10,8 @@ public class PawnCanvas extends Canvas {
 
     public PawnCanvas(int x, int y) {
         super(20, 50);
+        this.x = x;
+        this.y = y;
         this.setLayoutX(x);
         this.setLayoutY(y);
 
@@ -27,7 +29,7 @@ public class PawnCanvas extends Canvas {
     public void setY(int y) {
         this.y = y;
     }
-    public  int getX() {
+    public int getX() {
         return x;
     }
     public  int getY() {

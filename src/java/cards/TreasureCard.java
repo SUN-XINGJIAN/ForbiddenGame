@@ -20,6 +20,18 @@ public class TreasureCard extends Card {
         num = number;
 
         switch (number) {
+            case 0:
+                this.type = Type.SOIL;
+                break;
+            case 5:
+                this.type = Type.CLOUD;
+                break;
+            case 10:
+                this.type = Type.FIRE;
+                break;
+            case 15:
+                this.type = Type.WATER;
+                break;
             case 23:
                 this.type = Type.SANDBAGS;
                 break;
