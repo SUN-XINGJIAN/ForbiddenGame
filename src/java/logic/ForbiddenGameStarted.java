@@ -366,7 +366,7 @@ public class ForbiddenGameStarted {
         int targetX = (int) tile.getLayoutX();
         int targetY = (int) tile.getLayoutY();
 
-        int currX = (int) pawnCanvas.getLayoutX();
+        int currX = (int) pawnCanvas.getLayoutX()-30;
         int currY = (int) pawnCanvas.getLayoutY();
 
         int tileSize = 50;
