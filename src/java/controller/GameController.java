@@ -1,7 +1,7 @@
 package controller;
 
 import board.Tile;
-import player.Player;
+import module.Player;
 
 public class GameController {
     // 特殊行动卡效果实现

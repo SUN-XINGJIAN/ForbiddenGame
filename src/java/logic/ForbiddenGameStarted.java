@@ -3,6 +3,7 @@ package logic;
 import board.Treasure;
 import board.WaterMeter;
 import canvas.PawnCanvas;
+import cards.Card;
 import cards.TreasureCard;
 import controller.ScreenController;
 import javafx.animation.PauseTransition;
@@ -16,6 +17,15 @@ import javafx.scene.layout.Pane;
 import board.Tile;
 import javafx.scene.layout.Region;
 import javafx.util.Duration;
+import module.*;
+import module.Diver;
+import module.Engineer;
+import module.Explorer;
+import module.Messenger;
+import module.Navigator;
+import module.Pilot;
+import module.Player;
+import module.PlayerBag;
 
 import java.util.*;
 
@@ -24,9 +34,7 @@ import static cards.TreasureCard.Type.*;
 public class ForbiddenGameStarted {
 
     private ScreenController screenController;
-    private PawnCanvas pawnCanvas;
     private Pane mainBoard;
-    private Button currentButton;
     private boolean isMoveMode = false;
     private int[] random1= new int[24];
     private List<Tile> tiles = new ArrayList<>();
@@ -35,11 +43,23 @@ public class ForbiddenGameStarted {
     private boolean isSaveMode = false; // 是否进入 "save the island" 模式
     private Label messageLabel;
     private List<Canvas> floodedTileCanvases = new ArrayList<>(); // 用于保存 FloodDeck 后面的所有图片
-    private List<TreasureCard> DiverBag = new ArrayList<>(); // 用于保存 TreasureDeck 后面的所有图片
+    private List<TreasureCard> currentBag = new ArrayList<>();
+    private List<List> currentBags = new ArrayList<>();
     private List<Treasure> treasures = new ArrayList<>();
+    private List<Player> players = new ArrayList<>();
+    private List<Player> currentPlayers = new ArrayList<>();
+    private List<PlayerBag> playerBags = new ArrayList<>();
     private int currentWaterMeterIndex = 1;
     private Button useSpecialCardButton;  // 用于触发使用特殊牌的按钮
-    private boolean isUsingSpecialCard = false; // 标记是否正在使用特殊牌
+    private Diver diver;
+    private Engineer engineer;
+    private Explorer explorer;
+    private Messenger messenger;
+    private Navigator navigator;
+    private Pilot pilot;
+    private Player currentPlayer;
+    private TurnManage turnManage = new TurnManage();
+    private int step;
 
 
     public ForbiddenGameStarted(ScreenController screenController) {
@@ -151,7 +171,6 @@ public class ForbiddenGameStarted {
         for (Tile tile : tiles) {
             tile.draw();
         }
-        drawPawn();
 
         WaterMeter waterMeter1 = new WaterMeter(0);
         WaterMeter waterMeter2 = new WaterMeter(1);
@@ -176,6 +195,70 @@ public class ForbiddenGameStarted {
         Collections.addAll(treasures, treasure1, treasure2, treasure3, treasure4);
         mainBoard.getChildren().addAll(treasures);
 
+        diver = new Diver("Diver");
+        engineer = new Engineer("Engineer");
+        explorer = new Explorer("Explorer");
+        messenger = new Messenger("Messenger");
+        navigator = new Navigator("Navigator");
+        pilot = new Pilot("Pilot");
+
+        Collections.addAll(players,diver, engineer, explorer, messenger, navigator, pilot);
+        mainBoard.getChildren().addAll(players);
+        currentPlayers = getRandomPlayers(players, 4);
+        for(Player player : currentPlayers){
+            if(player instanceof Diver || player instanceof Engineer || player instanceof Explorer || player instanceof Messenger || player instanceof Navigator || player instanceof Pilot){
+                player.draw();
+                player.setLayoutX(player.getPositionX(this));
+                player.setLayoutY(player.getPositionY(this));
+            }
+            currentBags.add(player.getBag());
+        }
+
+        currentPlayer = currentPlayers.getFirst();
+        currentBag = currentBags.getFirst();
+
+        PlayerBag diverBag = new PlayerBag(PlayerBag.playerType.Diver);
+        PlayerBag engineerBag = new PlayerBag(PlayerBag.playerType.Engineer);
+        PlayerBag explorerBag = new PlayerBag(PlayerBag.playerType.Explorer);
+        PlayerBag messengerBag = new PlayerBag(PlayerBag.playerType.Messenger);
+        PlayerBag navigatorBag = new PlayerBag(PlayerBag.playerType.Navigator);
+        PlayerBag pilotBag = new PlayerBag(PlayerBag.playerType.Pilot);
+        Collections.addAll(playerBags, diverBag, engineerBag, explorerBag, messengerBag, navigatorBag, pilotBag);
+        mainBoard.getChildren().addAll(playerBags);
+
+        for(int i=0;i<currentPlayers.size();i++){
+            if(currentPlayers.get(i) instanceof Diver){
+                playerBags.getFirst().draw();
+                playerBags.getFirst().setLayoutX(124);
+                playerBags.getFirst().setLayoutY(517+i*69);
+            }
+            if(currentPlayers.get(i) instanceof Engineer){
+                playerBags.get(1).draw();
+                playerBags.get(1).setLayoutX(124);
+                playerBags.get(1).setLayoutY(517+i*69);
+            }
+            if(currentPlayers.get(i) instanceof Explorer){
+                playerBags.get(2).draw();
+                playerBags.get(2).setLayoutX(124);
+                playerBags.get(2).setLayoutY(517+i*69);
+            }
+            if(currentPlayers.get(i) instanceof Messenger){
+                playerBags.get(3).draw();
+                playerBags.get(3).setLayoutX(124);
+                playerBags.get(3).setLayoutY(517+i*69);
+            }
+            if(currentPlayers.get(i) instanceof Navigator){
+                playerBags.get(4).draw();
+                playerBags.get(4).setLayoutX(124);
+                playerBags.get(4).setLayoutY(517+i*69);
+            }
+            if(currentPlayers.get(i) instanceof Pilot){
+                playerBags.get(5).draw();
+                playerBags.get(5).setLayoutX(124);
+                playerBags.get(5).setLayoutY(517+i*69);
+            }
+        }
+
     }
 
     private void setAllControlsDisabled(boolean disable) {
@@ -187,11 +270,6 @@ public class ForbiddenGameStarted {
     }
 
 
-    private void drawPawn() {
-        pawnCanvas = new PawnCanvas(312, 194);
-        mainBoard.getChildren().add(pawnCanvas);
-        pawnCanvas.draw();
-    }
 
     private void selectRandomTile() {
         if (tiles.isEmpty()) return; // 如果没有岛屿，直接返回
@@ -233,6 +311,21 @@ public class ForbiddenGameStarted {
     }
 
 
+    public static List<Player> getRandomPlayers(List<Player> players, int count) {
+
+        Random random = new Random();
+        List<Player> copyOfPlayers = new ArrayList<>(players); // 创建一个副本，以便不修改原始列表
+        List<Player> selectedPlayers = new ArrayList<>();
+
+        for (int i = 0; i < count; i++) {
+            int randomIndex = random.nextInt(copyOfPlayers.size()); // 从副本列表中随机选择一个索引
+            selectedPlayers.add(copyOfPlayers.get(randomIndex)); // 添加到结果列表
+            copyOfPlayers.remove(randomIndex); // 从副本列表中移除已抽取的元素，防止重复
+        }
+
+        return selectedPlayers;
+    }
+
 
 
     private void enableTileMovement() {
@@ -245,8 +338,8 @@ public class ForbiddenGameStarted {
                     int targetX = (int) tile.getLayoutX();
                     int targetY = (int) tile.getLayoutY();
 
-                    int currX = (int) pawnCanvas.getLayoutX()-30;
-                    int currY = (int) pawnCanvas.getLayoutY();
+                    int currX = (int) currentPlayer.getLayoutX()-30;
+                    int currY = (int) currentPlayer.getLayoutY();
 
                     int tileSize = 50;
 
@@ -255,13 +348,25 @@ public class ForbiddenGameStarted {
                                     (Math.abs(targetY - currY) == tileSize && targetX == currX);
 
                     if (isAdjacent) {
-                        pawnCanvas.setLayoutX(targetX+30);
-                        pawnCanvas.setX(targetX);
-                        pawnCanvas.setLayoutY(targetY);
-                        pawnCanvas.setY(targetY);
-                        pawnCanvas.draw();
-
+                        currentPlayer.setLayoutX(targetX+30);
+                        currentPlayer.setX(targetX);
+                        currentPlayer.setLayoutY(targetY);
+                        currentPlayer.setY(targetY);
+                        currentPlayer.draw();
                         checkTreasureSubmit();
+
+                        turnManage.useStep();
+                        step = turnManage.getStep();
+                        if(step==0) {
+                            for (int i = 0; i < currentPlayers.size(); i++) {
+                                if (currentPlayers.get(i).equals(currentPlayer)) {
+                                    currentPlayer = currentPlayers.get(turnManage.getIndex(i, currentPlayers));
+                                    currentBag = currentBags.get(turnManage.getIndex(i, currentPlayers));
+                                    break;
+                                }
+                            }
+                        }
+
                         isMoveMode = false;
                         screenController.getMove().setText("Move");
                     } else {
@@ -366,8 +471,8 @@ public class ForbiddenGameStarted {
         int targetX = (int) tile.getLayoutX();
         int targetY = (int) tile.getLayoutY();
 
-        int currX = (int) pawnCanvas.getLayoutX()-30;
-        int currY = (int) pawnCanvas.getLayoutY();
+        int currX = (int) currentPlayer.getLayoutX()-30;
+        int currY = (int) currentPlayer.getLayoutY();
 
         int tileSize = 50;
 
@@ -392,6 +497,17 @@ public class ForbiddenGameStarted {
             removeFloodedTileFromDeckByTile(tile);
 
             showMessage("Island saved successfully!");
+            turnManage.useStep();
+            step = turnManage.getStep();
+            if(step==0) {
+                for (int i = 0; i < currentPlayers.size(); i++) {
+                    if (currentPlayers.get(i).equals(currentPlayer)) {
+                        currentPlayer = currentPlayers.get(turnManage.getIndex(i, currentPlayers));
+                        System.out.println(currentPlayer.getName());
+                        break;
+                    }
+                }
+            }
             isSaveMode = false;
             screenController.getSaveTheIsland().setText("Save the Island");
             disableSaveMode();
@@ -452,18 +568,18 @@ public class ForbiddenGameStarted {
         if (card1.getCardType() == 26 ) {
             updateWaterMeter();
         }else{
-            DiverBag.add(card1);
+            currentBag.add(card1);
         }
 
         if(card2.getCardType() == 26){
             updateWaterMeter();
         }else{
-            DiverBag.add(card2);
+            currentBag.add(card2);
         }
 
         drawAllTreasureCards();
 
-        if (DiverBag.size() > 5) {
+        if (currentBag.size() > 5) {
             promptDiscardCards();  // 弹出丢弃界面
         }
     }
@@ -481,9 +597,9 @@ public class ForbiddenGameStarted {
         double cardHeight = 120;
         int offset = 90;
 
-        for (int i = 0; i < DiverBag.size(); i++) {
-            TreasureCard card = DiverBag.get(i);
-            double x = centerX - (DiverBag.size() * offset) / 2 + offset * i;
+        for (int i = 0; i < currentBag.size(); i++) {
+            TreasureCard card = currentBag.get(i);
+            double x = centerX - (currentBag.size() * offset) / 2 + offset * i;
             double y = discardAreaY;
 
             Canvas cardCanvas = new Canvas(cardWidth, cardHeight);
@@ -505,14 +621,14 @@ public class ForbiddenGameStarted {
 
 
     private void confirmDiscard(int index) {
-        DiverBag.remove(index);
+        currentBag.remove(index);
 
         // 清除 discard 卡牌 UI
         mainBoard.getChildren().removeIf(node -> "discard".equals(node.getUserData()));
 
         drawAllTreasureCards();
 
-        if (DiverBag.size() > 5) {
+        if (currentBag.size() > 5) {
             promptDiscardCards();  // 继续丢弃
         } else {
             showMessage("You now have 5 cards or fewer.");
@@ -527,25 +643,30 @@ public class ForbiddenGameStarted {
         // 先移除旧的卡牌 Canvas
         mainBoard.getChildren().removeIf(node -> node instanceof Canvas && "treasure".equals(node.getUserData()));
 
-        double diverBagX = screenController.getDiverBag().getLayoutX();
-        double diverBagY = screenController.getDiverBag().getLayoutY();
         double cardWidth = 50;
         double cardHeight = 69;
         int offset = 50;
 
-        for (int i = 0; i < DiverBag.size(); i++) {
-            TreasureCard card = DiverBag.get(i);
-            double x = diverBagX + offset * i + 50;
-            double y = diverBagY;
+        for(int i=0;i<currentPlayers.size();i++){
+            int index = connectPlayerToBag(currentPlayers.get(i));
+            double currentBagX = playerBags.get(index).getLayoutX();
+            double currentBagY = playerBags.get(index).getLayoutY();
+            for(int j=0;j<currentBags.get(i).size();j++){
+                TreasureCard card = (TreasureCard) currentBags.get(i).get(j);
+                double x = currentBagX + offset * j + 50;
+                double y = currentBagY;
 
-            Canvas cardCanvas = new Canvas(cardWidth, cardHeight);
-            cardCanvas.setLayoutX(x);
-            cardCanvas.setLayoutY(y);
-            cardCanvas.setUserData("treasure");  // 标记方便清除
-            GraphicsContext gc = cardCanvas.getGraphicsContext2D();
-            gc.drawImage(new Image(getClass().getResourceAsStream(card.cardname)), 0, 0, cardWidth, cardHeight);
-            mainBoard.getChildren().add(cardCanvas);
+                Card cardCanvas = new Card();
+                cardCanvas.setLayoutX(x);
+                cardCanvas.setLayoutY(y);
+                cardCanvas.setUserData("treasure");  // 标记方便清除
+                GraphicsContext gc = cardCanvas.getGraphicsContext2D();
+                gc.drawImage(new Image(getClass().getResourceAsStream(card.cardname)), 0, 0, cardWidth, cardHeight);
+                mainBoard.getChildren().add(cardCanvas);
+            }
+
         }
+
     }
 
     private void updateWaterMeter() {
@@ -571,7 +692,7 @@ public class ForbiddenGameStarted {
 
     private List<TreasureCard> getSpecialCards() {
         List<TreasureCard> specialCards = new ArrayList<>();
-        for(TreasureCard card : DiverBag){
+        for(TreasureCard card : currentBag){
             if(card.getType() == TreasureCard.Type.SANDBAGS){
                 specialCards.add(card);
             }
@@ -595,7 +716,7 @@ public class ForbiddenGameStarted {
         for (int i = 0; i < getSpecialCards().size(); i++) {
             TreasureCard card = getSpecialCards().get(i);
             double x = 700 ;
-            double y = discardAreaY- (DiverBag.size() * offset) / 2 + offset * i - 30;
+            double y = discardAreaY- (currentBag.size() * offset) / 2 + offset * i - 30;
 
             Canvas cardCanvas = new Canvas(cardWidth, cardHeight);
             cardCanvas.setLayoutX(x);
@@ -643,9 +764,9 @@ public class ForbiddenGameStarted {
             isSaveMode = false;
             disableSaveMode();
 
-            for(TreasureCard card : DiverBag){
+            for(TreasureCard card : currentBag){
                 if(card.getType() == TreasureCard.Type.SANDBAGS){
-                    DiverBag.remove(card);
+                    currentBag.remove(card);
                     break;
                 }
             }
@@ -662,20 +783,20 @@ public class ForbiddenGameStarted {
         int targetX = (int) tile.getLayoutX();
         int targetY = (int) tile.getLayoutY();
 
-        for(TreasureCard card : DiverBag){
+        for(TreasureCard card : currentBag){
             if(card.getType() == TreasureCard.Type.HELICOPTER){
-                DiverBag.remove(card);
+                currentBag.remove(card);
                 break;
             }
         }
         mainBoard.getChildren().removeIf(node -> "discard".equals(node.getUserData()));
         drawAllTreasureCards();
 
-        pawnCanvas.setLayoutX(targetX+30);
-        pawnCanvas.setX(targetX);
-        pawnCanvas.setLayoutY(targetY);
-        pawnCanvas.setY(targetY);
-        pawnCanvas.draw();
+        currentPlayer.setLayoutX(targetX+30);
+        currentPlayer.setX(targetX);
+        currentPlayer.setLayoutY(targetY);
+        currentPlayer.setY(targetY);
+        currentPlayer.draw();
 
         checkTreasureSubmit();
     }
@@ -695,9 +816,9 @@ public class ForbiddenGameStarted {
 
     public void checkTreasureSubmit(){
         int index = 0;
-        Tile currentTile = getTileByPawn(pawnCanvas);
+        Tile currentTile = getTileByPawn(currentPlayer);
         if(currentTile.getName().equals("1") || currentTile.getName().equals("2")){
-            for(TreasureCard card : DiverBag){
+            for(TreasureCard card : currentBag){
                 if(card.getType().equals(SOIL)){
                     index++;
                 }
@@ -706,20 +827,20 @@ public class ForbiddenGameStarted {
                 showMessage("You have submitted the treasure!");
                 int j = 0;
                 List<TreasureCard> cardsToRemove = new ArrayList<>();
-                for (TreasureCard card : DiverBag) {
+                for (TreasureCard card : currentBag) {
                     if (card.getType() == SOIL && j < 4) {
                         cardsToRemove.add(card);
                         j++;
                     }
                 }
-                DiverBag.removeAll(cardsToRemove);
+                currentBag.removeAll(cardsToRemove);
                 drawAllTreasureCards();
                 treasures.get(1).draw();
 
             }
         }
         if(currentTile.getName().equals("3") || currentTile.getName().equals("4")){
-            for(TreasureCard card : DiverBag){
+            for(TreasureCard card : currentBag){
                 if(card.getType().equals(CLOUD)){
                     index++;
                 }
@@ -728,20 +849,20 @@ public class ForbiddenGameStarted {
                 showMessage("You have submitted the treasure!");
                 int j = 0;
                 List<TreasureCard> cardsToRemove = new ArrayList<>();
-                for (TreasureCard card : DiverBag) {
+                for (TreasureCard card : currentBag) {
                     if (card.getType() == CLOUD && j < 4) {
                         cardsToRemove.add(card);
                         j++;
                     }
                 }
-                DiverBag.removeAll(cardsToRemove);
+                currentBag.removeAll(cardsToRemove);
                 drawAllTreasureCards();
                 treasures.get(0).draw();
 
             }
         }
         if(currentTile.getName().equals("7") || currentTile.getName().equals("8")){
-            for(TreasureCard card : DiverBag){
+            for(TreasureCard card : currentBag){
                 if(card.getType().equals(WATER)){
                     index++;
                 }
@@ -750,20 +871,20 @@ public class ForbiddenGameStarted {
                 showMessage("You have submitted the treasure!");
                 int j = 0;
                 List<TreasureCard> cardsToRemove = new ArrayList<>();
-                for (TreasureCard card : DiverBag) {
+                for (TreasureCard card : currentBag) {
                     if (card.getType() == WATER && j < 4) {
                         cardsToRemove.add(card);
                         j++;
                     }
                 }
-                DiverBag.removeAll(cardsToRemove);
+                currentBag.removeAll(cardsToRemove);
                 drawAllTreasureCards();
                 treasures.get(3).draw();
 
             }
         }
         if(currentTile.getName().equals("5") || currentTile.getName().equals("6")){
-            for(TreasureCard card : DiverBag){
+            for(TreasureCard card : currentBag){
                 if(card.getType().equals(FIRE)){
                     index++;
                 }
@@ -772,17 +893,45 @@ public class ForbiddenGameStarted {
                 showMessage("You have submitted the treasure!");
                 int j = 0;
                 List<TreasureCard> cardsToRemove = new ArrayList<>();
-                for (TreasureCard card : DiverBag) {
+                for (TreasureCard card : currentBag) {
                     if (card.getType() == FIRE && j < 4) {
                         cardsToRemove.add(card);
                         j++;
                     }
                 }
-                DiverBag.removeAll(cardsToRemove);
+                currentBag.removeAll(cardsToRemove);
                 drawAllTreasureCards();
                 treasures.get(2).draw();
 
             }
         }
+    }
+
+    public List<Tile> getTiles(){
+        return tiles;
+    }
+
+    public int connectPlayerToBag(Player player){
+        int index=0;
+        PlayerBag.playerType type = player.getType();
+        if(type.equals(PlayerBag.playerType.Diver)){
+            index = 0;
+        }
+        if(type.equals(PlayerBag.playerType.Engineer)){
+            index = 1;
+        }
+        if(type.equals(PlayerBag.playerType.Explorer)){
+            index = 2;
+        }
+        if(type.equals(PlayerBag.playerType.Messenger)){
+            index = 3;
+        }
+        if(type.equals(PlayerBag.playerType.Navigator)){
+            index = 4;
+        }
+        if(type.equals(PlayerBag.playerType.Pilot)){
+            index = 5;
+        }
+        return index;
     }
 }

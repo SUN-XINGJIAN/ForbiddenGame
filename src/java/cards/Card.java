@@ -24,7 +24,7 @@ public class Card extends Canvas {
     public String cardname;
 
     public Card(){
-        super(30,50);
+        super(50,69);
     }
 
     public void draw(){
