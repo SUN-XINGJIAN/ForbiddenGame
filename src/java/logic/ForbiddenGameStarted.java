@@ -61,12 +61,13 @@ public class ForbiddenGameStarted {
     private Player currentPlayer;
     private TurnManage turnManage;
     private int step;
+    private int playerCount; // 玩家数量
 
-
-    public ForbiddenGameStarted(ScreenController screenController) {
+    public ForbiddenGameStarted(ScreenController screenController, int playerCount) {
         // 初始化random1数组
         random1 = new int[24];
         List<Integer> numbers = new ArrayList<>();
+        this.playerCount = playerCount;
 
         // 填充1到24的数字
         for (int i = 1; i <= 24; i++) {
@@ -211,7 +212,7 @@ public class ForbiddenGameStarted {
         Collections.addAll(players,diver, engineer, explorer, messenger, navigator, pilot);
         Collections.addAll(players1,diver1, engineer1, explorer1, messenger1, navigator1, pilot1);
         mainBoard.getChildren().addAll(players);
-        currentPlayers = getRandomPlayers(players, 4);
+        currentPlayers = getRandomPlayers(players, playerCount);
         for(Player player : currentPlayers){
             if(player instanceof Diver || player instanceof Engineer || player instanceof Explorer || player instanceof Messenger || player instanceof Navigator || player instanceof Pilot){
                 player.draw();

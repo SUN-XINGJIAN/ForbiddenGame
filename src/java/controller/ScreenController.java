@@ -47,13 +47,16 @@ public class ScreenController {
 
     private boolean isMoveMode = false;
     private Button currentPawnButton;
+    private int playerCount; // 玩家数量
 
     @FXML
     private void initialize() {
-        forbiddenGameStarted = new ForbiddenGameStarted(this);
+//        forbiddenGameStarted = new ForbiddenGameStarted(this);
 
 
     }
+
+
 
     @FXML
     public Button getSaveTheIsland() {
@@ -92,5 +95,9 @@ public class ScreenController {
 
     public Button getTurnOver() {return TurnOver;}
 
+    public void initData(int playerCount) {
+        this.playerCount = playerCount;
+        forbiddenGameStarted = new ForbiddenGameStarted(this, playerCount);
+    }
 
 }

@@ -19,14 +19,14 @@ public class TurnManage {
     }
 
     public void showRemainSteps(){
-        if(step==0){
+        if(step == 0){
             screenController.getRemainSteps().setText("Remain Steps: 3");
         }else{
         screenController.getRemainSteps().setText("Remain Steps: " + step);}
     }
 
     public int getIndex(int index,List<Player> players){
-        step=3;
+        step = 3;
         index++;
         if(index == players.size()){
             index = 0;

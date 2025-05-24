@@ -1,7 +1,11 @@
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+
+import java.io.IOException;
 
 public class Director {
 
@@ -18,8 +22,17 @@ public class Director {
 
     }
 
-    public void InitialScene(Stage stage){
-        Frame.load(stage);
+    public void InitialScene(Stage stage) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/PlayerCountSelection.fxml"));
+            Parent root = loader.load();
+            Scene scene = new Scene(root, FRAME_WIDTH, FRAME_HEIGHT); // 设置窗口尺寸
+            stage.setScene(scene);
+            stage.setTitle("Choose the number of players");
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
