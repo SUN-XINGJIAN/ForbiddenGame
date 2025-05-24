@@ -59,6 +59,7 @@ public class ForbiddenGameStarted {
     private Navigator navigator,navigator1;
     private Pilot pilot,pilot1;
     private Player currentPlayer;
+    private Player currentPlayer1;
     private TurnManage turnManage;
     private int step;
     private int playerCount; // 玩家数量
@@ -225,10 +226,11 @@ public class ForbiddenGameStarted {
         currentPlayer = currentPlayers.getFirst();
         for(Player p : players1) {
             if(p.getType().equals(currentPlayer.getType())){
-                mainBoard.getChildren().add(p);
-                p.draw();
-                p.setLayoutX(155);
-                p.setLayoutY(30);
+                currentPlayer1 = p;
+                mainBoard.getChildren().add(currentPlayer1);
+                currentPlayer1.draw();
+                currentPlayer1.setLayoutX(155);
+                currentPlayer1.setLayoutY(30);
             }
         }
         currentBag = currentBags.getFirst();
@@ -375,15 +377,17 @@ public class ForbiddenGameStarted {
                         turnManage.showRemainSteps();
                         step = turnManage.getStep();
                         if(step==0) {
+                            mainBoard.getChildren().remove(currentPlayer1);
                             for (int i = 0; i < currentPlayers.size(); i++) {
                                 if (currentPlayers.get(i).equals(currentPlayer)) {
                                     currentPlayer = currentPlayers.get(turnManage.getIndex(i, currentPlayers));
                                     for(Player p : players1) {
                                         if(p.getType().equals(currentPlayer.getType())){
-                                            mainBoard.getChildren().add(p);
-                                            p.draw();
-                                            p.setLayoutX(155);
-                                            p.setLayoutY(30);
+                                            currentPlayer1=p;
+                                            mainBoard.getChildren().add(currentPlayer1);
+                                            currentPlayer1.draw();
+                                            currentPlayer1.setLayoutX(155);
+                                            currentPlayer1.setLayoutY(30);
                                         }
                                     }
                                     currentBag = currentBags.get(turnManage.getIndex(i, currentPlayers));
@@ -526,15 +530,17 @@ public class ForbiddenGameStarted {
             turnManage.showRemainSteps();
             step = turnManage.getStep();
             if(step==0) {
+                mainBoard.getChildren().remove(currentPlayer1);
                 for (int i = 0; i < currentPlayers.size(); i++) {
                     if (currentPlayers.get(i).equals(currentPlayer)) {
                         currentPlayer = currentPlayers.get(turnManage.getIndex(i, currentPlayers));
                         for(Player p : players1) {
                             if(p.getType().equals(currentPlayer.getType())){
-                                mainBoard.getChildren().add(p);
-                                p.draw();
-                                p.setLayoutX(155);
-                                p.setLayoutY(30);
+                                currentPlayer1=p;
+                                mainBoard.getChildren().add(currentPlayer1 = p);
+                                currentPlayer1.draw();
+                                currentPlayer1.setLayoutX(155);
+                                currentPlayer1.setLayoutY(30);
                             }
                         }
                         currentBag = currentBags.get(turnManage.getIndex(i, currentPlayers));
