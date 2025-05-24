@@ -17,9 +17,9 @@ public class Tile extends Canvas {
         this.setLayoutX(x);
         this.setLayoutY(y);
         num = number;
-            tileName1 = "/image/Tiles/" + number + ".png";
+        tileName1 = "/image/Tiles/" + number + ".png";
 
-            tileName2 = "/image/SubmersedTiles/" + number + ".png";
+        tileName2 = "/image/SubmersedTiles/" + number + ".png";
 
     }
 
