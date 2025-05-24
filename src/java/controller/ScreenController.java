@@ -1,7 +1,6 @@
 package controller;
 
 import canvas.PawnCanvas;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -43,12 +42,12 @@ public class ScreenController {
     private boolean isMoveMode = false;
     private Button currentPawnButton;
 
-//    @FXML
-//    private void initialize() {
-//        forbiddenGameStarted = new ForbiddenGameStarted(this);
-//
-//
-//    }
+    @FXML
+    private void initialize() {
+        forbiddenGameStarted = new ForbiddenGameStarted(this);
+
+
+    }
 
     @FXML
     public Button getSaveTheIsland() {
@@ -83,18 +82,5 @@ public class ScreenController {
 
     public Button getTurnOver() {return TurnOver;}
 
-    public void setPlayerCount(int count) {
-        Platform.runLater(() -> {
-            // 清理之前的游戏状态
-            if (this.forbiddenGameStarted != null) {
-                this.forbiddenGameStarted.cleanUp();
-            }
-            // 创建新游戏实例
-            this.forbiddenGameStarted = new ForbiddenGameStarted(this, count);
-        });
-    }
 
-    private void initializeGameComponents() {
-        // 这里可以初始化其他游戏组件
-    }
 }
