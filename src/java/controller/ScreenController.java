@@ -27,6 +27,9 @@ public class ScreenController {
     private ImageView DiverBag;
 
     @FXML
+    private Label RemainSteps;
+
+    @FXML
     private Button SelectFloodCards;
 
     @FXML
@@ -34,6 +37,9 @@ public class ScreenController {
 
     @FXML
     private Button saveTheIsland;
+
+    @FXML
+    private Button useSpecialCardButton;
 
     // 声明一个PawnCanvas对象，用于绘制棋盘
     private ForbiddenGameStarted forbiddenGameStarted;
@@ -54,6 +60,10 @@ public class ScreenController {
         return saveTheIsland;
     }
 
+    public Button getUseSpecialCardButton() {
+        return useSpecialCardButton;
+    }
+
     public ImageView getFloodDeck() {
         return FloodDeck;
     }
@@ -62,15 +72,15 @@ public class ScreenController {
         return DiverBag;
     }
 
-    @FXML
-    private Label messageLabel;
-
 
     public Pane getMainBoard() {
         return mainBoard;
     }
 
 
+    public Label getRemainSteps() {
+        return RemainSteps;
+    }
 
     public Button getMove() {
         return move;

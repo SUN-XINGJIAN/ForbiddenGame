@@ -47,18 +47,19 @@ public class ForbiddenGameStarted {
     private List<List> currentBags = new ArrayList<>();
     private List<Treasure> treasures = new ArrayList<>();
     private List<Player> players = new ArrayList<>();
+    private List<Player> players1 = new ArrayList<>();
     private List<Player> currentPlayers = new ArrayList<>();
     private List<PlayerBag> playerBags = new ArrayList<>();
     private int currentWaterMeterIndex = 1;
     private Button useSpecialCardButton;  // 用于触发使用特殊牌的按钮
-    private Diver diver;
-    private Engineer engineer;
-    private Explorer explorer;
-    private Messenger messenger;
-    private Navigator navigator;
-    private Pilot pilot;
+    private Diver diver,diver1;
+    private Engineer engineer,engineer1;
+    private Explorer explorer,explorer1;
+    private Messenger messenger,messenger1;
+    private Navigator navigator,navigator1;
+    private Pilot pilot,pilot1;
     private Player currentPlayer;
-    private TurnManage turnManage = new TurnManage();
+    private TurnManage turnManage;
     private int step;
 
 
@@ -115,17 +116,15 @@ public class ForbiddenGameStarted {
             handleTurnOver();
         });
 
-        useSpecialCardButton = new Button("Use Special Card");
-        useSpecialCardButton.setLayoutX(700);
-        useSpecialCardButton.setLayoutY(75);
-        useSpecialCardButton.setPrefWidth(120);
-        useSpecialCardButton.setPrefHeight(26);
 
-        mainBoard.getChildren().add(useSpecialCardButton); // 将按钮添加到 UI
 
-        useSpecialCardButton.setOnAction(event -> {
+
+        screenController.getUseSpecialCardButton().setOnAction(event -> {
             useSpecialCards(); // 触发特殊牌使用逻辑
         });
+
+        turnManage = new TurnManage(screenController);
+        turnManage.showRemainSteps();
 
     }
 
@@ -202,7 +201,15 @@ public class ForbiddenGameStarted {
         navigator = new Navigator("Navigator");
         pilot = new Pilot("Pilot");
 
+        diver1 = new Diver("Diver");
+        engineer1 = new Engineer("Engineer");
+        explorer1 = new Explorer("Explorer");
+        messenger1 = new Messenger("Messenger");
+        navigator1 = new Navigator("Navigator");
+        pilot1 = new Pilot("Pilot");
+
         Collections.addAll(players,diver, engineer, explorer, messenger, navigator, pilot);
+        Collections.addAll(players1,diver1, engineer1, explorer1, messenger1, navigator1, pilot1);
         mainBoard.getChildren().addAll(players);
         currentPlayers = getRandomPlayers(players, 4);
         for(Player player : currentPlayers){
@@ -215,6 +222,14 @@ public class ForbiddenGameStarted {
         }
 
         currentPlayer = currentPlayers.getFirst();
+        for(Player p : players1) {
+            if(p.getType().equals(currentPlayer.getType())){
+                mainBoard.getChildren().add(p);
+                p.draw();
+                p.setLayoutX(155);
+                p.setLayoutY(30);
+            }
+        }
         currentBag = currentBags.getFirst();
 
         PlayerBag diverBag = new PlayerBag(PlayerBag.playerType.Diver);
@@ -356,11 +371,20 @@ public class ForbiddenGameStarted {
                         checkTreasureSubmit();
 
                         turnManage.useStep();
+                        turnManage.showRemainSteps();
                         step = turnManage.getStep();
                         if(step==0) {
                             for (int i = 0; i < currentPlayers.size(); i++) {
                                 if (currentPlayers.get(i).equals(currentPlayer)) {
                                     currentPlayer = currentPlayers.get(turnManage.getIndex(i, currentPlayers));
+                                    for(Player p : players1) {
+                                        if(p.getType().equals(currentPlayer.getType())){
+                                            mainBoard.getChildren().add(p);
+                                            p.draw();
+                                            p.setLayoutX(155);
+                                            p.setLayoutY(30);
+                                        }
+                                    }
                                     currentBag = currentBags.get(turnManage.getIndex(i, currentPlayers));
                                     break;
                                 }
@@ -498,12 +522,21 @@ public class ForbiddenGameStarted {
 
             showMessage("Island saved successfully!");
             turnManage.useStep();
+            turnManage.showRemainSteps();
             step = turnManage.getStep();
             if(step==0) {
                 for (int i = 0; i < currentPlayers.size(); i++) {
                     if (currentPlayers.get(i).equals(currentPlayer)) {
                         currentPlayer = currentPlayers.get(turnManage.getIndex(i, currentPlayers));
-                        System.out.println(currentPlayer.getName());
+                        for(Player p : players1) {
+                            if(p.getType().equals(currentPlayer.getType())){
+                                mainBoard.getChildren().add(p);
+                                p.draw();
+                                p.setLayoutX(155);
+                                p.setLayoutY(30);
+                            }
+                        }
+                        currentBag = currentBags.get(turnManage.getIndex(i, currentPlayers));
                         break;
                     }
                 }
@@ -524,7 +557,7 @@ public class ForbiddenGameStarted {
         if (messageLabel == null) {
             messageLabel = new Label();
             messageLabel.setLayoutX(409.0);
-            messageLabel.setLayoutY(23.0);
+            messageLabel.setLayoutY(70.0);
             messageLabel.setWrapText(true);
 
             mainBoard.getChildren().add(messageLabel);

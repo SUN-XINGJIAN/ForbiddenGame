@@ -5,6 +5,7 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
 
 <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="AS_NEEDED" prefViewportHeight="900.0" prefViewportWidth="900.0" vbarPolicy="AS_NEEDED" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ScreenController">
@@ -30,11 +31,18 @@
                <Image url="@../image/TreasureCards/Treasure%20Deck.png" />
             </image>
          </ImageView>
-         <Button fx:id="move" layoutX="149.0" layoutY="74.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="69.0" text="move" />
-         <Button fx:id="SelectFloodCards" layoutX="261.0" layoutY="74.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="141.0" text="select flood cards" />
-         <Button fx:id="saveTheIsland" layoutX="442.0" layoutY="74.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="117.0" text="save the island" />
          <Label fx:id="messageLabel" layoutX="409.0" layoutY="23.0" prefHeight="26.0" prefWidth="320.0" text="" visible="false" />
-         <Button fx:id="TurnOver" layoutX="587.0" layoutY="75.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="93.0" text="Turn over" />
+         <HBox alignment="TOP_RIGHT" layoutX="51.0" layoutY="23.0" prefHeight="100.0" prefWidth="811.0">
+            <children>
+               <Label prefHeight="57.0" prefWidth="131.0" text="Current  Player:" />
+               <Label fx:id="RemainSteps" prefHeight="51.0" prefWidth="139.0" text="Remain steps:" />
+               <Button fx:id="move" mnemonicParsing="false" prefHeight="26.0" prefWidth="69.0" text="move" />
+               <Button fx:id="SelectFloodCards" mnemonicParsing="false" prefHeight="26.0" prefWidth="141.0" text="select flood cards" />
+               <Button fx:id="saveTheIsland" mnemonicParsing="false" prefHeight="26.0" prefWidth="117.0" text="save the island" />
+               <Button fx:id="TurnOver" mnemonicParsing="false" prefHeight="26.0" prefWidth="93.0" text="Turn over" />
+               <Button fx:id="useSpecialCardButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="126.0" text="Use Special cards" />
+            </children>
+         </HBox>
       </Pane>
    </content>
 </ScrollPane>

@@ -1,13 +1,16 @@
 package logic;
 
+import controller.ScreenController;
 import module.Player;
 
 import java.util.List;
 
 public class TurnManage {
     private int step = 0;
-    public TurnManage(){
+    private ScreenController screenController;
+    public TurnManage(ScreenController screenController){
         step = 3;
+        this.screenController = screenController;
     }
 
 
@@ -15,6 +18,12 @@ public class TurnManage {
         step--;
     }
 
+    public void showRemainSteps(){
+        if(step==0){
+            screenController.getRemainSteps().setText("Remain Steps: 3");
+        }else{
+        screenController.getRemainSteps().setText("Remain Steps: " + step);}
+    }
 
     public int getIndex(int index,List<Player> players){
         step=3;
