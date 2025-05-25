@@ -37,4 +37,7 @@ public class TurnManage {
     public int getStep() {
         return step;
     }
+    public void setStep(int step) {
+        this.step = step;
+    }
 }

@@ -116,6 +116,7 @@ public class ForbiddenGameStarted {
 
         screenController.getTurnOver().setOnAction(event -> {
             handleTurnOver();
+            sentSpecialCards(currentBag);
         });
 
 
@@ -223,6 +224,10 @@ public class ForbiddenGameStarted {
             currentBags.add(player.getBag());
         }
 
+        for(List<TreasureCard> bag : currentBags){
+            sentSpecialCardsWithoutWaterRise(bag);
+        }
+
         currentPlayer = currentPlayers.getFirst();
         for(Player p : players1) {
             if(p.getType().equals(currentPlayer.getType())){
@@ -276,14 +281,13 @@ public class ForbiddenGameStarted {
                 playerBags.get(5).setLayoutY(517+i*69);
             }
         }
+        drawAllTreasureCards();
 
     }
 
     private void setAllControlsDisabled(boolean disable) {
         for (Node node : mainBoard.getChildren()) {
-            if (node instanceof Button || node instanceof Canvas) {
-                node.setDisable(disable); // 禁用或启用控件
-            }
+            node.setDisable(disable); // 禁用或启用控件
         }
     }
 
@@ -585,6 +589,31 @@ public class ForbiddenGameStarted {
 
 
     private void handleTurnOver() {
+        turnManage.setStep(0);
+        turnManage.showRemainSteps();
+        step = turnManage.getStep();
+        if (step == 0) {
+            mainBoard.getChildren().remove(currentPlayer1);
+            for (int i = 0; i < currentPlayers.size(); i++) {
+                if (currentPlayers.get(i).equals(currentPlayer)) {
+                    currentPlayer = currentPlayers.get(turnManage.getIndex(i, currentPlayers));
+                    for (Player p : players1) {
+                        if (p.getType().equals(currentPlayer.getType())) {
+                            currentPlayer1 = p;
+                            mainBoard.getChildren().add(currentPlayer1 = p);
+                            currentPlayer1.draw();
+                            currentPlayer1.setLayoutX(155);
+                            currentPlayer1.setLayoutY(30);
+                        }
+                    }
+                    currentBag = currentBags.get(turnManage.getIndex(i, currentPlayers));
+                    break;
+                }
+            }
+        }
+        drawAllTreasureCards();
+    }
+    public void sentSpecialCards(List<TreasureCard> playerBag){
         // 根据概率分配宝藏牌
         List<TreasureCard> availableCards = new ArrayList<>();
 
@@ -608,18 +637,54 @@ public class ForbiddenGameStarted {
         if (card1.getCardType() == 26 ) {
             updateWaterMeter();
         }else{
-            currentBag.add(card1);
+            playerBag.add(card1);
         }
 
         if(card2.getCardType() == 26){
             updateWaterMeter();
         }else{
-            currentBag.add(card2);
+            playerBag.add(card2);
         }
-
         drawAllTreasureCards();
 
-        if (currentBag.size() > 5) {
+        if (playerBag.size() > 5) {
+            promptDiscardCards();  // 弹出丢弃界面
+        }
+    }
+
+    public void sentSpecialCardsWithoutWaterRise(List<TreasureCard> playerBag){
+        // 根据概率分配宝藏牌
+        List<TreasureCard> availableCards = new ArrayList<>();
+
+        // 每种宝藏牌按其概率加入到 availableCards 中
+        for (int i = 0; i < 5; i++) availableCards.add(new TreasureCard(0)); // soil
+        for (int i = 0; i < 5; i++) availableCards.add(new TreasureCard(5)); // cloud
+        for (int i = 0; i < 5; i++) availableCards.add(new TreasureCard(10)); // water
+        for (int i = 0; i < 5; i++) availableCards.add(new TreasureCard(15)); // fire
+        for (int i = 0; i < 3; i++) availableCards.add(new TreasureCard(20)); // helicopter
+        for (int i = 0; i < 2; i++) availableCards.add(new TreasureCard(23)); // sandbags
+
+        // 随机抽取两个宝藏牌
+        Random random = new Random();
+        TreasureCard card1 = availableCards.get(random.nextInt(availableCards.size()));
+        TreasureCard card2 = availableCards.get(random.nextInt(availableCards.size()));
+
+
+
+        // 检查是否抽到了 waterrise 卡片
+        if (card1.getCardType() == 26 ) {
+            updateWaterMeter();
+        }else{
+            playerBag.add(card1);
+        }
+
+        if(card2.getCardType() == 26){
+            updateWaterMeter();
+        }else{
+            playerBag.add(card2);
+        }
+
+        if (playerBag.size() > 5) {
             promptDiscardCards();  // 弹出丢弃界面
         }
     }
