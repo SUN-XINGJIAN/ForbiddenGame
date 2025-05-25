@@ -6,11 +6,13 @@ import javafx.scene.image.Image;
 
 public class PlayerBag extends Canvas {
     private String bagName;
+    private playerType p;
     public enum playerType{
         Diver,Engineer,Explorer,Messenger,Navigator,Pilot
     }
     public PlayerBag(playerType playerType){
         super(50, 69);
+        p = playerType;
         switch (playerType){
             case Diver:
                 bagName = "/image/Adventurers/Diver.png";
@@ -42,5 +44,8 @@ public class PlayerBag extends Canvas {
 
     public String getBagName(){
         return bagName;
+    }
+    public playerType getPlayerType(){
+        return p;
     }
 }

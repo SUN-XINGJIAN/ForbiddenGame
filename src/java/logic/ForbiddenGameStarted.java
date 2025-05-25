@@ -115,8 +115,8 @@ public class ForbiddenGameStarted {
         });
 
         screenController.getTurnOver().setOnAction(event -> {
-            handleTurnOver();
             sentSpecialCards(currentBag);
+            handleTurnOver();
         });
 
 
@@ -219,7 +219,9 @@ public class ForbiddenGameStarted {
             if(player instanceof Diver || player instanceof Engineer || player instanceof Explorer || player instanceof Messenger || player instanceof Navigator || player instanceof Pilot){
                 player.draw();
                 player.setLayoutX(player.getPositionX(this));
+                player.setX(player.getPositionX(this)-30);
                 player.setLayoutY(player.getPositionY(this));
+                player.setY(player.getPositionY(this));
             }
             currentBags.add(player.getBag());
         }
@@ -282,6 +284,9 @@ public class ForbiddenGameStarted {
             }
         }
         drawAllTreasureCards();
+
+
+        screenController.getExchangeCards().setDisable(true);
 
     }
 
@@ -399,6 +404,8 @@ public class ForbiddenGameStarted {
                                 }
                             }
                         }
+
+                        exchangeCards();
 
                         isMoveMode = false;
                         screenController.getMove().setText("Move");
@@ -906,10 +913,10 @@ public class ForbiddenGameStarted {
         checkTreasureSubmit();
     }
 
-    public Tile getTileByPawn(PawnCanvas pawn) {
-        int currentX = pawn.getX();
-        int currentY = pawn.getY();
-        Tile t = null;
+    public Tile getTileByPlayer(Player p) {
+        int currentX = p.getX();
+        int currentY = p.getY();
+        Tile t = new Tile(0,0,0);
         for (Tile tile : tiles) {
             if (tile.getPositionX() == currentX && tile.getPositionY() == currentY) {
                 t = tile;
@@ -921,7 +928,7 @@ public class ForbiddenGameStarted {
 
     public void checkTreasureSubmit(){
         int index = 0;
-        Tile currentTile = getTileByPawn(currentPlayer);
+        Tile currentTile = getTileByPlayer(currentPlayer);
         if(currentTile.getName().equals("1") || currentTile.getName().equals("2")){
             for(TreasureCard card : currentBag){
                 if(card.getType().equals(SOIL)){
@@ -1039,4 +1046,127 @@ public class ForbiddenGameStarted {
         }
         return index;
     }
+
+    public boolean checkIfHaveSamePosition(Player player){
+        boolean b = false;
+        for(Player p :currentPlayers){
+            if(!p.equals(currentPlayer) && getTileByPlayer(p).equals(getTileByPlayer(player))){
+                b = true;
+            }
+        }
+        return b;
+    }
+
+    private List<Player> findSamePositionPlayers(Player player){
+        List<Player> sameTilePlayers = new ArrayList<>();
+        for(Player p :currentPlayers){
+            if(!p.equals(currentPlayer) && getTileByPlayer(p).equals(getTileByPlayer(player))){
+                sameTilePlayers.add(p);
+            }
+        }
+        return sameTilePlayers;
+    }
+
+    public List<TreasureCard> selectTreasureCards(List<TreasureCard> bag){
+        List<TreasureCard> selectedCards = new ArrayList<>();
+        for(TreasureCard card : bag){
+            if(!card.getType().equals(HELICOPTER) && !card.getType().equals(SANDBAGS)){
+                selectedCards.add(card);
+            }
+        }
+        return selectedCards;
+    }
+
+
+    private void promptExchangeCards() {
+        showMessage("Choose the card you want to sent!");
+
+        List<TreasureCard> bag = selectTreasureCards(currentBag);
+        // 禁用所有其他控件
+        setAllControlsDisabled(true);
+
+        double centerX = mainBoard.getWidth() / 2;
+        double discardAreaY = screenController.getDiverBag().getLayoutY() - 150;
+
+        double cardWidth = 80;
+        double cardHeight = 120;
+        int offset = 90;
+
+        for (int i = 0; i < bag.size(); i++) {
+            TreasureCard card = bag.get(i);
+            double x = centerX - (bag.size() * offset) / 2 + offset * i;
+            double y = discardAreaY;
+
+            Canvas cardCanvas = new Canvas(cardWidth, cardHeight);
+            cardCanvas.setLayoutX(x);
+            cardCanvas.setLayoutY(y);
+            cardCanvas.setUserData("discard");
+
+            GraphicsContext gc = cardCanvas.getGraphicsContext2D();
+            gc.drawImage(new Image(getClass().getResourceAsStream(card.cardname)), 0, 0, cardWidth, cardHeight);
+
+            // 每个卡片都可点击给出
+            int index = i;
+            cardCanvas.setOnMouseClicked(e -> {
+                giveCards(index);
+            });
+
+            mainBoard.getChildren().add(cardCanvas);
+        }
+    }
+
+    private void giveCards(int index){
+
+        // 清除 discard 卡牌 UI
+        mainBoard.getChildren().removeIf(node -> "discard".equals(node.getUserData()));
+
+        List<Player> sameTilePlayers = findSamePositionPlayers(currentPlayer);
+        List<PlayerBag> samePlayerBags = new ArrayList<>();
+        for(PlayerBag pb : playerBags){
+            for(Player p : sameTilePlayers){
+                if(p.getType().equals(pb.getPlayerType())){
+                    pb.setDisable(false);
+                    samePlayerBags.add(pb);
+                }
+            }
+        }
+
+        for(PlayerBag pb : samePlayerBags){
+            pb.setOnMouseClicked(e -> {
+                for(Player p : sameTilePlayers){
+                    if(p.getType().equals(pb.getPlayerType())){
+                        p.getBag().add(selectTreasureCards(currentBag).get(index));
+                    }
+                }
+                currentBag.remove(selectTreasureCards(currentBag).get(index));
+
+                setAllControlsDisabled(false);
+                pb.setDisable(true);
+                drawAllTreasureCards();
+
+                turnManage.useStep();
+                turnManage.showRemainSteps();
+            });
+        }
+
+    }
+
+    public boolean openExchangeCardsButton(){
+        boolean b = false;
+        return b;
+    }
+
+    public void exchangeCards(){
+        if(checkIfHaveSamePosition(currentPlayer)){
+            screenController.getExchangeCards().setDisable(false);
+            screenController.getExchangeCards().setOnAction(e1 -> {
+                if(selectTreasureCards(currentBag).size()==0){
+                    showMessage("You have no treasure cards to exchange");
+                }else {
+                    promptExchangeCards();
+                }
+            });
+        }
+    }
+
 }

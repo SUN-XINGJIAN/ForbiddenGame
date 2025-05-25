@@ -30,6 +30,9 @@ public class ScreenController {
     private Label RemainSteps;
 
     @FXML
+    private Button ExchangeCards;
+
+    @FXML
     private Button SelectFloodCards;
 
     @FXML
@@ -93,6 +96,9 @@ public class ScreenController {
         return SelectFloodCards;
     }
 
+    public Button getExchangeCards() {
+        return ExchangeCards;
+    }
     public Button getTurnOver() {return TurnOver;}
 
     public void initData(int playerCount) {
