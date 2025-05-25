@@ -358,11 +358,12 @@ public class ForbiddenGameStarted {
 
     private void enableTileMovement() {
         // 遍历 mainBoard 的所有子节点
-//        for (javafx.scene.Node node : mainBoard.getChildren()) {
-        for (Node node : mainBoard.getChildren()) {
+        for (javafx.scene.Node node : mainBoard.getChildren()) {
             if (node instanceof Tile  tile) {
                 tile.setOnMouseClicked(e -> {
                     if (!isMoveMode) return;
+
+                    boolean validMove = false;
 
                     int targetX = (int) tile.getLayoutX();
                     int targetY = (int) tile.getLayoutY();
@@ -383,10 +384,8 @@ public class ForbiddenGameStarted {
                     // 处理Pilot的特殊飞行
                     else if (currentPlayer instanceof Pilot pilot) {
                         if (!pilot.isSpecialFlightUsed()) { // 新增状态检查方法
+                            pilot.useSpecialFlight();
                             executeMove(tile);
-                            if (currentPlayer1 instanceof Pilot uiPilot) {
-                                uiPilot.syncState(pilot);
-                            }
                         } else {
                             showMessage("Special flight already used this turn!");
                         }
@@ -450,7 +449,7 @@ public class ForbiddenGameStarted {
         int targetX = (int) tile.getLayoutX();
         int targetY = (int) tile.getLayoutY();
 
-        currentPlayer.setLayoutX(targetX + 30);
+        currentPlayer.setLayoutX(targetX+30);
         currentPlayer.setX(targetX);
         currentPlayer.setLayoutY(targetY);
         currentPlayer.setY(targetY);
@@ -458,25 +457,27 @@ public class ForbiddenGameStarted {
         checkTreasureSubmit();
 
         turnManage.useStep();
-        int step = turnManage.getStep();
         turnManage.showRemainSteps();
-
+        step = turnManage.getStep();
+        if (currentPlayer instanceof Pilot) {
+            Pilot pilot = (Pilot) currentPlayer;
+            if (pilot.useSpecialFlight()) {
+                // 同步 UI 实例状态
+                ((Pilot) currentPlayer1).syncState(pilot);
+            }
+        }
         if (step == 0) {
             mainBoard.getChildren().remove(currentPlayer1);
-            // 同步UI实例的状态
-            if (currentPlayer1 instanceof Pilot) {
-                ((Pilot) currentPlayer1).resetSpecialFlight();
-            }
+
             // 使用模运算循环切换玩家
-            int nextIndex = (currentPlayers.indexOf(currentPlayer) + 1) % currentPlayers.size();
+            int currentIndex = currentPlayers.indexOf(currentPlayer);
+            int nextIndex = (currentIndex + 1) % currentPlayers.size();
             currentPlayer = currentPlayers.get(nextIndex);
 
-            // 重置所有玩家的特殊能力状态
-            currentPlayers.forEach(player -> {
-                if (player instanceof Pilot pilot) {
-                    pilot.resetSpecialFlight();
-                }
-            });
+            // 重置当前玩家的特殊能力（如果是Pilot）
+            if (currentPlayer instanceof Pilot) {
+                ((Pilot) currentPlayer).resetSpecialFlight();
+            }
 
             // 通过玩家类型匹配 UI 实例
             currentPlayer1 = players1.stream()
@@ -484,15 +485,16 @@ public class ForbiddenGameStarted {
                     .findFirst()
                     .orElse(null);
 
-
-
             if (currentPlayer1 != null) {
                 mainBoard.getChildren().add(currentPlayer1);
                 currentPlayer1.draw();
                 currentPlayer1.setLayoutX(155);
                 currentPlayer1.setLayoutY(30);
 
-
+                // 同步UI实例的状态
+                if (currentPlayer1 instanceof Pilot) {
+                    ((Pilot) currentPlayer1).resetSpecialFlight();
+                }
             }
 
             // 直接通过索引获取对应的背包
