@@ -75,6 +75,11 @@ public class Engineer extends module.Player {
     }
 
     @Override
+    public void resetSpecialAbility() {
+
+    }
+
+    @Override
     public List<TreasureCard> getBag() {
         return EngineerBag;
     }

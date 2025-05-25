@@ -124,4 +124,9 @@ public abstract class Player extends PawnCanvas {
     public module.PlayerBag.playerType getType() {
         return type;
     }
+
+    public boolean isPilot() {
+        return this instanceof Pilot;
+    }
+    public abstract void resetSpecialAbility();
 }

@@ -64,6 +64,11 @@ public class Diver extends module.Player {
         return type;
     }
 
+    @Override
+    public void resetSpecialAbility() {
+
+    }
+
     public List<TreasureCard> getBag() {
         return DiverBag;
     }

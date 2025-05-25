@@ -74,6 +74,12 @@ public class Messenger extends Player {
     public module.PlayerBag.playerType getType() {
         return type;
     }
+
+    @Override
+    public void resetSpecialAbility() {
+
+    }
+
     public List<TreasureCard> getBag() {
         return MessengerBag;
     }

@@ -72,6 +72,11 @@ public class Explorer extends module.Player {
         return type;
     }
 
+    @Override
+    public void resetSpecialAbility() {
+
+    }
+
     public List<TreasureCard> getBag(){
         return ExplorerBag;
     }

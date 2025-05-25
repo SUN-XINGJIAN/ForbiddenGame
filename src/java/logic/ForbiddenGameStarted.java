@@ -94,6 +94,7 @@ public class ForbiddenGameStarted {
                 screenController.getMove().setText("Cancel Move");
                 enableTileMovement();  // 启动每次点击时可以移动棋子的模式
             } else {
+                disableMoveMode();     // 退出移动模式，清除事件
                 screenController.getMove().setText("Move");
             }
         });
@@ -357,7 +358,8 @@ public class ForbiddenGameStarted {
 
     private void enableTileMovement() {
         // 遍历 mainBoard 的所有子节点
-        for (javafx.scene.Node node : mainBoard.getChildren()) {
+//        for (javafx.scene.Node node : mainBoard.getChildren()) {
+        for (Node node : mainBoard.getChildren()) {
             if (node instanceof Tile  tile) {
                 tile.setOnMouseClicked(e -> {
                     if (!isMoveMode) return;
@@ -374,49 +376,135 @@ public class ForbiddenGameStarted {
                             (Math.abs(targetX - currX) == tileSize && targetY == currY) ||
                                     (Math.abs(targetY - currY) == tileSize && targetX == currX);
 
+                    // 处理所有玩家的基础移动
                     if (isAdjacent) {
-                        currentPlayer.setLayoutX(targetX+30);
-                        currentPlayer.setX(targetX);
-                        currentPlayer.setLayoutY(targetY);
-                        currentPlayer.setY(targetY);
-                        currentPlayer.draw();
-                        checkTreasureSubmit();
-
-                        turnManage.useStep();
-                        turnManage.showRemainSteps();
-                        step = turnManage.getStep();
-                        if(step==0) {
-                            mainBoard.getChildren().remove(currentPlayer1);
-                            for (int i = 0; i < currentPlayers.size(); i++) {
-                                if (currentPlayers.get(i).equals(currentPlayer)) {
-                                    currentPlayer = currentPlayers.get(turnManage.getIndex(i, currentPlayers));
-                                    for(Player p : players1) {
-                                        if(p.getType().equals(currentPlayer.getType())){
-                                            currentPlayer1=p;
-                                            mainBoard.getChildren().add(currentPlayer1);
-                                            currentPlayer1.draw();
-                                            currentPlayer1.setLayoutX(155);
-                                            currentPlayer1.setLayoutY(30);
-                                        }
-                                    }
-                                    currentBag = currentBags.get(turnManage.getIndex(i, currentPlayers));
-                                    break;
-                                }
+                        executeMove(tile);
+                    }
+                    // 处理Pilot的特殊飞行
+                    else if (currentPlayer instanceof Pilot pilot) {
+                        if (!pilot.isSpecialFlightUsed()) { // 新增状态检查方法
+                            executeMove(tile);
+                            if (currentPlayer1 instanceof Pilot uiPilot) {
+                                uiPilot.syncState(pilot);
                             }
+                        } else {
+                            showMessage("Special flight already used this turn!");
                         }
-
-                        exchangeCards();
-
-                        isMoveMode = false;
-                        screenController.getMove().setText("Move");
                     } else {
                         showMessage("Target tile is not adjacent!");
                     }
+//                    if (isAdjacent) {
+////                        currentPlayer.setLayoutX(targetX+30);
+////                        currentPlayer.setX(targetX);
+////                        currentPlayer.setLayoutY(targetY);
+////                        currentPlayer.setY(targetY);
+////                        currentPlayer.draw();
+////                        checkTreasureSubmit();
+////
+////                        turnManage.useStep();
+////                        turnManage.showRemainSteps();
+////                        step = turnManage.getStep();
+////                        if(step==0) {
+////                            mainBoard.getChildren().remove(currentPlayer1);
+////                            for (int i = 0; i < currentPlayers.size(); i++) {
+////                                if (currentPlayers.get(i).equals(currentPlayer)) {
+////                                    currentPlayer = currentPlayers.get(turnManage.getIndex(i, currentPlayers));
+////                                    for(Player p : players1) {
+////                                        if(p.getType().equals(currentPlayer.getType())){
+////                                            currentPlayer1=p;
+////                                            mainBoard.getChildren().add(currentPlayer1);
+////                                            currentPlayer1.draw();
+////                                            currentPlayer1.setLayoutX(155);
+////                                            currentPlayer1.setLayoutY(30);
+////                                        }
+////                                    }
+////                                    currentBag = currentBags.get(turnManage.getIndex(i, currentPlayers));
+////                                    break;
+////                                }
+////                            }
+////                        }
+////
+////                        exchangeCards();
+////
+////                        isMoveMode = false;
+////                        screenController.getMove().setText("Move");
+//                        executeMove(tile);
+//                    } else {
+//                        showMessage("Target tile is not adjacent!");
+//                    }
+
                 });
             }
         }
     }
 
+    private void disableMoveMode() {
+        for (Node node : mainBoard.getChildren()) {
+            if (node instanceof Tile tile) {
+                tile.setOnMouseClicked(null);
+            }
+        }
+    }
+
+    private void executeMove(Tile tile) {
+        int targetX = (int) tile.getLayoutX();
+        int targetY = (int) tile.getLayoutY();
+
+        currentPlayer.setLayoutX(targetX + 30);
+        currentPlayer.setX(targetX);
+        currentPlayer.setLayoutY(targetY);
+        currentPlayer.setY(targetY);
+        currentPlayer.draw();
+        checkTreasureSubmit();
+
+        turnManage.useStep();
+        int step = turnManage.getStep();
+        turnManage.showRemainSteps();
+
+        if (step == 0) {
+            mainBoard.getChildren().remove(currentPlayer1);
+            // 同步UI实例的状态
+            if (currentPlayer1 instanceof Pilot) {
+                ((Pilot) currentPlayer1).resetSpecialFlight();
+            }
+            // 使用模运算循环切换玩家
+            int nextIndex = (currentPlayers.indexOf(currentPlayer) + 1) % currentPlayers.size();
+            currentPlayer = currentPlayers.get(nextIndex);
+
+            // 重置所有玩家的特殊能力状态
+            currentPlayers.forEach(player -> {
+                if (player instanceof Pilot pilot) {
+                    pilot.resetSpecialFlight();
+                }
+            });
+
+            // 通过玩家类型匹配 UI 实例
+            currentPlayer1 = players1.stream()
+                    .filter(p -> p.getType().equals(currentPlayer.getType()))
+                    .findFirst()
+                    .orElse(null);
+
+
+
+            if (currentPlayer1 != null) {
+                mainBoard.getChildren().add(currentPlayer1);
+                currentPlayer1.draw();
+                currentPlayer1.setLayoutX(155);
+                currentPlayer1.setLayoutY(30);
+
+
+            }
+
+            // 直接通过索引获取对应的背包
+            currentBag = currentBags.get(nextIndex);
+            turnManage.resetSteps();
+        }
+
+        exchangeCards();
+
+        isMoveMode = false;
+        screenController.getMove().setText("Move");
+    }
 
     private void drawFloodedTileOnDeck(Tile tile) {
         // 获取 FloodDeck 的位置
@@ -596,28 +684,76 @@ public class ForbiddenGameStarted {
 
 
     private void handleTurnOver() {
-        turnManage.setStep(0);
-        turnManage.showRemainSteps();
-        step = turnManage.getStep();
-        if (step == 0) {
-            mainBoard.getChildren().remove(currentPlayer1);
-            for (int i = 0; i < currentPlayers.size(); i++) {
-                if (currentPlayers.get(i).equals(currentPlayer)) {
-                    currentPlayer = currentPlayers.get(turnManage.getIndex(i, currentPlayers));
-                    for (Player p : players1) {
-                        if (p.getType().equals(currentPlayer.getType())) {
-                            currentPlayer1 = p;
-                            mainBoard.getChildren().add(currentPlayer1 = p);
-                            currentPlayer1.draw();
-                            currentPlayer1.setLayoutX(155);
-                            currentPlayer1.setLayoutY(30);
-                        }
-                    }
-                    currentBag = currentBags.get(turnManage.getIndex(i, currentPlayers));
-                    break;
-                }
+//        currentPlayers.forEach(player -> {
+//            if (player instanceof Pilot pilot) {
+//                pilot.resetSpecialFlight();
+//            }
+//        });
+//        players1.stream()
+//                .filter(p -> p instanceof Pilot)
+//                .forEach(p -> ((Pilot)p).resetSpecialFlight());
+//
+//        currentPlayers.stream()
+//                .filter(p -> p instanceof Pilot)
+//                .forEach(p -> ((Pilot)p).resetSpecialFlight());
+
+//        turnManage.setStep(0);
+//        turnManage.showRemainSteps();
+//        step = turnManage.getStep();
+//        if (step == 0) {
+//            mainBoard.getChildren().remove(currentPlayer1);
+//            for (int i = 0; i < currentPlayers.size(); i++) {
+//                if (currentPlayers.get(i).equals(currentPlayer)) {
+//                    currentPlayer = currentPlayers.get(turnManage.getIndex(i, currentPlayers));
+//                    for (Player p : players1) {
+//                        if (p.getType().equals(currentPlayer.getType())) {
+//                            currentPlayer1 = p;
+//                            mainBoard.getChildren().add(currentPlayer1 = p);
+//                            currentPlayer1.draw();
+//                            currentPlayer1.setLayoutX(155);
+//                            currentPlayer1.setLayoutY(30);
+//                        }
+//                    }
+//                    currentBag = currentBags.get(turnManage.getIndex(i, currentPlayers));
+//                    break;
+//                }
+//            }
+//        }
+//        drawAllTreasureCards();
+        // 强制切换到下一个玩家
+        mainBoard.getChildren().remove(currentPlayer1);
+
+        int currentIndex = currentPlayers.indexOf(currentPlayer);
+        int nextIndex = (currentIndex + 1) % currentPlayers.size();
+        currentPlayer = currentPlayers.get(nextIndex);
+
+        // 重置新玩家的特殊能力（如果是Pilot）
+        if (currentPlayer instanceof Pilot) {
+            ((Pilot) currentPlayer).resetSpecialFlight();
+        }
+
+        currentPlayer1 = players1.stream()
+                .filter(p -> p.getType().equals(currentPlayer.getType()))
+                .findFirst()
+                .orElse(null);
+
+        if (currentPlayer1 != null) {
+            mainBoard.getChildren().add(currentPlayer1);
+            currentPlayer1.draw();
+            currentPlayer1.setLayoutX(155);
+            currentPlayer1.setLayoutY(30);
+
+            // 同步UI实例的状态
+            if (currentPlayer1 instanceof Pilot) {
+                ((Pilot) currentPlayer1).resetSpecialFlight();
             }
         }
+
+        currentBag = currentBags.get(nextIndex);
+
+        // 重置步骤并更新 UI
+        turnManage.resetSteps(); // 需要确保 TurnManage 有 resetSteps() 方法
+        turnManage.showRemainSteps();
         drawAllTreasureCards();
     }
     public void sentSpecialCards(List<TreasureCard> playerBag){

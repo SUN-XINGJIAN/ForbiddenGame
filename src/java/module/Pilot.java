@@ -37,8 +37,10 @@ public class Pilot extends Player {
     private String pawnName;
     private module.PlayerBag.playerType type = module.PlayerBag.playerType.Pilot;
     private List<TreasureCard> PilotBag = new ArrayList<>();
+    private boolean specialFlightUsed = false;
+
     public Pilot(String name){
-        super("Diver");
+        super("Pilot");
 
         pawnName = "/image/Pawns/@2x/Pilot@2x.png";
     }
@@ -79,8 +81,38 @@ public class Pilot extends Player {
         return type;
     }
 
+
     @Override
     public List<TreasureCard> getBag() {
         return PilotBag;
+    }
+
+    public void resetSpecialFlight() {
+        specialFlightUsed = false;
+    }
+
+    public boolean useSpecialFlight() {
+        if (!specialFlightUsed) {
+            specialFlightUsed = true;
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isSpecialFlightUsed() {
+        return specialFlightUsed;
+    }
+
+    @Override
+    public void resetSpecialAbility() {
+        this.specialFlightUsed = false;
+    }
+
+    public void setSpecialFlightUsed(boolean used) {
+        this.specialFlightUsed = used;
+    }
+
+    public void syncState(Pilot other) {
+        this.specialFlightUsed = other.specialFlightUsed;
     }
 }
