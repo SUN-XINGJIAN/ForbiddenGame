@@ -377,14 +377,15 @@ public class ForbiddenGameStarted {
                             (Math.abs(targetX - currX) == tileSize && targetY == currY) ||
                                     (Math.abs(targetY - currY) == tileSize && targetX == currX);
 
-                    // 处理所有玩家的基础移动和Pilot的特殊飞行
+                    // 处理所有玩家的基础移动
                     if (isAdjacent) {
                         executeMove(tile);
-                    } else if (currentPlayer instanceof Pilot pilot) {
-                        if (!pilot.isSpecialFlightUsed()) {
+                    }
+                    // 处理Pilot的特殊飞行
+                    else if (currentPlayer instanceof Pilot pilot) {
+                        if (!pilot.isSpecialFlightUsed()) { // 新增状态检查方法
+                            pilot.useSpecialFlight();
                             executeMove(tile);
-                            pilot.setSpecialFlightUsed(true);
-                            ((Pilot) currentPlayer1).setSpecialFlightUsed(true);
                         } else {
                             showMessage("Special flight already used this turn!");
                         }
@@ -458,7 +459,13 @@ public class ForbiddenGameStarted {
         turnManage.useStep();
         turnManage.showRemainSteps();
         step = turnManage.getStep();
-
+        if (currentPlayer instanceof Pilot) {
+            Pilot pilot = (Pilot) currentPlayer;
+            if (pilot.useSpecialFlight()) {
+                // 同步 UI 实例状态
+                ((Pilot) currentPlayer1).syncState(pilot);
+            }
+        }
         if (step == 0) {
             mainBoard.getChildren().remove(currentPlayer1);
 
