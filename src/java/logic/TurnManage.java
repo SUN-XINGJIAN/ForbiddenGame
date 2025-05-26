@@ -15,7 +15,7 @@ public class TurnManage {
 
 
     public void useStep(){
-        step--;
+        if (step > 0) step--;
     }
 
     public void showRemainSteps(){
@@ -47,5 +47,9 @@ public class TurnManage {
     }
     public void setStep(int step) {
         this.step = step;
+    }
+
+    public void resetSteps() {
+        step = 3; // 重置为初始步数
     }
 }
