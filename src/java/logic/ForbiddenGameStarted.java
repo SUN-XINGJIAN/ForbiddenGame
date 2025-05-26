@@ -659,7 +659,7 @@ public class ForbiddenGameStarted {
 
         if (playerBag.size() > 5) {
             x=0;
-            promptDiscardCards();  // 弹出丢弃界面
+            promptDiscardCards(currentBag);  // 弹出丢弃界面
         }
 
     }
@@ -690,7 +690,7 @@ public class ForbiddenGameStarted {
     }
 
 
-    private void promptDiscardCards() {
+    private void promptDiscardCards(List<TreasureCard> bag) {
         showMessage("You have too many cards! Please discard until only 5 remain.");
 
         // 禁用所有其他控件
@@ -704,9 +704,9 @@ public class ForbiddenGameStarted {
         int offset = 90;
 
         if(x<1){
-            for (int i = 0; i < currentBag.size(); i++) {
-                TreasureCard card = currentBag.get(i);
-                double x = centerX - (currentBag.size() * offset) / 2 + offset * i;
+            for (int i = 0; i < bag.size(); i++) {
+                TreasureCard card = bag.get(i);
+                double x = centerX - (bag.size() * offset) / 2 + offset * i;
                 double y = discardAreaY;
 
                 Canvas cardCanvas = new Canvas(cardWidth, cardHeight);
@@ -725,6 +725,7 @@ public class ForbiddenGameStarted {
                 mainBoard.getChildren().add(cardCanvas);
             }
         }else{
+            System.out.println("x" + x);
             int t = 0;
             for (int i = 0; i < currentPlayers.size(); i++) {
                 if (currentPlayers.get(i).equals(currentPlayer)) {
@@ -752,6 +753,7 @@ public class ForbiddenGameStarted {
                 });
                 mainBoard.getChildren().add(cardCanvas);
             }
+            x = 0;
         }
 
     }
@@ -776,7 +778,7 @@ public class ForbiddenGameStarted {
         drawAllTreasureCards();
 
         if (currentBags.get(t).size() > 5) {
-            promptDiscardCards();  // 继续丢弃
+            promptDiscardCards(currentBag);  // 继续丢弃
         } else {
             showMessage("You now have 5 cards or fewer.");
 
@@ -1095,6 +1097,7 @@ public class ForbiddenGameStarted {
 
     private List<Player> findSamePositionPlayers(Player player){
         List<Player> sameTilePlayers = new ArrayList<>();
+
         for(Player p :currentPlayers){
             if(!p.equals(currentPlayer) && getTileByPlayer(p).equals(getTileByPlayer(player))){
                 sameTilePlayers.add(p);
@@ -1173,6 +1176,15 @@ public class ForbiddenGameStarted {
                     if(p.getType().equals(pb.getPlayerType())){
                         p.getBag().add(selectTreasureCards(currentBag).get(index));
                     }
+                    if(p.getBag().size() > 5){
+                        step=turnManage.getStep();
+                        System.out.println("step: "+ step);
+                        if(step==1){
+                            x=2;
+                        }
+                        promptDiscardCards(p.getBag());
+                    }
+                    x=0;
                 }
                 currentBag.remove(selectTreasureCards(currentBag).get(index));
 
@@ -1182,25 +1194,29 @@ public class ForbiddenGameStarted {
 
                 turnManage.useStep();
                 turnManage.showRemainSteps();
-//                if(step==0) {
-//                    mainBoard.getChildren().remove(currentPlayer1);
-//                    for (int i = 0; i < currentPlayers.size(); i++) {
-//                        if (currentPlayers.get(i).equals(currentPlayer)) {
-//                            currentPlayer = currentPlayers.get(turnManage.getIndex(i, currentPlayers));
-//                            for(Player p : players1) {
-//                                if(p.getType().equals(currentPlayer.getType())){
-//                                    currentPlayer1=p;
-//                                    mainBoard.getChildren().add(currentPlayer1);
-//                                    currentPlayer1.draw();
-//                                    currentPlayer1.setLayoutX(155);
-//                                    currentPlayer1.setLayoutY(30);
-//                                }
-//                            }
-//                            currentBag = currentBags.get(turnManage.getIndex(i, currentPlayers));
-//                            break;
-//                        }
-//                    }
-//                }
+                step = turnManage.getStep();
+                if(step==0) {
+                    mainBoard.getChildren().remove(currentPlayer1);
+                    for (int i = 0; i < currentPlayers.size(); i++) {
+                        if (currentPlayers.get(i).equals(currentPlayer)) {
+                            currentPlayer = currentPlayers.get(turnManage.getIndex(i, currentPlayers));
+                            for(Player p : players1) {
+                                if(p.getType().equals(currentPlayer.getType())){
+                                    currentPlayer1=p;
+                                    mainBoard.getChildren().add(currentPlayer1);
+                                    currentPlayer1.draw();
+                                    currentPlayer1.setLayoutX(155);
+                                    currentPlayer1.setLayoutY(30);
+                                }
+                            }
+                            currentBag = currentBags.get(turnManage.getIndex(i, currentPlayers));
+                            break;
+                        }
+                    }
+                    screenController.getExchangeCards().setDisable(true);
+                }
+
+
             });
         }
 
