@@ -377,60 +377,20 @@ public class ForbiddenGameStarted {
                             (Math.abs(targetX - currX) == tileSize && targetY == currY) ||
                                     (Math.abs(targetY - currY) == tileSize && targetX == currX);
 
-                    // 处理所有玩家的基础移动
+                    // 处理所有玩家的基础移动和Pilot的特殊飞行
                     if (isAdjacent) {
                         executeMove(tile);
-                    }
-                    // 处理Pilot的特殊飞行
-                    else if (currentPlayer instanceof Pilot pilot) {
-                        if (!pilot.isSpecialFlightUsed()) { // 新增状态检查方法
-                            pilot.useSpecialFlight();
+                    } else if (currentPlayer instanceof Pilot pilot) {
+                        if (!pilot.isSpecialFlightUsed()) {
                             executeMove(tile);
+                            pilot.setSpecialFlightUsed(true);
+                            ((Pilot) currentPlayer1).setSpecialFlightUsed(true);
                         } else {
                             showMessage("Special flight already used this turn!");
                         }
                     } else {
                         showMessage("Target tile is not adjacent!");
                     }
-//                    if (isAdjacent) {
-////                        currentPlayer.setLayoutX(targetX+30);
-////                        currentPlayer.setX(targetX);
-////                        currentPlayer.setLayoutY(targetY);
-////                        currentPlayer.setY(targetY);
-////                        currentPlayer.draw();
-////                        checkTreasureSubmit();
-////
-////                        turnManage.useStep();
-////                        turnManage.showRemainSteps();
-////                        step = turnManage.getStep();
-////                        if(step==0) {
-////                            mainBoard.getChildren().remove(currentPlayer1);
-////                            for (int i = 0; i < currentPlayers.size(); i++) {
-////                                if (currentPlayers.get(i).equals(currentPlayer)) {
-////                                    currentPlayer = currentPlayers.get(turnManage.getIndex(i, currentPlayers));
-////                                    for(Player p : players1) {
-////                                        if(p.getType().equals(currentPlayer.getType())){
-////                                            currentPlayer1=p;
-////                                            mainBoard.getChildren().add(currentPlayer1);
-////                                            currentPlayer1.draw();
-////                                            currentPlayer1.setLayoutX(155);
-////                                            currentPlayer1.setLayoutY(30);
-////                                        }
-////                                    }
-////                                    currentBag = currentBags.get(turnManage.getIndex(i, currentPlayers));
-////                                    break;
-////                                }
-////                            }
-////                        }
-////
-////                        exchangeCards();
-////
-////                        isMoveMode = false;
-////                        screenController.getMove().setText("Move");
-//                        executeMove(tile);
-//                    } else {
-//                        showMessage("Target tile is not adjacent!");
-//                    }
 
                 });
             }
@@ -459,13 +419,6 @@ public class ForbiddenGameStarted {
         turnManage.useStep();
         turnManage.showRemainSteps();
         step = turnManage.getStep();
-        if (currentPlayer instanceof Pilot) {
-            Pilot pilot = (Pilot) currentPlayer;
-            if (pilot.useSpecialFlight()) {
-                // 同步 UI 实例状态
-                ((Pilot) currentPlayer1).syncState(pilot);
-            }
-        }
         if (step == 0) {
             mainBoard.getChildren().remove(currentPlayer1);
 
@@ -686,42 +639,6 @@ public class ForbiddenGameStarted {
 
 
     private void handleTurnOver() {
-//        currentPlayers.forEach(player -> {
-//            if (player instanceof Pilot pilot) {
-//                pilot.resetSpecialFlight();
-//            }
-//        });
-//        players1.stream()
-//                .filter(p -> p instanceof Pilot)
-//                .forEach(p -> ((Pilot)p).resetSpecialFlight());
-//
-//        currentPlayers.stream()
-//                .filter(p -> p instanceof Pilot)
-//                .forEach(p -> ((Pilot)p).resetSpecialFlight());
-
-//        turnManage.setStep(0);
-//        turnManage.showRemainSteps();
-//        step = turnManage.getStep();
-//        if (step == 0) {
-//            mainBoard.getChildren().remove(currentPlayer1);
-//            for (int i = 0; i < currentPlayers.size(); i++) {
-//                if (currentPlayers.get(i).equals(currentPlayer)) {
-//                    currentPlayer = currentPlayers.get(turnManage.getIndex(i, currentPlayers));
-//                    for (Player p : players1) {
-//                        if (p.getType().equals(currentPlayer.getType())) {
-//                            currentPlayer1 = p;
-//                            mainBoard.getChildren().add(currentPlayer1 = p);
-//                            currentPlayer1.draw();
-//                            currentPlayer1.setLayoutX(155);
-//                            currentPlayer1.setLayoutY(30);
-//                        }
-//                    }
-//                    currentBag = currentBags.get(turnManage.getIndex(i, currentPlayers));
-//                    break;
-//                }
-//            }
-//        }
-//        drawAllTreasureCards();
         // 强制切换到下一个玩家
         mainBoard.getChildren().remove(currentPlayer1);
 
