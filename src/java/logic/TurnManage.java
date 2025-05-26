@@ -34,6 +34,14 @@ public class TurnManage {
         return index;
     }
 
+    public int getIndex1(int index,List<Player> players){
+        index--;
+        if(index == -1){
+            index = players.size()-1;
+        }
+        return index;
+    }
+
     public int getStep() {
         return step;
     }
