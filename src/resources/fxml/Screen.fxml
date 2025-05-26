@@ -32,15 +32,15 @@
             </image>
          </ImageView>
          <Label fx:id="messageLabel" layoutX="409.0" layoutY="23.0" prefHeight="26.0" prefWidth="320.0" text="" visible="false" />
-         <HBox alignment="TOP_RIGHT" layoutX="51.0" layoutY="23.0" prefHeight="100.0" prefWidth="832.0">
+         <HBox alignment="TOP_RIGHT" layoutX="56.0" layoutY="23.0" prefHeight="64.0" prefWidth="832.0">
             <children>
                <Label prefHeight="57.0" prefWidth="131.0" text="Current  Player:" />
                <Label fx:id="RemainSteps" prefHeight="51.0" prefWidth="139.0" text="Remain steps:" />
                <Button fx:id="move" mnemonicParsing="false" prefHeight="26.0" prefWidth="69.0" text="move" />
-               <Button fx:id="SelectFloodCards" mnemonicParsing="false" prefHeight="26.0" prefWidth="141.0" text="select flood cards" />
                <Button fx:id="saveTheIsland" mnemonicParsing="false" prefHeight="26.0" prefWidth="117.0" text="save the island" />
                <Button fx:id="TurnOver" mnemonicParsing="false" prefHeight="26.0" prefWidth="93.0" text="Turn over" />
                <Button fx:id="useSpecialCardButton" mnemonicParsing="false" prefHeight="26.0" prefWidth="126.0" text="Use Special cards" />
+               <Button fx:id="useSpecialSkill" mnemonicParsing="false" prefHeight="26.0" prefWidth="132.0" text="Use special skill" />
                <Button fx:id="ExchangeCards" mnemonicParsing="false" prefHeight="26.0" prefWidth="84.0" text="Exchange" />
             </children>
          </HBox>

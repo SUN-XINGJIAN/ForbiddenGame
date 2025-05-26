@@ -6,7 +6,7 @@ import module.Player;
 import java.util.List;
 
 public class TurnManage {
-    private int step = 0;
+    public int step = 0;
     private ScreenController screenController;
     public TurnManage(ScreenController screenController){
         step = 3;

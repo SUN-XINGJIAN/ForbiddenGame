@@ -47,6 +47,31 @@ public class Navigator extends Player {
         gc.drawImage(new Image(getClass().getResourceAsStream(pawnName)),0,0,getWidth(),getHeight());
     }
 
+    @Override
+    public void useSpecialAbility(ForbiddenGameStarted forbiddenGameStarted, Player player) {
+        super.useSpecialAbility(forbiddenGameStarted, player);
+        forbiddenGameStarted.navigatorCount++;
+
+        forbiddenGameStarted.showMessage("Select a player to move!");
+
+        // 启用对其他玩家的监听
+        for (Player p : forbiddenGameStarted.currentPlayers) {
+            if (!p.equals(player)) { // 排除 currentPlayer
+                for (PlayerBag pb : forbiddenGameStarted.playerBags) {
+                    if (pb.getPlayerType().equals(p.getType())) {
+                        pb.setDisable(false); // 启用该玩家的控件
+                        pb.setOnMouseClicked(e -> {
+                            forbiddenGameStarted.isMoveMode = !forbiddenGameStarted.isMoveMode;  // 切换移动模式
+                            if (forbiddenGameStarted.isMoveMode) {
+                                forbiddenGameStarted.enableTileMovement(p);  // 启动每次点击时可以移动棋子的模式
+                            }
+                        });
+                    }
+                }
+            }
+        }
+
+    }
 
     public int getPositionX(ForbiddenGameStarted forbiddenGameStarted){
         int x=0;

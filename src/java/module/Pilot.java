@@ -115,4 +115,42 @@ public class Pilot extends Player {
     public void syncState(Pilot other) {
         this.specialFlightUsed = other.specialFlightUsed;
     }
+
+    @Override
+    public void useSpecialAbility(ForbiddenGameStarted forbiddenGameStarted,Player player) {
+        super.useSpecialAbility(forbiddenGameStarted, player);
+            for (Tile tile : forbiddenGameStarted.getTiles()) {
+                tile.setOnMouseClicked(e -> {
+                    if(!forbiddenGameStarted.isSpecialMode){
+                        return;
+                    }
+                    if (tile.getState() == 0) {
+                        int targetX = (int) tile.getLayoutX();
+                        int targetY = (int) tile.getLayoutY();
+
+                        player.setLayoutX(targetX + 30);
+                        player.setX(targetX);
+                        player.setLayoutY(targetY);
+                        player.setY(targetY);
+                        player.draw();
+                        forbiddenGameStarted.checkTreasureSubmit();
+                        forbiddenGameStarted.exchangeCards();
+
+                        forbiddenGameStarted.turnManage.useStep();
+                        forbiddenGameStarted.turnManage.showRemainSteps();
+                        forbiddenGameStarted.step = forbiddenGameStarted.turnManage.getStep();
+                        forbiddenGameStarted.changeCurrentPlayer();
+
+
+                        forbiddenGameStarted.pilotCount++;
+                        forbiddenGameStarted.isSpecialMode = false;
+                    }else{
+                        forbiddenGameStarted.showMessage("This tile is already flood!");
+                    }
+
+                });
+                }
+
+
+    }
 }

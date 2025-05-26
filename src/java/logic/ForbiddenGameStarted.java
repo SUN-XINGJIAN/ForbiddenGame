@@ -32,9 +32,10 @@ import static cards.TreasureCard.Type.*;
 
 public class ForbiddenGameStarted {
 
-    private ScreenController screenController;
-    private Pane mainBoard;
-    private boolean isMoveMode = false;
+    public ScreenController screenController;
+    public Pane mainBoard;
+    public boolean isMoveMode = false;
+    public boolean isSpecialMode = false;
     private int[] random1= new int[24];
     private List<Tile> tiles = new ArrayList<>();
     private List<TreasureCard> treasureCards = new ArrayList<>();
@@ -42,13 +43,13 @@ public class ForbiddenGameStarted {
     private boolean isSaveMode = false; // 是否进入 "save the island" 模式
     private Label messageLabel;
     private List<Canvas> floodedTileCanvases = new ArrayList<>(); // 用于保存 FloodDeck 后面的所有图片
-    private List<TreasureCard> currentBag = new ArrayList<>();
+    public List<TreasureCard> currentBag = new ArrayList<>();
     private List<List> currentBags = new ArrayList<>();
     private List<Treasure> treasures = new ArrayList<>();
     private List<Player> players = new ArrayList<>();
     private List<Player> players1 = new ArrayList<>();
-    private List<Player> currentPlayers = new ArrayList<>();
-    private List<PlayerBag> playerBags = new ArrayList<>();
+    public List<Player> currentPlayers = new ArrayList<>();
+    public List<PlayerBag> playerBags = new ArrayList<>();
     private int currentWaterMeterIndex = 1;
     private Button useSpecialCardButton;  // 用于触发使用特殊牌的按钮
     private Diver diver,diver1;
@@ -57,13 +58,14 @@ public class ForbiddenGameStarted {
     private Messenger messenger,messenger1;
     private Navigator navigator,navigator1;
     private Pilot pilot,pilot1;
-    private Player currentPlayer;
+    public Player currentPlayer;
     private Player currentPlayer1;
-    private TurnManage turnManage;
-    private int step;
+    public TurnManage turnManage;
+    public int step;
     private int playerCount; // 玩家数量
     private boolean b = false;
     private int x;
+    public int pilotCount,diverCount,engineerCount,explorerCount,messengerCount,navigatorCount;
 
     public ForbiddenGameStarted(ScreenController screenController, int playerCount) {
         // 初始化random1数组
@@ -93,16 +95,12 @@ public class ForbiddenGameStarted {
             isMoveMode = !isMoveMode;  // 切换移动模式
             if (isMoveMode) {
                 screenController.getMove().setText("Cancel Move");
-                enableTileMovement();  // 启动每次点击时可以移动棋子的模式
+                enableTileMovement(currentPlayer);  // 启动每次点击时可以移动棋子的模式
             } else {
                 screenController.getMove().setText("Move");
             }
         });
 
-        // 为SelectFloodCards按钮添加点击事件处理程序
-        screenController.getSelectFloodCards().setOnAction(event -> {
-            selectRandomTile(); // 随机选择一个Tile并更改状态
-        });
 
         screenController.getSaveTheIsland().setOnAction(event -> {
             isSaveMode = !isSaveMode; // 切换保存模式
@@ -117,9 +115,8 @@ public class ForbiddenGameStarted {
 
 
         screenController.getTurnOver().setOnAction(event -> {
-            sentSpecialCards(currentBag);
-            if(!b){
-                handleTurnOver();}
+            handleTurnOver();
+            screenController.getUseSpecialSkill().setDisable(false);
         });
 
 
@@ -131,6 +128,51 @@ public class ForbiddenGameStarted {
 
         turnManage = new TurnManage(screenController);
         turnManage.showRemainSteps();
+
+        screenController.getUseSpecialSkill().setOnAction(event ->{
+            isSpecialMode = !isSpecialMode;
+            if (currentPlayer instanceof Pilot) {
+                if (pilotCount == 0) {
+                    useSpecialSkill();
+                } else {
+                    showMessage("You can only use special ability once per turn");
+                    screenController.getUseSpecialSkill().setDisable(true);
+                }
+            }
+            if (currentPlayer instanceof Explorer) {
+                useSpecialSkill();
+            }
+            if (currentPlayer instanceof Engineer) {
+                if (engineerCount == 0) {
+                    useSpecialSkill();
+                } else {
+                    showMessage("You can only use special ability once per turn");
+                    screenController.getUseSpecialSkill().setDisable(true);
+                }
+            }
+            if(currentPlayer instanceof Messenger){
+                if (messengerCount == 0) {
+                    useSpecialSkill();
+                }else{
+                    showMessage("You can only use special ability once per turn");
+                    screenController.getUseSpecialSkill().setDisable(true);
+                }
+            }
+            if(currentPlayer instanceof Navigator){
+                if (navigatorCount == 0) {
+                    useSpecialSkill();
+                }else{
+                    showMessage("You can only use special ability once per turn");
+                    screenController.getUseSpecialSkill().setDisable(true);
+                }
+            }
+            if(currentPlayer instanceof Diver){
+                useSpecialSkill();
+            }
+
+        });
+
+
 
     }
 
@@ -293,7 +335,7 @@ public class ForbiddenGameStarted {
 
     }
 
-    private void setAllControlsDisabled(boolean disable) {
+    public void setAllControlsDisabled(boolean disable) {
         for (Node node : mainBoard.getChildren()) {
             node.setDisable(disable); // 禁用或启用控件
         }
@@ -358,18 +400,20 @@ public class ForbiddenGameStarted {
 
 
 
-    private void enableTileMovement() {
+    public void enableTileMovement(Player p) {
         // 遍历 mainBoard 的所有子节点
         for (javafx.scene.Node node : mainBoard.getChildren()) {
             if (node instanceof Tile  tile) {
                 tile.setOnMouseClicked(e -> {
                     if (!isMoveMode) return;
 
+//                    boolean validMove = false;
+
                     int targetX = (int) tile.getLayoutX();
                     int targetY = (int) tile.getLayoutY();
 
-                    int currX = (int) currentPlayer.getLayoutX()-30;
-                    int currY = (int) currentPlayer.getLayoutY();
+                    int currX = (int) p.getLayoutX()-30;
+                    int currY = (int) p.getLayoutY();
 
                     int tileSize = 50;
 
@@ -377,41 +421,24 @@ public class ForbiddenGameStarted {
                             (Math.abs(targetX - currX) == tileSize && targetY == currY) ||
                                     (Math.abs(targetY - currY) == tileSize && targetX == currX);
 
-                    if (isAdjacent) {
-                        currentPlayer.setLayoutX(targetX+30);
-                        currentPlayer.setX(targetX);
-                        currentPlayer.setLayoutY(targetY);
-                        currentPlayer.setY(targetY);
-                        currentPlayer.draw();
+                    if (isAdjacent && tile.getState() == 0) {
+                        p.setLayoutX(targetX+30);
+                        p.setX(targetX);
+                        p.setLayoutY(targetY);
+                        p.setY(targetY);
+                        p.draw();
                         checkTreasureSubmit();
 
                         turnManage.useStep();
                         turnManage.showRemainSteps();
-                        step = turnManage.getStep();
-                        if(step==0) {
-                            mainBoard.getChildren().remove(currentPlayer1);
-                            for (int i = 0; i < currentPlayers.size(); i++) {
-                                if (currentPlayers.get(i).equals(currentPlayer)) {
-                                    currentPlayer = currentPlayers.get(turnManage.getIndex(i, currentPlayers));
-                                    for(Player p : players1) {
-                                        if(p.getType().equals(currentPlayer.getType())){
-                                            currentPlayer1=p;
-                                            mainBoard.getChildren().add(currentPlayer1);
-                                            currentPlayer1.draw();
-                                            currentPlayer1.setLayoutX(155);
-                                            currentPlayer1.setLayoutY(30);
-                                        }
-                                    }
-                                    currentBag = currentBags.get(turnManage.getIndex(i, currentPlayers));
-                                    break;
-                                }
-                            }
-                        }
+                        changeCurrentPlayer();
 
                         exchangeCards();
 
                         isMoveMode = false;
                         screenController.getMove().setText("Move");
+                    }else if(tile.getState() == 1){
+                        showMessage("Target tile is flooded!");
                     } else {
                         showMessage("Target tile is not adjacent!");
                     }
@@ -419,6 +446,15 @@ public class ForbiddenGameStarted {
             }
         }
     }
+
+
+//    private void disableMoveMode() {
+//        for (Node node : mainBoard.getChildren()) {
+//            if (node instanceof Tile tile) {
+//                tile.setOnMouseClicked(null);
+//            }
+//        }
+//    }
 
 
     private void drawFloodedTileOnDeck(Tile tile) {
@@ -455,7 +491,7 @@ public class ForbiddenGameStarted {
         floodedTileCanvases.add(floodedTileCanvas);
     }
 
-    private void removeFloodedTileFromDeckByTile(Tile tile) {
+    public void removeFloodedTileFromDeckByTile(Tile tile) {
         String tileImagePath = tile.getTileName1(); // 获取当前 Tile 的图片路径
 
         // 遍历 floodedTileCanvases 列表，找到与 Tile 对应的 Canvas
@@ -494,21 +530,21 @@ public class ForbiddenGameStarted {
 
 
 
-    private void enableSaveMode() {
+    public void enableSaveMode() {
         // 为所有 Tile 添加点击事件
         for (Tile tile : tiles) {
             tile.setOnMouseClicked(event -> handleTileSave(tile)); // 添加鼠标点击事件
         }
     }
 
-    private void disableSaveMode() {
+    public void disableSaveMode() {
         // 禁用所有 Tile 的点击事件
         for (Tile tile : tiles) {
             tile.setOnMouseClicked(null); // 移除鼠标点击事件
         }
     }
 
-    private void handleTileSave(Tile tile) {
+    public void handleTileSave(Tile tile) {
         if (!isSaveMode) return; // 如果不在保存模式，则返回
 
         int targetX = (int) tile.getLayoutX();
@@ -542,26 +578,8 @@ public class ForbiddenGameStarted {
             showMessage("Island saved successfully!");
             turnManage.useStep();
             turnManage.showRemainSteps();
-            step = turnManage.getStep();
-            if(step==0) {
-                mainBoard.getChildren().remove(currentPlayer1);
-                for (int i = 0; i < currentPlayers.size(); i++) {
-                    if (currentPlayers.get(i).equals(currentPlayer)) {
-                        currentPlayer = currentPlayers.get(turnManage.getIndex(i, currentPlayers));
-                        for(Player p : players1) {
-                            if(p.getType().equals(currentPlayer.getType())){
-                                currentPlayer1=p;
-                                mainBoard.getChildren().add(currentPlayer1 = p);
-                                currentPlayer1.draw();
-                                currentPlayer1.setLayoutX(155);
-                                currentPlayer1.setLayoutY(30);
-                            }
-                        }
-                        currentBag = currentBags.get(turnManage.getIndex(i, currentPlayers));
-                        break;
-                    }
-                }
-            }
+            changeCurrentPlayer();
+
             isSaveMode = false;
             screenController.getSaveTheIsland().setText("Save the Island");
             disableSaveMode();
@@ -574,7 +592,7 @@ public class ForbiddenGameStarted {
     }
 
 
-    private void showMessage(String message) {
+    public void showMessage(String message) {
         if (messageLabel == null) {
             messageLabel = new Label();
             messageLabel.setLayoutX(409.0);
@@ -601,26 +619,7 @@ public class ForbiddenGameStarted {
     private void handleTurnOver() {
         turnManage.setStep(0);
         turnManage.showRemainSteps();
-        step = turnManage.getStep();
-        if (step == 0) {
-            mainBoard.getChildren().remove(currentPlayer1);
-            for (int i = 0; i < currentPlayers.size(); i++) {
-                if (currentPlayers.get(i).equals(currentPlayer)) {
-                    currentPlayer = currentPlayers.get(turnManage.getIndex(i, currentPlayers));
-                    for (Player p : players1) {
-                        if (p.getType().equals(currentPlayer.getType())) {
-                            currentPlayer1 = p;
-                            mainBoard.getChildren().add(currentPlayer1 = p);
-                            currentPlayer1.draw();
-                            currentPlayer1.setLayoutX(155);
-                            currentPlayer1.setLayoutY(30);
-                        }
-                    }
-                    currentBag = currentBags.get(turnManage.getIndex(i, currentPlayers));
-                    break;
-                }
-            }
-        }
+        changeCurrentPlayer();
         drawAllTreasureCards();
     }
     public void sentSpecialCards(List<TreasureCard> playerBag){
@@ -690,7 +689,7 @@ public class ForbiddenGameStarted {
     }
 
 
-    private void promptDiscardCards(List<TreasureCard> bag) {
+    public void promptDiscardCards(List<TreasureCard> bag) {
         showMessage("You have too many cards! Please discard until only 5 remain.");
 
         // 禁用所有其他控件
@@ -725,7 +724,6 @@ public class ForbiddenGameStarted {
                 mainBoard.getChildren().add(cardCanvas);
             }
         }else{
-            System.out.println("x" + x);
             int t = 0;
             for (int i = 0; i < currentPlayers.size(); i++) {
                 if (currentPlayers.get(i).equals(currentPlayer)) {
@@ -789,7 +787,7 @@ public class ForbiddenGameStarted {
     }
 
 
-    private void drawAllTreasureCards() {
+    public void drawAllTreasureCards() {
         // 先移除旧的卡牌 Canvas
         mainBoard.getChildren().removeIf(node -> node instanceof Canvas && "treasure".equals(node.getUserData()));
 
@@ -930,25 +928,29 @@ public class ForbiddenGameStarted {
     }
 
     private void moveByHelicopter(Tile tile) {
-        int targetX = (int) tile.getLayoutX();
-        int targetY = (int) tile.getLayoutY();
+        if(tile.getState() == 0) {
+            int targetX = (int) tile.getLayoutX();
+            int targetY = (int) tile.getLayoutY();
 
-        for(TreasureCard card : currentBag){
-            if(card.getType() == TreasureCard.Type.HELICOPTER){
-                currentBag.remove(card);
-                break;
+            for (TreasureCard card : currentBag) {
+                if (card.getType() == TreasureCard.Type.HELICOPTER) {
+                    currentBag.remove(card);
+                    break;
+                }
             }
+            mainBoard.getChildren().removeIf(node -> "discard".equals(node.getUserData()));
+            drawAllTreasureCards();
+
+            currentPlayer.setLayoutX(targetX + 30);
+            currentPlayer.setX(targetX);
+            currentPlayer.setLayoutY(targetY);
+            currentPlayer.setY(targetY);
+            currentPlayer.draw();
+
+            checkTreasureSubmit();
+        }else{
+            showMessage("This tile is already flood!");
         }
-        mainBoard.getChildren().removeIf(node -> "discard".equals(node.getUserData()));
-        drawAllTreasureCards();
-
-        currentPlayer.setLayoutX(targetX+30);
-        currentPlayer.setX(targetX);
-        currentPlayer.setLayoutY(targetY);
-        currentPlayer.setY(targetY);
-        currentPlayer.draw();
-
-        checkTreasureSubmit();
     }
 
     public Tile getTileByPlayer(Player p) {
@@ -1154,37 +1156,36 @@ public class ForbiddenGameStarted {
         }
     }
 
-    private void giveCards(int index){
+    private void giveCards(int index) {
 
         // 清除 discard 卡牌 UI
         mainBoard.getChildren().removeIf(node -> "discard".equals(node.getUserData()));
 
         List<Player> sameTilePlayers = findSamePositionPlayers(currentPlayer);
         List<PlayerBag> samePlayerBags = new ArrayList<>();
-        for(PlayerBag pb : playerBags){
-            for(Player p : sameTilePlayers){
-                if(p.getType().equals(pb.getPlayerType())){
+        for (PlayerBag pb : playerBags) {
+            for (Player p : sameTilePlayers) {
+                if (p.getType().equals(pb.getPlayerType())) {
                     pb.setDisable(false);
                     samePlayerBags.add(pb);
                 }
             }
         }
 
-        for(PlayerBag pb : samePlayerBags){
+        for (PlayerBag pb : samePlayerBags) {
             pb.setOnMouseClicked(e -> {
-                for(Player p : sameTilePlayers){
-                    if(p.getType().equals(pb.getPlayerType())){
+                for (Player p : sameTilePlayers) {
+                    if (p.getType().equals(pb.getPlayerType())) {
                         p.getBag().add(selectTreasureCards(currentBag).get(index));
                     }
-                    if(p.getBag().size() > 5){
-                        step=turnManage.getStep();
-                        System.out.println("step: "+ step);
-                        if(step==1){
-                            x=2;
+                    if (p.getBag().size() > 5) {
+                        step = turnManage.getStep();
+                        if (step == 1) {
+                            x = 2;
                         }
                         promptDiscardCards(p.getBag());
                     }
-                    x=0;
+                    x = 0;
                 }
                 currentBag.remove(selectTreasureCards(currentBag).get(index));
 
@@ -1195,31 +1196,38 @@ public class ForbiddenGameStarted {
                 turnManage.useStep();
                 turnManage.showRemainSteps();
                 step = turnManage.getStep();
-                if(step==0) {
-                    mainBoard.getChildren().remove(currentPlayer1);
-                    for (int i = 0; i < currentPlayers.size(); i++) {
-                        if (currentPlayers.get(i).equals(currentPlayer)) {
-                            currentPlayer = currentPlayers.get(turnManage.getIndex(i, currentPlayers));
-                            for(Player p : players1) {
-                                if(p.getType().equals(currentPlayer.getType())){
-                                    currentPlayer1=p;
-                                    mainBoard.getChildren().add(currentPlayer1);
-                                    currentPlayer1.draw();
-                                    currentPlayer1.setLayoutX(155);
-                                    currentPlayer1.setLayoutY(30);
-                                }
-                            }
-                            currentBag = currentBags.get(turnManage.getIndex(i, currentPlayers));
-                            break;
-                        }
-                    }
-                    screenController.getExchangeCards().setDisable(true);
-                }
+                changeCurrentPlayer();
 
 
             });
         }
 
+    }
+
+    public void changeCurrentPlayer(){
+        step = turnManage.getStep();
+        if(step==0) {
+            sentSpecialCards(currentBag);
+            selectRandomTile();
+            mainBoard.getChildren().remove(currentPlayer1);
+            for (int i = 0; i < currentPlayers.size(); i++) {
+                if (currentPlayers.get(i).equals(currentPlayer)) {
+                    currentPlayer = currentPlayers.get(turnManage.getIndex(i, currentPlayers));
+                    for (Player p : players1) {
+                        if (p.getType().equals(currentPlayer.getType())) {
+                            currentPlayer1 = p;
+                            mainBoard.getChildren().add(currentPlayer1);
+                            currentPlayer1.draw();
+                            currentPlayer1.setLayoutX(155);
+                            currentPlayer1.setLayoutY(30);
+                        }
+                    }
+                    currentBag = currentBags.get(turnManage.getIndex(i, currentPlayers));
+                    break;
+                }
+            }
+            setCurrentIndex();
+        }
     }
 
     public boolean openExchangeCardsButton(){
@@ -1238,7 +1246,22 @@ public class ForbiddenGameStarted {
                     promptExchangeCards();
                 }
             });
+        }else{
+            screenController.getExchangeCards().setDisable(true);
         }
+    }
+
+    public void useSpecialSkill(){
+        currentPlayer.useSpecialAbility(this,currentPlayer);
+    }
+
+    public void setCurrentIndex(){
+        diverCount = 0;
+        explorerCount = 0;
+        engineerCount = 0;
+        messengerCount = 0;
+        navigatorCount = 0;
+        pilotCount = 0;
     }
 
 }

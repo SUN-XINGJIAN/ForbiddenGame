@@ -21,6 +21,9 @@ public class ScreenController {
     private Button move;
 
     @FXML
+    private Button useSpecialSkill;
+
+    @FXML
     private ImageView FloodDeck;
 
     @FXML
@@ -31,9 +34,6 @@ public class ScreenController {
 
     @FXML
     private Button ExchangeCards;
-
-    @FXML
-    private Button SelectFloodCards;
 
     @FXML
     private Button TurnOver;
@@ -92,9 +92,10 @@ public class ScreenController {
         return move;
     }
 
-    public Button getSelectFloodCards() {
-        return SelectFloodCards;
+    public Button getUseSpecialSkill(){
+        return useSpecialSkill;
     }
+
 
     public Button getExchangeCards() {
         return ExchangeCards;

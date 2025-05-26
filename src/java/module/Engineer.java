@@ -30,13 +30,101 @@ public class Engineer extends module.Player {
     private String pawnName;
     private module.PlayerBag.playerType type = module.PlayerBag.playerType.Engineer;
     private List<TreasureCard> EngineerBag = new ArrayList<>();
+    private int saveTiles = 0;
 
 
 
     public Engineer(String name){
-        super("Diver");
+        super("Engineer");
         pawnName = "/image/Pawns/@2x/Engineer@2x.png";
     }
+
+
+    public void useSpecialAbility(ForbiddenGameStarted forbiddenGameStarted, Player player) {
+        super.useSpecialAbility(forbiddenGameStarted, player);
+
+        saveTiles = 0; // 每次调用此方法时，重置保存计数
+
+
+        if (countSaveableTilesInRange(forbiddenGameStarted, player) < 2) {
+            forbiddenGameStarted.showMessage("Not enough islands to save in range!");
+            return;
+        }
+
+        for (Tile tile : forbiddenGameStarted.getTiles()) {
+            tile.setOnMouseClicked(e -> {
+                int targetX = (int) tile.getLayoutX();
+                int targetY = (int) tile.getLayoutY();
+
+                int currX = (int) player.getLayoutX() - 30;
+                int currY = (int) player.getLayoutY();
+
+                int tileSize = 50;
+
+                boolean isAdjacentOrSame =
+                        (Math.abs(targetX - currX) == tileSize && targetY == currY) ||
+                                (Math.abs(targetY - currY) == tileSize && targetX == currX) ||
+                                (targetX == currX && targetY == currY);
+
+                if (!isAdjacentOrSame) {
+                    forbiddenGameStarted.showMessage("The island is too far to save!");
+                    return;
+                }
+
+                if (tile.getState() != 1) {
+                    forbiddenGameStarted.showMessage("The island has either submerged or has not been flooded!");
+                    return;
+                }
+
+                // 合法并可拯救，执行拯救
+                tile.setState(0);
+                tile.draw();
+                forbiddenGameStarted.removeFloodedTileFromDeckByTile(tile);
+
+                saveTiles++;
+
+                forbiddenGameStarted.showMessage("Island saved successfully!");
+
+                // 判断是否保存了2个
+                if (saveTiles == 1) {
+                    forbiddenGameStarted.showMessage("You can save one more island!");
+                } else if (saveTiles == 2) {
+                    // 满两次，结束操作
+                    forbiddenGameStarted.disableSaveMode();
+                    forbiddenGameStarted.engineerCount++;
+
+                    forbiddenGameStarted.turnManage.useStep();
+                    forbiddenGameStarted.turnManage.showRemainSteps();
+                    forbiddenGameStarted.step = forbiddenGameStarted.turnManage.getStep();
+                    forbiddenGameStarted.changeCurrentPlayer();
+                }
+            });
+        }
+    }
+
+    private int countSaveableTilesInRange(ForbiddenGameStarted forbiddenGameStarted, Player player) {
+        int saveableCount = 0;
+        int currX = (int) player.getLayoutX() - 30;
+        int currY = (int) player.getLayoutY();
+
+        for (Tile tile : forbiddenGameStarted.getTiles()) {
+            int targetX = (int) tile.getLayoutX();
+            int targetY = (int) tile.getLayoutY();
+
+            int tileSize = 50;
+            boolean isAdjacentOrSame =
+                    (Math.abs(targetX - currX) == tileSize && targetY == currY) ||
+                            (Math.abs(targetY - currY) == tileSize && targetX == currX) ||
+                            (targetX == currX && targetY == currY);
+
+            if (isAdjacentOrSame && tile.getState() == 1) {
+                saveableCount++;
+            }
+        }
+
+        return saveableCount; // 返回可拯救的岛屿数量
+    }
+
 
     @Override
     public void draw() {
@@ -66,6 +154,31 @@ public class Engineer extends module.Player {
         }
         return y;
     }
+
+    private int countFloodTiles(List<Tile> tiles,Player player){
+        List<Tile> floodTiles = new ArrayList<>();
+
+        int currX = (int) player.getLayoutX() - 30;
+        int currY = (int) player.getLayoutY();
+
+        for(Tile t : tiles){
+
+            int targetX = (int) t.getLayoutX();
+            int targetY = (int) t.getLayoutY();
+
+            int tileSize = 50;
+            boolean isAdjacentOrSame =
+                    (Math.abs(targetX - currX) == tileSize && targetY == currY) ||
+                            (Math.abs(targetY - currY) == tileSize && targetX == currX) ||
+                            (targetX == currX && targetY == currY);
+            if(isAdjacentOrSame && t.getState() == 1){
+                floodTiles.add(t);
+            }
+        }
+        return floodTiles.size();
+    }
+
+
 
     public String getName(){
         return "Engineer";

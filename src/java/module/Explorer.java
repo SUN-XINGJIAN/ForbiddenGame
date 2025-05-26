@@ -38,6 +38,51 @@ public class Explorer extends module.Player {
     }
 
     @Override
+    public void useSpecialAbility(ForbiddenGameStarted forbiddenGameStarted, Player player) {
+        super.useSpecialAbility(forbiddenGameStarted, player);
+
+        for (Tile tile : forbiddenGameStarted.getTiles()) {
+            tile.setOnMouseClicked(e -> {
+                if(!forbiddenGameStarted.isSpecialMode){
+                    return;
+                }
+                if (tile.getState() == 0) {
+                    int targetX = (int) tile.getLayoutX();
+                    int targetY = (int) tile.getLayoutY();
+
+                    int currX = (int) player.getLayoutX() - 30;
+                    int currY = (int) player.getLayoutY();
+
+                    int tileSize = 50;
+
+                    boolean isAdjacent =
+                            (Math.abs(targetX - currX) <= tileSize && Math.abs(targetY - currY) <= tileSize) &&
+                                    !(targetX == currX && targetY == currY); // 排除当前位置
+                    if(isAdjacent) {
+                        player.setLayoutX(targetX + 30);
+                        player.setX(targetX);
+                        player.setLayoutY(targetY);
+                        player.setY(targetY);
+                        player.draw();
+                        forbiddenGameStarted.checkTreasureSubmit();
+                        forbiddenGameStarted.exchangeCards();
+
+                        forbiddenGameStarted.turnManage.useStep();
+                        forbiddenGameStarted.turnManage.showRemainSteps();
+                        forbiddenGameStarted.step = forbiddenGameStarted.turnManage.getStep();
+                        forbiddenGameStarted.changeCurrentPlayer();
+
+                        forbiddenGameStarted.isSpecialMode = false;
+                    }
+                }
+                else{
+                    forbiddenGameStarted.showMessage("This tile is already flood!");
+                }
+            });
+        }
+    }
+
+    @Override
     public void draw() {
 
         GraphicsContext gc = getGraphicsContext2D();

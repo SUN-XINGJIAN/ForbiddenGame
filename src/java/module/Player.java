@@ -108,6 +108,10 @@ public abstract class Player extends PawnCanvas {
         this.name = name;
     }
 
+    public void useSpecialAbility(ForbiddenGameStarted forbiddenGameStarted,Player player) {
+
+    }
+
 
 
     public abstract int getPositionX(ForbiddenGameStarted forbiddenGameStarted);
