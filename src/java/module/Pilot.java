@@ -135,6 +135,7 @@ public class Pilot extends Player {
                         player.draw();
                         forbiddenGameStarted.checkTreasureSubmit();
                         forbiddenGameStarted.exchangeCards();
+                        forbiddenGameStarted.isVictory();
 
                         forbiddenGameStarted.turnManage.useStep();
                         forbiddenGameStarted.turnManage.showRemainSteps();

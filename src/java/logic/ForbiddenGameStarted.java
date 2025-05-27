@@ -66,6 +66,7 @@ public class ForbiddenGameStarted {
     private boolean b = false;
     private int x;
     public int pilotCount,diverCount,engineerCount,explorerCount,messengerCount,navigatorCount;
+    public boolean isGetSOIL,isGetFIRE,isGetCLOUD,isGetWATER;
 
     public ForbiddenGameStarted(ScreenController screenController, int playerCount) {
         // 初始化random1数组
@@ -402,7 +403,7 @@ public class ForbiddenGameStarted {
 
     public void enableTileMovement(Player p) {
         // 遍历 mainBoard 的所有子节点
-        for (javafx.scene.Node node : mainBoard.getChildren()) {
+        for (Node node : mainBoard.getChildren()) {
             if (node instanceof Tile  tile) {
                 tile.setOnMouseClicked(e -> {
                     if (!isMoveMode) return;
@@ -434,6 +435,7 @@ public class ForbiddenGameStarted {
                         changeCurrentPlayer();
 
                         exchangeCards();
+                        isVictory();
 
                         isMoveMode = false;
                         screenController.getMove().setText("Move");
@@ -841,10 +843,10 @@ public class ForbiddenGameStarted {
     private List<TreasureCard> getSpecialCards() {
         List<TreasureCard> specialCards = new ArrayList<>();
         for(TreasureCard card : currentBag){
-            if(card.getType() == TreasureCard.Type.SANDBAGS){
+            if(card.getType() == SANDBAGS){
                 specialCards.add(card);
             }
-            if(card.getType() == TreasureCard.Type.HELICOPTER){
+            if(card.getType() == HELICOPTER){
                 specialCards.add(card);
             }
         }
@@ -883,14 +885,14 @@ public class ForbiddenGameStarted {
 
     private void useThisCard(int index) {
         List<TreasureCard> specialCards = getSpecialCards();
-        if (specialCards.get(index).getType() == TreasureCard.Type.SANDBAGS) {
+        if (specialCards.get(index).getType() == SANDBAGS) {
             for (Tile tile : tiles) {
                 tile.setOnMouseClicked(event -> {
                     saveBySandbags(tile);
                 });
             }
         }
-        if (specialCards.get(index).getType() == TreasureCard.Type.HELICOPTER) {
+        if (specialCards.get(index).getType() == HELICOPTER) {
             for (Tile tile : tiles) {
                 tile.setOnMouseClicked(event -> {
                     moveByHelicopter(tile);
@@ -913,7 +915,7 @@ public class ForbiddenGameStarted {
             disableSaveMode();
 
             for(TreasureCard card : currentBag){
-                if(card.getType() == TreasureCard.Type.SANDBAGS){
+                if(card.getType() == SANDBAGS){
                     currentBag.remove(card);
                     break;
                 }
@@ -933,7 +935,7 @@ public class ForbiddenGameStarted {
             int targetY = (int) tile.getLayoutY();
 
             for (TreasureCard card : currentBag) {
-                if (card.getType() == TreasureCard.Type.HELICOPTER) {
+                if (card.getType() == HELICOPTER) {
                     currentBag.remove(card);
                     break;
                 }
@@ -947,7 +949,9 @@ public class ForbiddenGameStarted {
             currentPlayer.setY(targetY);
             currentPlayer.draw();
 
+            exchangeCards();
             checkTreasureSubmit();
+            isVictory();
         }else{
             showMessage("This tile is already flood!");
         }
@@ -988,7 +992,7 @@ public class ForbiddenGameStarted {
                 currentBag.removeAll(cardsToRemove);
                 drawAllTreasureCards();
                 treasures.get(1).draw();
-
+                isGetSOIL=true;
             }
         }
         if(currentTile.getName().equals("3") || currentTile.getName().equals("4")){
@@ -1010,6 +1014,7 @@ public class ForbiddenGameStarted {
                 currentBag.removeAll(cardsToRemove);
                 drawAllTreasureCards();
                 treasures.get(0).draw();
+                isGetCLOUD=true;
 
             }
         }
@@ -1032,6 +1037,7 @@ public class ForbiddenGameStarted {
                 currentBag.removeAll(cardsToRemove);
                 drawAllTreasureCards();
                 treasures.get(3).draw();
+                isGetWATER=true;
 
             }
         }
@@ -1054,6 +1060,7 @@ public class ForbiddenGameStarted {
                 currentBag.removeAll(cardsToRemove);
                 drawAllTreasureCards();
                 treasures.get(2).draw();
+                isGetFIRE=true;
 
             }
         }
@@ -1263,5 +1270,55 @@ public class ForbiddenGameStarted {
         navigatorCount = 0;
         pilotCount = 0;
     }
+
+    public boolean isGetSoil(){
+        return isGetSOIL;
+    }
+    public boolean isGetFire(){
+        return isGetFIRE;
+    }
+    public boolean isGetWater(){
+        return isGetWATER;
+    }
+    public boolean isGetCloud(){
+        return isGetCLOUD;
+    }
+
+    public boolean allAtFoolLanding(){
+        int index=0;
+        Tile foolLanading = null;
+        for(Tile t: tiles){
+            if(t.getName().equals("10")){
+                t = foolLanading;
+            }
+        }
+        for(Player p : currentPlayers){
+            if(p.getX() == foolLanading.getPositionX() && p.getY() == foolLanading.getPositionY()){
+                index++;
+            }
+        }
+        return(index == currentPlayers.size());
+    }
+
+    public boolean isHaveHelicopter(){
+        boolean b = false;
+        List<TreasureCard> treasureCards = null;
+        for(Player p: currentPlayers){
+            for(TreasureCard t :p.getBag()){
+                if(t.getType().equals(HELICOPTER)){
+                    b = true;
+                }
+            }
+        }
+        return b;
+    }
+
+    public void isVictory(){
+        if(isGetSoil()&&isGetFire()&&isGetWater()&&isGetCloud() && allAtFoolLanding() && isHaveHelicopter()){
+            showMessage("You win!");
+        }
+
+    }
+
 
 }

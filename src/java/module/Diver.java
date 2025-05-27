@@ -46,6 +46,10 @@ public class Diver extends module.Player {
                     forbiddenGameStarted.turnManage.useStep();
                     forbiddenGameStarted.turnManage.showRemainSteps();
                     forbiddenGameStarted.changeCurrentPlayer();
+
+                    forbiddenGameStarted.exchangeCards();;
+                    forbiddenGameStarted.checkTreasureSubmit();
+                    forbiddenGameStarted.isVictory();
                 } else {
                     // 如果目标版块不可到达，显示提示
                     forbiddenGameStarted.showMessage("No valid water path to this tile.");
