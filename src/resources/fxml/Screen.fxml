@@ -10,6 +10,8 @@
 
 <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="AS_NEEDED" prefViewportHeight="900.0" prefViewportWidth="900.0" vbarPolicy="AS_NEEDED" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ScreenController">
    <content>
+
+
       <Pane fx:id="mainBoard" minHeight="1000.0" minWidth="1000.0">
          <ImageView fitHeight="1000.0" fitWidth="1000.0" layoutX="14.0" pickOnBounds="true" preserveRatio="true">
             <image>

@@ -1,0 +1,14 @@
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+
+<StackPane xmlns="http://javafx.com/javafx/17.0.2" xmlns:fx="http://javafx.com/fxml/1">
+    <VBox spacing="20" alignment="CENTER" style="-fx-background-color: #f0f9f0; -fx-padding: 20; -fx-background-radius: 15;">
+
+        <!-- 游戏成功的文本 -->
+        <Text fx:id="gameSuccessText" text="Congratulations! You won the game!"
+              style="-fx-font-size: 50; -fx-fill: #28a745; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 8, 0.3, 0, 0);" />
+
+    </VBox>
+</StackPane>

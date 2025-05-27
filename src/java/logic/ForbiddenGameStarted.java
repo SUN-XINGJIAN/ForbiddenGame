@@ -1338,8 +1338,8 @@ public class ForbiddenGameStarted {
     public void isVictory(){
         if(isGetSoil()&&isGetFire()&&isGetWater()&&isGetCloud() && allAtFoolLanding() && isHaveHelicopter()){
             showMessage("You win!");
+            screenController.setWin();
         }
-
     }
 
     public boolean isDefeat(){
@@ -1414,6 +1414,7 @@ public class ForbiddenGameStarted {
     public void checkDefeat(){
         if(isDefeat()){
             showMessage("You lose!");
+            screenController.setGameOver();
         }
     }
 

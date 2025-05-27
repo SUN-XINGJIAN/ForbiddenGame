@@ -35,6 +35,20 @@ public class Director {
         }
     }
 
+    public void showGameOverScene() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/game_over.fxml"));
+            Parent root = loader.load();
+            Scene scene = new Scene(root, FRAME_WIDTH, FRAME_HEIGHT);
+            stage.setScene(scene);
+            stage.setTitle("Game Over");
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
     public static Director getInstance(){
         return instance;

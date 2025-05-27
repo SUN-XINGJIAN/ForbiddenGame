@@ -7,6 +7,7 @@ import java.io.IOException;
 
 public class Frame {
 
+
     public static void load(Stage stage){
         System.out.println("🔧 正在加载 Frame..."); // ✅ 这一步必须看到
 
@@ -14,6 +15,8 @@ public class Frame {
         try {
             System.out.println("🎯 加载 initialBoard.fxml"); // ✅ 确认是否进入这个判断
             root = FXMLLoader.load(Frame.class.getResource("/fxml/Screen.fxml"));
+
+
 
         } catch (IOException e) {
             System.out.println("❌ 加载 FXML 失败");
