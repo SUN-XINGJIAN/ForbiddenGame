@@ -68,7 +68,7 @@ public class ForbiddenGameStarted {
     public int pilotCount,diverCount,engineerCount,explorerCount,messengerCount,navigatorCount;
     public boolean isGetSOIL,isGetFIRE,isGetCLOUD,isGetWATER;
 
-    public ForbiddenGameStarted(ScreenController screenController, int playerCount) {
+    public ForbiddenGameStarted(ScreenController screenController, int playerCount, int initialWaterMeterIndex) {
         // 初始化random1数组
         random1 = new int[24];
         List<Integer> numbers = new ArrayList<>();
@@ -173,7 +173,21 @@ public class ForbiddenGameStarted {
 
         });
 
+        WaterMeter waterMeter1 = new WaterMeter(0);
+        WaterMeter waterMeter2 = new WaterMeter(1);
+        WaterMeter waterMeter3 = new WaterMeter(2);
+        WaterMeter waterMeter4 = new WaterMeter(3);
+        WaterMeter waterMeter5 = new WaterMeter(4);
+        WaterMeter waterMeter6 = new WaterMeter(5);
+        WaterMeter waterMeter7 = new WaterMeter(6);
+        WaterMeter waterMeter8 = new WaterMeter(7);
+        WaterMeter waterMeter9 = new WaterMeter(8);
+        WaterMeter waterMeter10 = new WaterMeter(9);
+        Collections.addAll(waterMeters, waterMeter1, waterMeter2, waterMeter3, waterMeter4, waterMeter5, waterMeter6, waterMeter7, waterMeter8, waterMeter9, waterMeter10);
 
+        currentWaterMeterIndex = initialWaterMeterIndex;
+        mainBoard.getChildren().addAll(waterMeters.get(currentWaterMeterIndex));
+        waterMeters.get(currentWaterMeterIndex).draw();
 
     }
 
@@ -219,22 +233,6 @@ public class ForbiddenGameStarted {
         for (Tile tile : tiles) {
             tile.draw();
         }
-
-        WaterMeter waterMeter1 = new WaterMeter(0);
-        WaterMeter waterMeter2 = new WaterMeter(1);
-        WaterMeter waterMeter3 = new WaterMeter(2);
-        WaterMeter waterMeter4 = new WaterMeter(3);
-        WaterMeter waterMeter5 = new WaterMeter(4);
-        WaterMeter waterMeter6 = new WaterMeter(5);
-        WaterMeter waterMeter7 = new WaterMeter(6);
-        WaterMeter waterMeter8 = new WaterMeter(7);
-        WaterMeter waterMeter9 = new WaterMeter(8);
-        WaterMeter waterMeter10 =new WaterMeter(9);
-        Collections.addAll(waterMeters, waterMeter1, waterMeter2, waterMeter3, waterMeter4, waterMeter5, waterMeter6, waterMeter7, waterMeter8, waterMeter9,waterMeter10);
-
-        mainBoard.getChildren().addAll(waterMeter2);
-        waterMeter2.draw();
-
 
         Treasure treasure1 = new Treasure(1,45,127);
         Treasure treasure2 = new Treasure(2,45,217);

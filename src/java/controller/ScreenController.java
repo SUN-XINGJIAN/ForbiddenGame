@@ -108,9 +108,9 @@ public class ScreenController {
     }
     public Button getTurnOver() {return TurnOver;}
 
-    public void initData(int playerCount) {
+    public void initData(int playerCount, int waterMeterIndex) {
         this.playerCount = playerCount;
-        forbiddenGameStarted = new ForbiddenGameStarted(this, playerCount);
+        forbiddenGameStarted = new ForbiddenGameStarted(this, playerCount, waterMeterIndex);
     }
 
     public void setGameOver() {

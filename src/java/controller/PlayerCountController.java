@@ -24,11 +24,11 @@ public class PlayerCountController {
 
         Stage stage = (Stage) rb2.getScene().getWindow();
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Screen.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/DifficultySelection.fxml"));
         Parent root = loader.load();
 
-        ScreenController screenController = loader.getController();
-        screenController.initData(playerCount);
+        DifficultyController difficultyController = loader.getController();
+        difficultyController.setPlayerCount(playerCount);
 
         stage.setScene(new Scene(root));
         stage.centerOnScreen();
