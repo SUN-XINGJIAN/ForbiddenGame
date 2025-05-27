@@ -67,61 +67,14 @@ public class Tile extends Canvas {
     }
 
 
-    // **下面的是新加的，为其他类正确运行所需要的方法，还没有进行整理
-    // 为进行player类的书写：tile类需实现：
-    // 坐标系统相关方法
-    public static boolean isAdjacent(Tile other) { return false;}
-    public boolean isDiagonallyAdjacent(Tile other) { return false;} // Explorer
-    public static boolean isPathValidForDiver(Tile target) {
-        return false;
-    } // Diver
 
     // 状态相关
     private boolean removed;
-    private boolean flooded;
-    private Treasure.Type treasureType;
 
     public boolean isRemoved() { return removed; }
-    /* 检查状态 */
-    public boolean isFlooded() { return flooded; }
-    public void unflood() {
-        if(flooded) {
-            this.flooded = false;
-            decrementState();
-        }
-    }
-    private void decrementState() {
-        state = Math.max(0, state-1);
-    }
 
-    public Treasure.Type getTreasureType() {
-        return treasureType;
-    }
 
-    // 洪水牌相关逻辑
-    /* 从地图移除 */
-    public void removeFromBoard() {
-        this.removed = true;
-        this.flooded = false;
-    }
 
-    /* 设置为淹没状态 */
-    public void flood() {
-        if(!flooded) {
-            this.flooded = true;
-            incrementState();
-        }
-    }
-
-    /* 返回坐标对象 */
-    public boolean getPosition() {
-        return false;
-    }
-
-    private boolean isTreasureSite;
-    public boolean isTreasureSite() {
-        return isTreasureSite;
-    }
 
     public String getName() {
         return String.valueOf(num);

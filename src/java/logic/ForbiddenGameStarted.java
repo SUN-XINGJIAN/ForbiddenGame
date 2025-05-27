@@ -229,7 +229,8 @@ public class ForbiddenGameStarted {
         WaterMeter waterMeter7 = new WaterMeter(6);
         WaterMeter waterMeter8 = new WaterMeter(7);
         WaterMeter waterMeter9 = new WaterMeter(8);
-        Collections.addAll(waterMeters, waterMeter1, waterMeter2, waterMeter3, waterMeter4, waterMeter5, waterMeter6, waterMeter7, waterMeter8, waterMeter9);
+        WaterMeter waterMeter10 =new WaterMeter(9);
+        Collections.addAll(waterMeters, waterMeter1, waterMeter2, waterMeter3, waterMeter4, waterMeter5, waterMeter6, waterMeter7, waterMeter8, waterMeter9,waterMeter10);
 
         mainBoard.getChildren().addAll(waterMeter2);
         waterMeter2.draw();
@@ -381,6 +382,7 @@ public class ForbiddenGameStarted {
 
         // 将临时列表中的岛屿重新加入原列表，以恢复完整的岛屿状态
         tiles.addAll(selectedTiles);
+        checkDefeat();
     }
 
 
@@ -448,15 +450,6 @@ public class ForbiddenGameStarted {
             }
         }
     }
-
-
-//    private void disableMoveMode() {
-//        for (Node node : mainBoard.getChildren()) {
-//            if (node instanceof Tile tile) {
-//                tile.setOnMouseClicked(null);
-//            }
-//        }
-//    }
 
 
     private void drawFloodedTileOnDeck(Tile tile) {
@@ -834,7 +827,7 @@ public class ForbiddenGameStarted {
 
             showMessage("Water level has risen!");
         } else {
-            showMessage("Water level is already at the maximum!");
+            checkDefeat();
         }
     }
 
@@ -1341,11 +1334,87 @@ public class ForbiddenGameStarted {
         return b;
     }
 
+
     public void isVictory(){
         if(isGetSoil()&&isGetFire()&&isGetWater()&&isGetCloud() && allAtFoolLanding() && isHaveHelicopter()){
             showMessage("You win!");
         }
 
+    }
+
+    public boolean isDefeat(){
+        boolean isDefeat = false;
+        for(Tile t : tiles){
+            if(t.getState() > 1){
+                for(Player p : currentPlayers){
+                    if(p.getX() == t.getPositionX() && p.getY() == t.getPositionY()){
+                        isDefeat = true;
+                    }
+                }
+            }
+
+            if(t.getState() > 1 && t.getName().equals("10")){
+                isDefeat = true;
+            }
+        }
+
+        if(currentWaterMeterIndex > 9){
+            isDefeat = true;
+        }
+
+        int indexSoil=0;
+        int indexCloud=0;
+        int indexFire=0;
+        int indexWater=0;
+
+        for(Tile t : tiles){
+
+            if (t.getName().equals("1") && t.getState() > 1 ){
+                indexSoil++;
+            }
+            if (t.getName().equals("2") && t.getState() > 1 ){
+                indexSoil++;
+            }
+            if (t.getName().equals("3") && t.getState() > 1 ){
+                indexCloud++;
+            }
+            if (t.getName().equals("4") && t.getState() > 1 ){
+                indexCloud++;
+            }
+            if (t.getName().equals("5") && t.getState() > 1 ){
+                indexFire++;
+            }
+            if (t.getName().equals("6") && t.getState() > 1 ){
+                indexFire++;
+            }
+            if (t.getName().equals("7") && t.getState() > 1 ){
+                indexWater++;
+            }
+            if (t.getName().equals("8") && t.getState() > 1 ){
+                indexWater++;
+            }
+
+        }
+
+        if(indexSoil ==2 && !isGetSoil()){
+            isDefeat = true;
+        }
+        if(indexCloud ==2 && !isGetCloud()){
+            isDefeat = true;
+        }
+        if(indexFire ==2 && !isGetFire()){
+            isDefeat = true;
+        }
+        if(indexWater ==2 && !isGetWater()) {
+            isDefeat = true;
+        }
+
+        return isDefeat;
+    }
+    public void checkDefeat(){
+        if(isDefeat()){
+            showMessage("You lose!");
+        }
     }
 
 
