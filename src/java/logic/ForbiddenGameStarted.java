@@ -1066,6 +1066,44 @@ public class ForbiddenGameStarted {
         }
     }
 
+
+    public void promptDiscardCardsByExchange(List<TreasureCard> bag) {
+        showMessage("You have too many cards! Please discard until only 5 remain.");
+
+        // 禁用所有其他控件
+        setAllControlsDisabled(true);
+
+        double centerX = mainBoard.getWidth() / 2;
+        double discardAreaY = screenController.getDiverBag().getLayoutY() - 150;
+
+        double cardWidth = 80;
+        double cardHeight = 120;
+        int offset = 90;
+
+        for (int i = 0; i < bag.size(); i++) {
+            TreasureCard card = bag.get(i);
+            double x = centerX - (bag.size() * offset) / 2 + offset * i;
+            double y = discardAreaY;
+
+            Canvas cardCanvas = new Canvas(cardWidth, cardHeight);
+            cardCanvas.setLayoutX(x);
+            cardCanvas.setLayoutY(y);
+            cardCanvas.setUserData("discard");
+
+            GraphicsContext gc = cardCanvas.getGraphicsContext2D();
+            gc.drawImage(new Image(getClass().getResourceAsStream(card.cardname)), 0, 0, cardWidth, cardHeight);
+
+            // 每个卡片都可点击丢弃
+            int index = i;
+            cardCanvas.setOnMouseClicked(e -> {
+                confirmDiscard(index);
+                turnManage.useStep();
+                turnManage.showRemainSteps();
+                changeCurrentPlayer();
+            });
+            mainBoard.getChildren().add(cardCanvas);
+        }
+    }
     public List<Tile> getTiles(){
         return tiles;
     }
@@ -1186,13 +1224,12 @@ public class ForbiddenGameStarted {
                         p.getBag().add(selectTreasureCards(currentBag).get(index));
                     }
                     if (p.getBag().size() > 5) {
-                        step = turnManage.getStep();
-                        if (step == 1) {
-                            x = 2;
-                        }
-                        promptDiscardCards(p.getBag());
+                        promptDiscardCardsByExchange(p.getBag());
+                    }else{
+                        turnManage.useStep();
+                        turnManage.showRemainSteps();
+                        changeCurrentPlayer();
                     }
-                    x = 0;
                 }
                 currentBag.remove(selectTreasureCards(currentBag).get(index));
 
@@ -1200,10 +1237,7 @@ public class ForbiddenGameStarted {
                 pb.setDisable(true);
                 drawAllTreasureCards();
 
-                turnManage.useStep();
-                turnManage.showRemainSteps();
-                step = turnManage.getStep();
-                changeCurrentPlayer();
+
 
 
             });
@@ -1235,12 +1269,6 @@ public class ForbiddenGameStarted {
             }
             setCurrentIndex();
         }
-    }
-
-    public boolean openExchangeCardsButton(){
-        boolean b = false;
-
-        return b;
     }
 
     public void exchangeCards(){
