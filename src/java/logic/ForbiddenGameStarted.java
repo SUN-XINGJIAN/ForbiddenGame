@@ -1532,9 +1532,57 @@ public class ForbiddenGameStarted {
     }
     public void checkDefeat(){
         if(isDefeat()){
-            showMessage("You lose!");
-            screenController.setGameOver();
+            String reason = getDefeatReason();
+            showMessage("You lose! " + reason);
+            screenController.setGameOver(reason);
         }
+    }
+
+    private String getDefeatReason() {
+        if (currentWaterMeterIndex > 9) {
+            return "The water level has risen too high!";
+        }
+
+        for (Tile t : tiles) {
+            if (t.getState() > 1) {
+                for (Player p : currentPlayers) {
+                    if (p.getX() == t.getPositionX() && p.getY() == t.getPositionY()) {
+                        return "A player was on a tile that sank with no adjacent tiles!";
+                    }
+                }
+            }
+
+            if (t.getState() > 1 && t.getName().equals("10")) {
+                return "Fool's Landing has sunk!";
+            }
+        }
+
+        int indexSoil = 0, indexCloud = 0, indexFire = 0, indexWater = 0;
+        for (Tile t : tiles) {
+            if (t.getName().equals("1") && t.getState() > 1) indexSoil++;
+            if (t.getName().equals("2") && t.getState() > 1) indexSoil++;
+            if (t.getName().equals("3") && t.getState() > 1) indexCloud++;
+            if (t.getName().equals("4") && t.getState() > 1) indexCloud++;
+            if (t.getName().equals("5") && t.getState() > 1) indexFire++;
+            if (t.getName().equals("6") && t.getState() > 1) indexFire++;
+            if (t.getName().equals("7") && t.getState() > 1) indexWater++;
+            if (t.getName().equals("8") && t.getState() > 1) indexWater++;
+        }
+
+        if (indexSoil == 2 && !isGetSoil()) {
+            return "Both Earth treasure tiles sank before the treasure was collected!";
+        }
+        if (indexCloud == 2 && !isGetCloud()) {
+            return "Both Wind treasure tiles sank before the treasure was collected!";
+        }
+        if (indexFire == 2 && !isGetFire()) {
+            return "Both Fire treasure tiles sank before the treasure was collected!";
+        }
+        if (indexWater == 2 && !isGetWater()) {
+            return "Both Water treasure tiles sank before the treasure was collected!";
+        }
+
+        return "Game Over";
     }
 
 

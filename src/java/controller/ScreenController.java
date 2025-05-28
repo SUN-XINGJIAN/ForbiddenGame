@@ -107,7 +107,7 @@ public class ScreenController {
         forbiddenGameStarted = new ForbiddenGameStarted(this, playerCount, waterMeterIndex);
     }
 
-    public void setGameOver() {
+    public void setGameOver(String reason) {
         try {
             if (forbiddenGameStarted.isDefeat()) { // 判断游戏是否失败
                 // 获取当前窗口的 Stage
@@ -116,6 +116,12 @@ public class ScreenController {
                 // 加载失败界面的 FXML 文件
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/game_over.fxml"));
                 Parent root = loader.load();
+
+                // 获取GameOverController并设置失败原因
+                GameOverController controller = loader.getController();
+                if (controller != null) {
+                    controller.setFailureReason(reason);
+                }
 
                 // 设置新的场景并显示
                 Scene scene = new Scene(root, 1000, 1000);
