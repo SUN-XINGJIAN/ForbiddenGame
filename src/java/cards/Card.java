@@ -4,21 +4,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 
-//public abstract class Card {
-//    protected final CardType type;
-//    protected final String name;
-//
-//    protected Card(CardType type, String name) {
-//        this.type = type;
-//        this.name = name;
-//    }
-//
-//    public abstract void playEffect();
-//
-//    // Getters
-//    public CardType getType() { return type; }
-//    public String getName() { return name; }
-//}
+
 public class Card extends Canvas {
 
     public String cardname;

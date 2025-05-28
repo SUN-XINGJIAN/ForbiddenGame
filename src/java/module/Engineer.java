@@ -9,22 +9,6 @@ import logic.ForbiddenGameStarted;
 import java.util.ArrayList;
 import java.util.List;
 
-//
-//public class Engineer extends Player {
-//
-//    public Engineer(String name, Tile startingTile) {
-//        super(name, startingTile);
-//    }
-//
-//    @Override
-//    public void shoreUp(Tile targetTile) {
-//        if (getActionsRemaining() > 0 && !targetTile.isRemoved() && targetTile.isFlooded()) {
-//            targetTile.unflood();
-//            int actionRemained = getActionsRemaining();
-//            actionRemained--;
-//        }
-//    }
-//}
 public class Engineer extends module.Player {
     private List<Tile> t = new ArrayList<>();
     private String pawnName;

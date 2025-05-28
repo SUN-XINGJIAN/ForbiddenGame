@@ -9,25 +9,7 @@ import logic.ForbiddenGameStarted;
 import java.util.ArrayList;
 import java.util.List;
 
-//package module;
-//
-//import board.Tile;
-//
-//public class Navigator extends Player {
-//    public Navigator(String name, Tile startingTile) {
-//        super(name, startingTile);
-//    }
-//
-//    public void directMove(Player otherPlayer, Tile targetTile) {
-//        if (this.getCurrentTile().equals(otherPlayer.getCurrentTile())
-//                && targetTile.isAdjacent(otherPlayer.getCurrentTile())
-//                && !targetTile.isRemoved()) {
-//            otherPlayer.move(targetTile);
-//            int actionRemained = getActionsRemaining();
-//            actionRemained--;
-//        }
-//    }
-//}
+
 public class Navigator extends Player {
     private List<Tile> t = new ArrayList<>();
     private String pawnName;

@@ -9,29 +9,6 @@ import logic.ForbiddenGameStarted;
 import java.util.ArrayList;
 import java.util.List;
 
-//package module;
-//
-//import board.Tile;
-//
-//public class Pilot extends Player {
-//    private boolean specialFlightUsed = false;
-//
-//    public Pilot(String name, Tile startingTile) {
-//        super(name, startingTile);
-//    }
-//
-//    @Override
-//    public void move(Tile targetTile) {
-//        if (!specialFlightUsed && !targetTile.isRemoved()) {
-//            this.currentTile = targetTile;
-//            specialFlightUsed = true;
-//            int actionRemained = getActionsRemaining();
-//            actionRemained--;
-//        } else {
-//            super.move(targetTile);
-//        }
-//    }
-//}
 public class Pilot extends Player {
     private List<Tile> t = new ArrayList<>();
     private String pawnName;
