@@ -893,6 +893,9 @@ public class ForbiddenGameStarted {
             double cardHeight = 120;
             int offset = 90;
 
+            // 创建一个列表来保存当前添加的UI元素，以便稍后清除
+            List<Node> tempUIElements = new ArrayList<>();
+
             for (int i = 0; i < getSpecialCards().size(); i++) {
                 TreasureCard card = getSpecialCards().get(i);
                 double x = 700;
@@ -907,13 +910,39 @@ public class ForbiddenGameStarted {
                 gc.drawImage(new Image(getClass().getResourceAsStream(card.cardname)), 0, 0, cardWidth, cardHeight);
 
                 int index = i;
-                cardCanvas.setOnMouseClicked(e -> useThisCard(index));
+                cardCanvas.setOnMouseClicked(e -> {
+                    useThisCard(index);
+                    // 清理临时UI元素
+                    clearTempUIElements(tempUIElements);
+                });
 
                 mainBoard.getChildren().add(cardCanvas);
+                tempUIElements.add(cardCanvas); // 保存到临时UI列表
             }
-        }
 
+            // 创建取消按钮
+            Button cancelButton = new Button("Cancel");
+            cancelButton.setLayoutX(centerX - 50); // 按钮中心位置
+            cancelButton.setLayoutY(discardAreaY + 200); // 按钮位置调整
+            cancelButton.setOnAction(e -> {
+                // 清理临时UI元素
+                clearTempUIElements(tempUIElements);
+            });
+
+            mainBoard.getChildren().add(cancelButton);
+            tempUIElements.add(cancelButton); // 保存到临时UI列表
+        }
     }
+
+    // 清理临时UI元素的方法
+    private void clearTempUIElements(List<Node> tempUIElements) {
+        for (Node node : tempUIElements) {
+            mainBoard.getChildren().remove(node);
+        }
+        tempUIElements.clear(); // 清空列表以避免重复清理
+    }
+
+
     private void useThisCard(int index){
             List<TreasureCard> specialCards = getSpecialCards();
             if (specialCards.get(index).getType() == SANDBAGS) {
@@ -1225,11 +1254,10 @@ public class ForbiddenGameStarted {
 
 
     private void promptExchangeCards() {
-        showMessage("Choose the card you want to sent!");
+        showMessage("Choose the card you want to send!");
 
         List<TreasureCard> bag = selectTreasureCards(currentBag);
-        // 禁用所有其他控件
-        setAllControlsDisabled(true);
+        setAllControlsDisabled(true); // 禁用所有其他控件
 
         double centerX = mainBoard.getWidth() / 2;
         double discardAreaY = screenController.getDiverBag().getLayoutY() - 150;
@@ -1237,6 +1265,9 @@ public class ForbiddenGameStarted {
         double cardWidth = 80;
         double cardHeight = 120;
         int offset = 90;
+
+        // 保存所有添加到 UI 的节点，用于后续清理
+        List<Node> tempUIElements = new ArrayList<>();
 
         for (int i = 0; i < bag.size(); i++) {
             TreasureCard card = bag.get(i);
@@ -1251,15 +1282,34 @@ public class ForbiddenGameStarted {
             GraphicsContext gc = cardCanvas.getGraphicsContext2D();
             gc.drawImage(new Image(getClass().getResourceAsStream(card.cardname)), 0, 0, cardWidth, cardHeight);
 
-            // 每个卡片都可点击给出
             int index = i;
             cardCanvas.setOnMouseClicked(e -> {
                 giveCards(index);
+
+                // 清理临时UI元素
+                clearTempUIElements(tempUIElements);
             });
 
             mainBoard.getChildren().add(cardCanvas);
+            tempUIElements.add(cardCanvas);
         }
+
+        // 添加取消按钮
+        Button cancelButton = new Button("Cancel");
+        cancelButton.setLayoutX(centerX - 40);
+        cancelButton.setLayoutY(discardAreaY + 150); // 放在卡片下方
+
+        cancelButton.setOnAction(e -> {
+            clearTempUIElements(tempUIElements);
+            setAllControlsDisabled(false); // 恢复控件
+            showMessage("Action canceled.");
+        });
+
+        mainBoard.getChildren().add(cancelButton);
+        tempUIElements.add(cancelButton);
     }
+
+
 
     private void giveCards(int index) {
 

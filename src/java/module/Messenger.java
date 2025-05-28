@@ -2,33 +2,16 @@ package module;
 
 import board.Tile;
 import cards.TreasureCard;
+import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import logic.ForbiddenGameStarted;
 
 import java.util.ArrayList;
 import java.util.List;
 
-//package module;
-//
-//import board.Tile;
-//
-//public class Messenger extends Player {
-//    public Messenger(String name, Tile startingTile) {
-//        super(name, startingTile);
-//    }
-//
-////    @Override
-////    public void giveTreasureCard(Card card, Player recipient) {
-////        // 移除同板块限制
-////        if (this.hand.contains(card)) {
-////            this.hand.remove(card);
-////            recipient.receiveCard(card);
-////            actionsRemaining--;
-////        }
-////    }
-//}
 public class Messenger extends Player {
     private List<Tile> t = new ArrayList<>();
     private String pawnName;
@@ -43,7 +26,6 @@ public class Messenger extends Player {
     @Override
     public void useSpecialAbility(ForbiddenGameStarted forbiddenGameStarted, Player player) {
         super.useSpecialAbility(forbiddenGameStarted, player);
-        forbiddenGameStarted.messengerCount++;
 
         if (forbiddenGameStarted.selectTreasureCards(forbiddenGameStarted.currentBag).isEmpty()) {
             forbiddenGameStarted.showMessage("You have no treasure cards to give");
@@ -63,6 +45,9 @@ public class Messenger extends Player {
         double cardHeight = 120;
         int offset = 90;
 
+        // 创建一个列表来保存当前添加的UI元素，以便稍后清除
+        List<Node> tempUIElements = new ArrayList<>();
+
         for (int i = 0; i < bag.size(); i++) {
             TreasureCard card = bag.get(i);
             double x = centerX - (bag.size() * offset) / 2 + offset * i;
@@ -71,7 +56,7 @@ public class Messenger extends Player {
             Canvas cardCanvas = new Canvas(cardWidth, cardHeight);
             cardCanvas.setLayoutX(x);
             cardCanvas.setLayoutY(y);
-            cardCanvas.setUserData("discard");
+            cardCanvas.setUserData("sendcard");
 
             GraphicsContext gc = cardCanvas.getGraphicsContext2D();
             gc.drawImage(new Image(getClass().getResourceAsStream(card.cardname)), 0, 0, cardWidth, cardHeight);
@@ -79,7 +64,7 @@ public class Messenger extends Player {
             final int index = i;
 
             cardCanvas.setOnMouseClicked(e -> {
-                forbiddenGameStarted.mainBoard.getChildren().removeIf(node -> "discard".equals(node.getUserData()));
+                forbiddenGameStarted.mainBoard.getChildren().removeIf(node -> "sendcard".equals(node.getUserData()));
                 forbiddenGameStarted.showMessage("Choose a player to give the card to!");
 
                 for (Player p : forbiddenGameStarted.currentPlayers) {
@@ -104,6 +89,11 @@ public class Messenger extends Player {
                                 forbiddenGameStarted.turnManage.showRemainSteps();
                                 forbiddenGameStarted.turnManage.step = forbiddenGameStarted.turnManage.getStep();
                                 forbiddenGameStarted.changeCurrentPlayer();
+
+                                // 清理临时UI元素
+                                clearTempUIElements(tempUIElements,forbiddenGameStarted);
+
+                                forbiddenGameStarted.messengerCount++;
                             });
                         }
                     }
@@ -111,10 +101,33 @@ public class Messenger extends Player {
             });
 
             forbiddenGameStarted.mainBoard.getChildren().add(cardCanvas);
+            tempUIElements.add(cardCanvas); // 保存到临时UI列表
         }
 
+        // 添加取消按钮
+        Button cancelButton = new Button("Cancel");
+        cancelButton.setLayoutX(centerX - 50); // 按钮中心位置
+        cancelButton.setLayoutY(discardAreaY + 200); // 按钮位置调整
+        cancelButton.setOnAction(e -> {
+            // 清理临时UI元素
+            clearTempUIElements(tempUIElements,forbiddenGameStarted);
 
+            // 恢复控件状态
+            forbiddenGameStarted.setAllControlsDisabled(false);
+        });
+
+        forbiddenGameStarted.mainBoard.getChildren().add(cancelButton);
+        tempUIElements.add(cancelButton); // 保存到临时UI列表
     }
+
+    // 清理临时UI元素的方法
+    private void clearTempUIElements(List<Node> tempUIElements,ForbiddenGameStarted forbiddenGameStarted) {
+        for (Node node : tempUIElements) {
+            forbiddenGameStarted.mainBoard.getChildren().remove(node);
+        }
+        tempUIElements.clear(); // 清空列表以避免重复清理
+    }
+
 
 
     @Override
