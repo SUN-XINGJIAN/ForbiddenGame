@@ -91,7 +91,7 @@ public class ForbiddenGameStarted {
         mainBoard = screenController.getMainBoard();
         initializeGame();
 
-//        setStartFloodCards();
+        setStartFloodCards();
 
         // 为move按钮添加点击事件处理程序
         screenController.getMove().setOnAction(event -> {
@@ -881,51 +881,56 @@ public class ForbiddenGameStarted {
     }
 
     private void useSpecialCards() {
-        showMessage("Choose the special card you want to use:");
+        if (getSpecialCards().size() == 0) {
+            showMessage("You don't have any special cards!");
+        } else {
+            showMessage("Choose the special card you want to use:");
 
-        double centerX = mainBoard.getWidth() / 2;
-        double discardAreaY = screenController.getDiverBag().getLayoutY() - 150;
+            double centerX = mainBoard.getWidth() / 2;
+            double discardAreaY = screenController.getDiverBag().getLayoutY() - 150;
 
-        double cardWidth = 80;
-        double cardHeight = 120;
-        int offset = 90;
+            double cardWidth = 80;
+            double cardHeight = 120;
+            int offset = 90;
 
-        for (int i = 0; i < getSpecialCards().size(); i++) {
-            TreasureCard card = getSpecialCards().get(i);
-            double x = 700 ;
-            double y = discardAreaY- (currentBag.size() * offset) / 2 + offset * i - 30;
+            for (int i = 0; i < getSpecialCards().size(); i++) {
+                TreasureCard card = getSpecialCards().get(i);
+                double x = 700;
+                double y = discardAreaY - (currentBag.size() * offset) / 2 + offset * i - 30;
 
-            Canvas cardCanvas = new Canvas(cardWidth, cardHeight);
-            cardCanvas.setLayoutX(x);
-            cardCanvas.setLayoutY(y);
-            cardCanvas.setUserData("discard");
+                Canvas cardCanvas = new Canvas(cardWidth, cardHeight);
+                cardCanvas.setLayoutX(x);
+                cardCanvas.setLayoutY(y);
+                cardCanvas.setUserData("usecard");
 
-            GraphicsContext gc = cardCanvas.getGraphicsContext2D();
-            gc.drawImage(new Image(getClass().getResourceAsStream(card.cardname)), 0, 0, cardWidth, cardHeight);
+                GraphicsContext gc = cardCanvas.getGraphicsContext2D();
+                gc.drawImage(new Image(getClass().getResourceAsStream(card.cardname)), 0, 0, cardWidth, cardHeight);
 
-            int index = i;
-            cardCanvas.setOnMouseClicked(e -> useThisCard(index));
+                int index = i;
+                cardCanvas.setOnMouseClicked(e -> useThisCard(index));
 
-            mainBoard.getChildren().add(cardCanvas);
+                mainBoard.getChildren().add(cardCanvas);
+            }
         }
+
     }
+    private void useThisCard(int index){
+            List<TreasureCard> specialCards = getSpecialCards();
+            if (specialCards.get(index).getType() == SANDBAGS) {
+                for (Tile tile : tiles) {
+                    tile.setOnMouseClicked(event -> {
+                        saveBySandbags(tile);
+                    });
+                }
+            }
+            if (specialCards.get(index).getType() == HELICOPTER) {
+                for (Tile tile : tiles) {
+                    tile.setOnMouseClicked(event -> {
+                        moveByHelicopter(tile);
+                    });
+                }
+            }
 
-    private void useThisCard(int index) {
-        List<TreasureCard> specialCards = getSpecialCards();
-        if (specialCards.get(index).getType() == SANDBAGS) {
-            for (Tile tile : tiles) {
-                tile.setOnMouseClicked(event -> {
-                    saveBySandbags(tile);
-                });
-            }
-        }
-        if (specialCards.get(index).getType() == HELICOPTER) {
-            for (Tile tile : tiles) {
-                tile.setOnMouseClicked(event -> {
-                    moveByHelicopter(tile);
-                });
-            }
-        }
     }
 
     private void saveBySandbags(Tile tile) {
@@ -948,7 +953,7 @@ public class ForbiddenGameStarted {
                 }
             }
             drawAllTreasureCards();
-            mainBoard.getChildren().removeIf(node -> "discard".equals(node.getUserData()));
+            mainBoard.getChildren().removeIf(node -> "usecard".equals(node.getUserData()));
         } else {
             showMessage("The island has either submerged or has not been flooded!");
             isSaveMode = false;
@@ -967,7 +972,7 @@ public class ForbiddenGameStarted {
                     break;
                 }
             }
-            mainBoard.getChildren().removeIf(node -> "discard".equals(node.getUserData()));
+            mainBoard.getChildren().removeIf(node -> "usecard".equals(node.getUserData()));
             drawAllTreasureCards();
 
             currentPlayer.setLayoutX(targetX + 30);
@@ -997,106 +1002,126 @@ public class ForbiddenGameStarted {
     }
 
 
-    public void checkTreasureSubmit(){
+    public void checkTreasureSubmit() {
+        step = turnManage.getStep();
+        if (step == 0) {
+            return;
+        }
+
         int index = 0;
-        Tile currentTile = getTileByPlayer(currentPlayer);
-        if(currentTile.getName().equals("1") || currentTile.getName().equals("2")){
-            for(TreasureCard card : currentBag){
-                if(card.getType().equals(SOIL)){
-                    index++;
-                }
-            }
-            if(index >= 4){
-                showMessage("You have submitted the treasure!");
-                int j = 0;
-                List<TreasureCard> cardsToRemove = new ArrayList<>();
-                for (TreasureCard card : currentBag) {
-                    if (card.getType() == SOIL && j < 4) {
-                        cardsToRemove.add(card);
-                        j++;
+        for (Player p : currentPlayers) {
+            Tile currentTile = getTileByPlayer(p);
+            if (currentTile.getName().equals("1") || currentTile.getName().equals("2")) {
+                for (TreasureCard card : p.getBag()) {
+                    if (card.getType().equals(SOIL)) {
+                        index++;
                     }
                 }
-                currentBag.removeAll(cardsToRemove);
-                drawAllTreasureCards();
-                treasures.get(1).draw();
-                treasures.get(1).setLayoutX(551);
-                treasures.get(1).setLayoutY(540);
-                isGetSOIL=true;
-            }
-        }
-        if(currentTile.getName().equals("3") || currentTile.getName().equals("4")){
-            for(TreasureCard card : currentBag){
-                if(card.getType().equals(CLOUD)){
-                    index++;
-                }
-            }
-            if(index >= 4){
-                showMessage("You have submitted the treasure!");
-                int j = 0;
-                List<TreasureCard> cardsToRemove = new ArrayList<>();
-                for (TreasureCard card : currentBag) {
-                    if (card.getType() == CLOUD && j < 4) {
-                        cardsToRemove.add(card);
-                        j++;
+                if (index >= 4) {
+                    showMessage("You have submitted the treasure!");
+                    int j = 0;
+                    List<TreasureCard> cardsToRemove = new ArrayList<>();
+                    for (TreasureCard card : p.getBag()) {
+                        if (card.getType() == SOIL && j < 4) {
+                            cardsToRemove.add(card);
+                            j++;
+                        }
                     }
-                }
-                currentBag.removeAll(cardsToRemove);
-                drawAllTreasureCards();
-                treasures.get(0).draw();
-                treasures.get(0).setLayoutX(551);
-                treasures.get(0).setLayoutY(590);
-                isGetCLOUD=true;
+                    p.getBag().removeAll(cardsToRemove);
+                    drawAllTreasureCards();
+                    treasures.get(1).draw();
+                    treasures.get(1).setLayoutX(551);
+                    treasures.get(1).setLayoutY(540);
+                    isGetSOIL = true;
 
-            }
-        }
-        if(currentTile.getName().equals("7") || currentTile.getName().equals("8")){
-            for(TreasureCard card : currentBag){
-                if(card.getType().equals(WATER)){
-                    index++;
+                    turnManage.useStep();
+                    turnManage.showRemainSteps();
+                    changeCurrentPlayer();
                 }
             }
-            if(index >= 4){
-                showMessage("You have submitted the treasure!");
-                int j = 0;
-                List<TreasureCard> cardsToRemove = new ArrayList<>();
-                for (TreasureCard card : currentBag) {
-                    if (card.getType() == WATER && j < 4) {
-                        cardsToRemove.add(card);
-                        j++;
+            if (currentTile.getName().equals("3") || currentTile.getName().equals("4")) {
+                for (TreasureCard card : p.getBag()) {
+                    if (card.getType().equals(CLOUD)) {
+                        index++;
                     }
                 }
-                currentBag.removeAll(cardsToRemove);
-                drawAllTreasureCards();
-                treasures.get(3).draw();
-                treasures.get(3).setLayoutX(551);
-                treasures.get(3).setLayoutY(640);
-                isGetWATER=true;
+                if (index >= 4) {
+                    showMessage("You have submitted the treasure!");
+                    int j = 0;
+                    List<TreasureCard> cardsToRemove = new ArrayList<>();
+                    for (TreasureCard card : p.getBag()) {
+                        if (card.getType() == CLOUD && j < 4) {
+                            cardsToRemove.add(card);
+                            j++;
+                        }
+                    }
+                    p.getBag().removeAll(cardsToRemove);
+                    drawAllTreasureCards();
+                    treasures.get(0).draw();
+                    treasures.get(0).setLayoutX(551);
+                    treasures.get(0).setLayoutY(590);
+                    isGetCLOUD = true;
 
-            }
-        }
-        if(currentTile.getName().equals("5") || currentTile.getName().equals("6")){
-            for(TreasureCard card : currentBag){
-                if(card.getType().equals(FIRE)){
-                    index++;
+                    turnManage.useStep();
+                    turnManage.showRemainSteps();
+                    changeCurrentPlayer();
                 }
             }
-            if(index >= 4){
-                showMessage("You have submitted the treasure!");
-                int j = 0;
-                List<TreasureCard> cardsToRemove = new ArrayList<>();
-                for (TreasureCard card : currentBag) {
-                    if (card.getType() == FIRE && j < 4) {
-                        cardsToRemove.add(card);
-                        j++;
+            if (currentTile.getName().equals("7") || currentTile.getName().equals("8")) {
+                for (TreasureCard card : p.getBag()) {
+                    if (card.getType().equals(WATER)) {
+                        index++;
                     }
                 }
-                currentBag.removeAll(cardsToRemove);
-                drawAllTreasureCards();
-                treasures.get(2).draw();
-                treasures.get(2).setLayoutX(551);
-                treasures.get(2).setLayoutY(690);
-                isGetFIRE=true;
+                if (index >= 4) {
+                    showMessage("You have submitted the treasure!");
+                    int j = 0;
+                    List<TreasureCard> cardsToRemove = new ArrayList<>();
+                    for (TreasureCard card : p.getBag()) {
+                        if (card.getType() == WATER && j < 4) {
+                            cardsToRemove.add(card);
+                            j++;
+                        }
+                    }
+                    p.getBag().removeAll(cardsToRemove);
+                    drawAllTreasureCards();
+                    treasures.get(3).draw();
+                    treasures.get(3).setLayoutX(551);
+                    treasures.get(3).setLayoutY(640);
+                    isGetWATER = true;
 
+                    turnManage.useStep();
+                    turnManage.showRemainSteps();
+                    changeCurrentPlayer();
+                }
+            }
+            if (currentTile.getName().equals("5") || currentTile.getName().equals("6")) {
+                for (TreasureCard card : p.getBag()) {
+                    if (card.getType().equals(FIRE)) {
+                        index++;
+                    }
+                }
+                if (index >= 4) {
+                    showMessage("You have submitted the treasure!");
+                    int j = 0;
+                    List<TreasureCard> cardsToRemove = new ArrayList<>();
+                    for (TreasureCard card : p.getBag()) {
+                        if (card.getType() == FIRE && j < 4) {
+                            cardsToRemove.add(card);
+                            j++;
+                        }
+                    }
+                    p.getBag().removeAll(cardsToRemove);
+                    drawAllTreasureCards();
+                    treasures.get(2).draw();
+                    treasures.get(2).setLayoutX(551);
+                    treasures.get(2).setLayoutY(690);
+                    isGetFIRE = true;
+
+                    turnManage.useStep();
+                    turnManage.showRemainSteps();
+                    changeCurrentPlayer();
+                }
             }
         }
     }
@@ -1303,6 +1328,7 @@ public class ForbiddenGameStarted {
                 }
             }
             setCurrentIndex();
+            mainBoard.getChildren().removeIf(node -> "usecard".equals(node.getUserData()));
         }
         screenController.getUseSpecialSkill().setDisable(false);
     }
