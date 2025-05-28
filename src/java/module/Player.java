@@ -1,6 +1,5 @@
 package module;
 
-import canvas.PawnCanvas;
 import cards.TreasureCard;
 import logic.ForbiddenGameStarted;
 

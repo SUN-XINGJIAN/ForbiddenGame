@@ -1,4 +1,4 @@
-package canvas;
+package module;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
