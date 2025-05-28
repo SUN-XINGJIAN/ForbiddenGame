@@ -1429,8 +1429,11 @@ public class ForbiddenGameStarted {
         Tile foolLanading = null;
         for(Tile t: tiles){
             if(t.getName().equals("10")){
-                t = foolLanading;
+                foolLanading = t;
             }
+        }
+        if (foolLanading == null) {
+            return false;
         }
         for(Player p : currentPlayers){
             if(p.getX() == foolLanading.getPositionX() && p.getY() == foolLanading.getPositionY()){
