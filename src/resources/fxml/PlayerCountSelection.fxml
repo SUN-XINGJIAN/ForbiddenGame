@@ -41,7 +41,7 @@
         </font>
     </RadioButton>
 
-    <Button fx:id="startButton" mnemonicParsing="false" onAction="#startGame" text="Start the game">
+    <Button fx:id="startButton" mnemonicParsing="false" onAction="#startGame" text="Next turn">
         <font>
             <Font size="18.0" />
         </font>

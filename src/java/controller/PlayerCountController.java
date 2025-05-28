@@ -30,7 +30,7 @@ public class PlayerCountController {
         DifficultyController difficultyController = loader.getController();
         difficultyController.setPlayerCount(playerCount);
 
-        stage.setScene(new Scene(root));
+        stage.setScene(new Scene(root,1000,1000));
         stage.centerOnScreen();
     }
 }

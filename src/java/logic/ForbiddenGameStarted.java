@@ -91,6 +91,8 @@ public class ForbiddenGameStarted {
         mainBoard = screenController.getMainBoard();
         initializeGame();
 
+//        setStartFloodCards();
+
         // 为move按钮添加点击事件处理程序
         screenController.getMove().setOnAction(event -> {
             isMoveMode = !isMoveMode;  // 切换移动模式
@@ -234,13 +236,16 @@ public class ForbiddenGameStarted {
             tile.draw();
         }
 
-        Treasure treasure1 = new Treasure(1,45,127);
-        Treasure treasure2 = new Treasure(2,45,217);
-        Treasure treasure3 = new Treasure(3,45,307);
-        Treasure treasure4 = new Treasure(4,45,397);
+        Treasure treasure1 = new Treasure(1,196,177);
+        Treasure treasure2 = new Treasure(2,445,177);
+        Treasure treasure3 = new Treasure(3,196,446);
+        Treasure treasure4 = new Treasure(4,445,446);
 
         Collections.addAll(treasures, treasure1, treasure2, treasure3, treasure4);
         mainBoard.getChildren().addAll(treasures);
+        for(Treasure treasure : treasures){
+            treasure.draw();
+        }
 
         diver = new Diver("Diver");
         engineer = new Engineer("Engineer");
@@ -383,6 +388,37 @@ public class ForbiddenGameStarted {
         checkDefeat();
     }
 
+    public void setStartFloodCards(){
+        if (tiles.isEmpty()) return; // 如果没有岛屿，直接返回
+
+        Random random = new Random();
+
+
+        // 创建一个临时列表，用于存储已经选中的岛屿
+        List<Tile> selectedTiles = new ArrayList<>();
+
+        for (int i = 0; i < 6; i++) {
+            // 随机选择一个岛屿
+            int randomIndex = random.nextInt(tiles.size());
+            Tile selectedTile = tiles.get(randomIndex);
+
+            // 增加状态值
+            selectedTile.incrementState();
+
+            selectedTile.draw(); // 重新绘制
+
+
+            // 在 FloodDeck 后面绘制选中的 Tile 的图片
+            drawFloodedTileOnDeck(selectedTile);
+
+            // 将选中的岛屿加入临时列表，并从原列表中移除，避免重复选择
+            selectedTiles.add(selectedTile);
+            tiles.remove(selectedTile);
+        }
+
+        // 将临时列表中的岛屿重新加入原列表，以恢复完整的岛屿状态
+        tiles.addAll(selectedTiles);
+    }
 
     public static List<Player> getRandomPlayers(List<Player> players, int count) {
 
@@ -983,6 +1019,8 @@ public class ForbiddenGameStarted {
                 currentBag.removeAll(cardsToRemove);
                 drawAllTreasureCards();
                 treasures.get(1).draw();
+                treasures.get(1).setLayoutX(551);
+                treasures.get(1).setLayoutY(540);
                 isGetSOIL=true;
             }
         }
@@ -1005,6 +1043,8 @@ public class ForbiddenGameStarted {
                 currentBag.removeAll(cardsToRemove);
                 drawAllTreasureCards();
                 treasures.get(0).draw();
+                treasures.get(0).setLayoutX(551);
+                treasures.get(0).setLayoutY(590);
                 isGetCLOUD=true;
 
             }
@@ -1028,6 +1068,8 @@ public class ForbiddenGameStarted {
                 currentBag.removeAll(cardsToRemove);
                 drawAllTreasureCards();
                 treasures.get(3).draw();
+                treasures.get(3).setLayoutX(551);
+                treasures.get(3).setLayoutY(640);
                 isGetWATER=true;
 
             }
@@ -1051,6 +1093,8 @@ public class ForbiddenGameStarted {
                 currentBag.removeAll(cardsToRemove);
                 drawAllTreasureCards();
                 treasures.get(2).draw();
+                treasures.get(2).setLayoutX(551);
+                treasures.get(2).setLayoutY(690);
                 isGetFIRE=true;
 
             }
@@ -1260,6 +1304,7 @@ public class ForbiddenGameStarted {
             }
             setCurrentIndex();
         }
+        screenController.getUseSpecialSkill().setDisable(false);
     }
 
     public void exchangeCards(){
