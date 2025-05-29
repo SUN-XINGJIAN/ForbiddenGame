@@ -5,10 +5,10 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 
 public class Tile extends Canvas {
-    private String tileName1,tileName2;
+    private String tileName1, tileName2; // Normal and flooded tiles
     private int num;
     private int state;
-    private int positionX,positionY;
+    private int positionX, positionY;
 
     public Tile(int number, int x, int y){
         super(50,50);
@@ -17,12 +17,11 @@ public class Tile extends Canvas {
         this.setLayoutX(x);
         this.setLayoutY(y);
         num = number;
-        tileName1 = "/image/Tiles/" + number + ".png";
-
-        tileName2 = "/image/SubmersedTiles/" + number + ".png";
-
+        tileName1 = "/image/Tiles/" + number + ".png"; // Normal tiles
+        tileName2 = "/image/SubmersedTiles/" + number + ".png"; // Flooded tiles
     }
 
+    // Provides a tile based on its current state
     public void draw(){
         // If state >= 2, don't draw
         if (state >= 2) {
@@ -38,6 +37,7 @@ public class Tile extends Canvas {
         }
     }
 
+    // Getters & Setters
     public void setState(int state) {
         this.state = state;
     }
@@ -62,12 +62,10 @@ public class Tile extends Canvas {
         return positionY;
     }
 
-    // State related
+    // State tracking for removal
     private boolean removed;
 
     public boolean isRemoved() { return removed; }
-
-
 
 
     public String getName() {

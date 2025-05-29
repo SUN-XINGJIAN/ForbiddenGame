@@ -3,7 +3,7 @@ package cards;
 import board.Treasure;
 
 public class TreasureCard extends Card {
-    public int num;
+    public int num; // Numerical identifier for the card
     private final Treasure.Type treasureType = null;
     private Type type;
 

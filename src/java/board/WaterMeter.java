@@ -13,6 +13,8 @@ public class WaterMeter extends Canvas {
         this.setLayoutX(541);
         this.setLayoutY(194);
         pictureName = "/image/WaterMeter/" + number + ".png";
+
+        // Determine the number of flood cards drawn based on water level
         if(number <= 2 && number >= 1){
             stage = 2;
         }else if(number == 0){
@@ -26,6 +28,7 @@ public class WaterMeter extends Canvas {
         }
     }
 
+    // Provides the water meter on the panel
     public void draw(){
         GraphicsContext gc = getGraphicsContext2D();
         gc.clearRect(0, 0, getWidth(), getHeight());
@@ -35,7 +38,4 @@ public class WaterMeter extends Canvas {
     public int getStage(){
         return stage;
     }
-
-
-
 }

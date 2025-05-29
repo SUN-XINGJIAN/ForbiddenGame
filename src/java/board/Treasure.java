@@ -6,6 +6,7 @@ import javafx.scene.image.Image;
 
 public class Treasure extends Canvas {
     private String treasureName;
+
     public enum Type {
         EARTH_STONE,
         CRYSTAL_OF_FIRE,
@@ -20,6 +21,7 @@ public class Treasure extends Canvas {
         treasureName = "/image/Treasure/" + number + ".png";
     }
 
+    // Provides the treasure on the panel
     public void draw(){
         GraphicsContext gc = getGraphicsContext2D();
         gc.clearRect(0, 0, getWidth(), getHeight());
