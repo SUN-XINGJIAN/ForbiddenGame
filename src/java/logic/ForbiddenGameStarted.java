@@ -91,7 +91,7 @@ public class ForbiddenGameStarted {
         mainBoard = screenController.getMainBoard();
         initializeGame();
 
-//        setStartFloodCards();
+        setStartFloodCards();
 
         // 为move按钮添加点击事件处理程序
         screenController.getMove().setOnAction(event -> {
@@ -1033,12 +1033,12 @@ public class ForbiddenGameStarted {
 
     public void checkTreasureSubmit() {
         step = turnManage.getStep();
-        if (step == 0) {
+        if (step == 1) {
             return;
         }
 
         int index = 0;
-        for (Player p : currentPlayers) {
+        Player p = currentPlayer;
             Tile currentTile = getTileByPlayer(p);
             if (currentTile.getName().equals("1") || currentTile.getName().equals("2")) {
                 for (TreasureCard card : p.getBag()) {
@@ -1152,7 +1152,6 @@ public class ForbiddenGameStarted {
                     changeCurrentPlayer();
                 }
             }
-        }
     }
 
 
@@ -1378,6 +1377,7 @@ public class ForbiddenGameStarted {
                 }
             }
             setCurrentIndex();
+            checkTreasureSubmit();
             mainBoard.getChildren().removeIf(node -> "usecard".equals(node.getUserData()));
         }
         screenController.getUseSpecialSkill().setDisable(false);
