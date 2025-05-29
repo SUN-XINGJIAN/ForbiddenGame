@@ -66,7 +66,7 @@ public class ForbiddenGameStarted {
     private boolean b = false;
     private int x;
     public int pilotCount,diverCount,engineerCount,explorerCount,messengerCount,navigatorCount;
-    public boolean isGetSOIL,isGetFIRE,isGetCLOUD,isGetWATER;
+    public boolean isGetSOIL ,isGetFIRE ,isGetCLOUD ,isGetWATER ;
 
     public ForbiddenGameStarted(ScreenController screenController, int playerCount, int initialWaterMeterIndex) {
         // 初始化random1数组
@@ -91,7 +91,7 @@ public class ForbiddenGameStarted {
         mainBoard = screenController.getMainBoard();
         initializeGame();
 
-        setStartFloodCards();
+//        setStartFloodCards();
 
         // 为move按钮添加点击事件处理程序
         screenController.getMove().setOnAction(event -> {
@@ -1428,7 +1428,7 @@ public class ForbiddenGameStarted {
         int index=0;
         Tile foolLanading = null;
         for(Tile t: tiles){
-            if(t.getName().equals("10")){
+            if(t.getName().equals("14")){
                 foolLanading = t;
             }
         }

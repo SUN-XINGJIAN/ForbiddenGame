@@ -136,7 +136,6 @@ public class ScreenController {
 
     public void setWin() {
         try {
-            if (forbiddenGameStarted.isDefeat()) { // 判断游戏是否失败
                 // 获取当前窗口的 Stage
                 Stage stage = (Stage) mainBoard.getScene().getWindow();
 
@@ -149,7 +148,6 @@ public class ScreenController {
                 stage.setScene(scene);
                 stage.setTitle("Game Over");
                 stage.show();
-            }
         } catch (Exception e) {
             e.printStackTrace();
         }
