@@ -19,10 +19,12 @@ public class DifficultyController {
 
     private int playerCount;
 
+    // Set player count received from previous screen
     public void setPlayerCount(int playerCount) {
         this.playerCount = playerCount;
     }
 
+    // Starts game with selecting difficulty levels
     @FXML
     private void startGame() throws IOException {
         int waterMeterIndex = 1;
@@ -31,14 +33,18 @@ public class DifficultyController {
         else if (rbElite.isSelected()) waterMeterIndex = 3;
         else if (rbLegendary.isSelected()) waterMeterIndex = 4;
 
+        // Get current window
         Stage stage = (Stage) rbNovice.getScene().getWindow();
 
+        // Load main game
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Screen.fxml"));
         Parent root = loader.load();
 
+        // Initialize the game with player count and difficulty selection
         ScreenController screenController = loader.getController();
         screenController.initData(playerCount, waterMeterIndex);
 
+        // Switch to game panel
         stage.setScene(new Scene(root));
         stage.centerOnScreen();
     }

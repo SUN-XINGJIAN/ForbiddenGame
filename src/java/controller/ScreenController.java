@@ -14,39 +14,19 @@ import logic.ForbiddenGameStarted;
 public class ScreenController {
 
     // Declare a Pane object to be used for displaying the chessboard
-    @FXML
-    private Pane mainBoard;
-
-    @FXML
-    private Button move;
-
-    @FXML
-    private Button useSpecialSkill;
-
-    @FXML
-    private ImageView FloodDeck;
-
-    @FXML
-    private ImageView DiverBag;
-
-    @FXML
-    private Label RemainSteps;
-
-    @FXML
-    private Button ExchangeCards;
-
-    @FXML
-    private Button TurnOver;
-
-    @FXML
-    private Button saveTheIsland;
-
-    @FXML
-    private Button useSpecialCardButton;
+    @FXML private Pane mainBoard;
+    @FXML private Button move;
+    @FXML private Button useSpecialSkill;
+    @FXML private ImageView FloodDeck;
+    @FXML private ImageView DiverBag;
+    @FXML private Label RemainSteps;
+    @FXML private Button ExchangeCards;
+    @FXML private Button TurnOver;
+    @FXML private Button saveTheIsland;
+    @FXML private Button useSpecialCardButton;
 
     // Declare a PawnCanvas object to be used for drawing the chessboard
     private ForbiddenGameStarted forbiddenGameStarted;
-
     private boolean isMoveMode = false;
     private Button currentPawnButton;
     private int playerCount;
@@ -95,11 +75,13 @@ public class ScreenController {
 
     public Button getTurnOver() {return TurnOver;}
 
+    // Initializes game with player count and difficulty selection
     public void initData(int playerCount, int waterMeterIndex) {
         this.playerCount = playerCount;
         forbiddenGameStarted = new ForbiddenGameStarted(this, playerCount, waterMeterIndex);
     }
 
+    // Switch to game over screen with failure reason
     public void setGameOver(String reason) {
         try {
             if (forbiddenGameStarted.isDefeat()) { // See if the game is over
@@ -127,6 +109,7 @@ public class ScreenController {
         }
     }
 
+    // Switch to game success screen
     public void setWin() {
         try {
                 // Get the Stage for current window

@@ -16,6 +16,7 @@ public class PlayerCountController {
     @FXML private RadioButton rb4;
     @FXML private ToggleGroup playerGroup;
 
+    // Start game after player count selection
     @FXML
     private void startGame() throws IOException {
         int playerCount = 2;
@@ -24,12 +25,15 @@ public class PlayerCountController {
 
         Stage stage = (Stage) rb2.getScene().getWindow();
 
+        // Load difficulty selection screen
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/DifficultySelection.fxml"));
         Parent root = loader.load();
 
+        // After player count comes difficulty selection
         DifficultyController difficultyController = loader.getController();
         difficultyController.setPlayerCount(playerCount);
 
+        // Switch to difficulty selection screen
         stage.setScene(new Scene(root,1000,1000));
         stage.centerOnScreen();
     }
