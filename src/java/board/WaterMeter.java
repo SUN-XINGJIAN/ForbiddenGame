@@ -17,6 +17,8 @@ public class WaterMeter extends Canvas {
         // Determine the number of flood cards drawn based on water level
         if(number <= 2 && number >= 1){
             stage = 2;
+        }else if(number == 0){
+            stage = 2;
         }else if(number <= 5 && number >= 3){
             stage = 3;
         }else if(number <= 7 && number >= 6){
