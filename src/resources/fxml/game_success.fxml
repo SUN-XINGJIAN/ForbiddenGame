@@ -13,7 +13,10 @@
     <VBox spacing="20" alignment="CENTER" style="-fx-padding: 20; -fx-background-radius: 15;">
 
         <!-- 游戏成功的文本 -->
-        <Text fx:id="gameSuccessText" text="Congratulations! You won the game!"
+        <Text fx:id="gameSuccessText" text="Congratulations!"
+              style="-fx-font-family: 'Arial Black'; -fx-font-size: 50; -fx-fill: white; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 10, 0.8, 0, 0);" />
+
+        <Text fx:id="gameSuccessText2" text="You won the game!"
               style="-fx-font-family: 'Arial Black'; -fx-font-size: 50; -fx-fill: white; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 10, 0.8, 0, 0);" />
 
     </VBox>

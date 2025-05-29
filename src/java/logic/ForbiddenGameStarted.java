@@ -1,3 +1,4 @@
+// The main logic control class
 package logic;
 
 import board.Treasure;
@@ -31,58 +32,58 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static cards.TreasureCard.Type.*;
 
 public class ForbiddenGameStarted {
-
     public ScreenController screenController;
     public Pane mainBoard;
     public boolean isMoveMode = false;
     public boolean isSpecialMode = false;
-    private int[] random1= new int[24];
+    private int[] random1= new int[24]; // A randomly generated island tile position indices array
     private List<Tile> tiles = new ArrayList<>();
     private List<TreasureCard> treasureCards = new ArrayList<>();
     private List<WaterMeter> waterMeters = new ArrayList<>();
-    private boolean isSaveMode = false; // 是否进入 "save the island" 模式
+    private boolean isSaveMode = false; // Whether in 'save island' mode
     private Label messageLabel;
-    private List<Canvas> floodedTileCanvases = new ArrayList<>(); // 用于保存 FloodDeck 后面的所有图片
-    public List<TreasureCard> currentBag = new ArrayList<>();
-    private List<List> currentBags = new ArrayList<>();
+    private List<Canvas> floodedTileCanvases = new ArrayList<>();
+    public List<TreasureCard> currentBag = new ArrayList<>(); // The card inventory for current player
+    private List<List> currentBags = new ArrayList<>(); // The card inventory for all players
     private List<Treasure> treasures = new ArrayList<>();
-    private List<Player> players = new ArrayList<>();
-    private List<Player> players1 = new ArrayList<>();
-    public List<Player> currentPlayers = new ArrayList<>();
-    public List<PlayerBag> playerBags = new ArrayList<>();
+    private List<Player> players = new ArrayList<>(); // Arraylist of all the player roles that are in the game
+    private List<Player> players1 = new ArrayList<>(); // Arraylist of all the player roles that are in the UI
+    public List<Player> currentPlayers = new ArrayList<>(); // Arraylist of all the players that are in the game
+    public List<PlayerBag> playerBags = new ArrayList<>(); // The UI for the player inventory
     private int currentWaterMeterIndex = 1;
-    private Button useSpecialCardButton;  // 用于触发使用特殊牌的按钮
-    private Diver diver,diver1;
-    private Engineer engineer,engineer1;
-    private Explorer explorer,explorer1;
-    private Messenger messenger,messenger1;
-    private Navigator navigator,navigator1;
-    private Pilot pilot,pilot1;
+    private Button useSpecialCardButton;
+    private Diver diver, diver1;
+    private Engineer engineer, engineer1;
+    private Explorer explorer, explorer1;
+    private Messenger messenger, messenger1;
+    private Navigator navigator, navigator1;
+    private Pilot pilot, pilot1;
     public Player currentPlayer;
     private Player currentPlayer1;
     public TurnManage turnManage;
     public int step;
-    private int playerCount; // 玩家数量
+    private int playerCount;
     private boolean b = false;
     private int x;
-    public int pilotCount,diverCount,engineerCount,explorerCount,messengerCount,navigatorCount;
-    public boolean isGetSOIL ,isGetFIRE ,isGetCLOUD ,isGetWATER ;
+    public int pilotCount,diverCount,engineerCount,explorerCount,messengerCount,navigatorCount; // The counter for each role's special ability
+    public boolean isGetSOIL ,isGetFIRE ,isGetCLOUD ,isGetWATER ; // The status for collecting treasures
 
+    // Constructor for initializing the game
     public ForbiddenGameStarted(ScreenController screenController, int playerCount, int initialWaterMeterIndex) {
-        // 初始化random1数组
+        // Initialize the random1 array (the tiles of the island)
         random1 = new int[24];
         List<Integer> numbers = new ArrayList<>();
         this.playerCount = playerCount;
 
-        // 填充1到24的数字
+        // Add 1-24 numbers
         for (int i = 1; i <= 24; i++) {
             numbers.add(i);
         }
 
-        // 打乱数字的顺序
+        // Shuffle the order of the numbers
         Collections.shuffle(numbers);
 
-        // 将打乱后的数字填充到random1数组
+        // Add the shuffled numbers in the random1 array
         for (int i = 0; i < random1.length; i++) {
             random1[i] = numbers.get(i);
         }
@@ -93,40 +94,36 @@ public class ForbiddenGameStarted {
 
         setStartFloodCards();
 
-        // 为move按钮添加点击事件处理程序
+        // Add a click event handler to the "move" button
         screenController.getMove().setOnAction(event -> {
-            isMoveMode = !isMoveMode;  // 切换移动模式
+            isMoveMode = !isMoveMode;  // Switch move mode
             if (isMoveMode) {
                 screenController.getMove().setText("Cancel Move");
-                enableTileMovement(currentPlayer);  // 启动每次点击时可以移动棋子的模式
+                enableTileMovement(currentPlayer);  // Enable the mode where the pawns can be moved each time a click occurs
             } else {
                 screenController.getMove().setText("Move");
             }
         });
 
-
         screenController.getSaveTheIsland().setOnAction(event -> {
-            isSaveMode = !isSaveMode; // 切换保存模式
+            isSaveMode = !isSaveMode; // Switch save island mode
             if (isSaveMode) {
                 screenController.getSaveTheIsland().setText("Cancel Save");
-                enableSaveMode(); // 启动保存模式
+                enableSaveMode(); // Start save island mode
             } else {
                 screenController.getSaveTheIsland().setText("Save the Island");
-                disableSaveMode(); // 取消保存模式
+                disableSaveMode(); // Cancel save island mode
             }
         });
 
-
+        // The event for ending each turn
         screenController.getTurnOver().setOnAction(event -> {
             handleTurnOver();
             screenController.getUseSpecialSkill().setDisable(false);
         });
 
-
-
-
         screenController.getUseSpecialCardButton().setOnAction(event -> {
-            useSpecialCards(); // 触发特殊牌使用逻辑
+            useSpecialCards(); // Activate the usage of special cards
         });
 
         turnManage = new TurnManage(screenController);
@@ -193,6 +190,7 @@ public class ForbiddenGameStarted {
 
     }
 
+    // Initializing the basic components of the game (tiles, cards, player role)
     private void initializeGame() {
         Tile tile1 = new Tile(random1[0],282,194);
         Tile tile2 = new Tile(random1[1],332,194);
@@ -218,9 +216,9 @@ public class ForbiddenGameStarted {
         Tile tile21 = new Tile(random1[20],382,394);
         Tile tile22 = new Tile(random1[21],282,444);
         Tile tile23 = new Tile(random1[22],332,444);
-        // 将所有Tile对象添加到tiles列表中
-        Collections.addAll(tiles, tile1, tile2, tile3, tile4, tile5, tile24, tile6, tile7, tile8, tile9, tile10, tile11, tile12, tile13, tile14, tile15, tile16, tile17, tile18, tile19, tile20, tile21, tile22, tile23);
 
+        // Add all Tile objects to the "tiles" list
+        Collections.addAll(tiles, tile1, tile2, tile3, tile4, tile5, tile24, tile6, tile7, tile8, tile9, tile10, tile11, tile12, tile13, tile14, tile15, tile16, tile17, tile18, tile19, tile20, tile21, tile22, tile23);
 
         TreasureCard soil = new TreasureCard(0);
         TreasureCard cloud = new TreasureCard(5);
@@ -228,8 +226,10 @@ public class ForbiddenGameStarted {
         TreasureCard fire = new TreasureCard(15);
         TreasureCard helicopter = new TreasureCard(20);
         TreasureCard sandbags = new TreasureCard(23);
-        TreasureCard waterrise = new TreasureCard(26);
-        Collections.addAll(treasureCards,soil,cloud, water, fire, helicopter, sandbags, waterrise);
+        TreasureCard waterRise = new TreasureCard(26);
+
+        // Add all TreasureCard objects to the "treasureCards" list
+        Collections.addAll(treasureCards, soil, cloud, water, fire, helicopter, sandbags, waterRise);
 
         mainBoard.getChildren().addAll(tiles);
         for (Tile tile : tiles) {
@@ -241,7 +241,9 @@ public class ForbiddenGameStarted {
         Treasure treasure3 = new Treasure(3,196,446);
         Treasure treasure4 = new Treasure(4,445,446);
 
+        // Add all Treasure objects to the "treasures" list
         Collections.addAll(treasures, treasure1, treasure2, treasure3, treasure4);
+
         mainBoard.getChildren().addAll(treasures);
         for(Treasure treasure : treasures){
             treasure.draw();
@@ -261,8 +263,11 @@ public class ForbiddenGameStarted {
         navigator1 = new Navigator("Navigator");
         pilot1 = new Pilot("Pilot");
 
-        Collections.addAll(players,diver, engineer, explorer, messenger, navigator, pilot);
-        Collections.addAll(players1,diver1, engineer1, explorer1, messenger1, navigator1, pilot1);
+        // Add all Player objects to the "players" list
+        Collections.addAll(players, diver, engineer, explorer, messenger, navigator, pilot);
+        // Add all Player1 objects to the "players1" list
+        Collections.addAll(players1, diver1, engineer1, explorer1, messenger1, navigator1, pilot1);
+
         mainBoard.getChildren().addAll(players);
         currentPlayers = getRandomPlayers(players, playerCount);
         for(Player player : currentPlayers){
@@ -298,7 +303,10 @@ public class ForbiddenGameStarted {
         PlayerBag messengerBag = new PlayerBag(PlayerBag.playerType.Messenger);
         PlayerBag navigatorBag = new PlayerBag(PlayerBag.playerType.Navigator);
         PlayerBag pilotBag = new PlayerBag(PlayerBag.playerType.Pilot);
+
+        // Add all PlayerBag objects to the "playerBags" list
         Collections.addAll(playerBags, diverBag, engineerBag, explorerBag, messengerBag, navigatorBag, pilotBag);
+
         mainBoard.getChildren().addAll(playerBags);
 
         for(int i=0;i<currentPlayers.size();i++){
@@ -335,116 +343,107 @@ public class ForbiddenGameStarted {
         }
         drawAllTreasureCards();
 
-
         screenController.getExchangeCards().setDisable(true);
-
     }
 
+    // Disable or enable the control
     public void setAllControlsDisabled(boolean disable) {
         for (Node node : mainBoard.getChildren()) {
-            node.setDisable(disable); // 禁用或启用控件
+            node.setDisable(disable);
         }
     }
 
-
-
     private void selectRandomTile() {
-        if (tiles.isEmpty()) return; // 如果没有岛屿，直接返回
+        if (tiles.isEmpty()) return; // If no tile, return
 
         Random random = new Random();
 
-        // 根据当前 WaterMeter 的 stage 值，决定淹没的岛屿数量
+        // Based on the current stage value of WaterMeter, determine the number of submerged islands
         int floodCount = waterMeters.get(currentWaterMeterIndex).getStage();
 
-        // 创建一个临时列表，用于存储已经选中的岛屿
+        // Create a temporary list to store the tiles that have been selected
         List<Tile> selectedTiles = new ArrayList<>();
 
         for (int i = 0; i < floodCount; i++) {
-            // 随机选择一个岛屿
+            // Randomly choose a tile
             int randomIndex = random.nextInt(tiles.size());
             Tile selectedTile = tiles.get(randomIndex);
 
-            // 增加状态值
+            // Increase state
             selectedTile.incrementState();
 
             if (selectedTile.getState() >= 2) {
-                // 如果 state >= 2，从列表和 UI 中移除
-                tiles.remove(selectedTile); // 从列表中移除
-                mainBoard.getChildren().remove(selectedTile); // 从 UI 中移除
+                // If state >= 2, remove
+                tiles.remove(selectedTile); // Remove from list
+                mainBoard.getChildren().remove(selectedTile); // Remove from UI
             } else {
-                selectedTile.draw(); // 重新绘制
+                selectedTile.draw(); // Redraw it
             }
 
-            // 在 FloodDeck 后面绘制选中的 Tile 的图片
+            // Draw the image of the selected tile behind FloodDeck
             drawFloodedTileOnDeck(selectedTile);
 
-            // 将选中的岛屿加入临时列表，并从原列表中移除，避免重复选择
+            // Add the selected tiles to the temporary list and remove them from the original list to prevent duplicate selections
             selectedTiles.add(selectedTile);
             tiles.remove(selectedTile);
         }
 
-        // 将临时列表中的岛屿重新加入原列表，以恢复完整的岛屿状态
+        // Re-add the tiles in the temporary list back to the original list to restore the complete tile state
         tiles.addAll(selectedTiles);
         checkDefeat();
     }
 
     public void setStartFloodCards(){
-        if (tiles.isEmpty()) return; // 如果没有岛屿，直接返回
+        if (tiles.isEmpty()) return; // If no tile, return
 
         Random random = new Random();
 
-
-        // 创建一个临时列表，用于存储已经选中的岛屿
+        // Create a temporary list to store the tiles that have been selected
         List<Tile> selectedTiles = new ArrayList<>();
 
         for (int i = 0; i < 6; i++) {
-            // 随机选择一个岛屿
+            // Randomly choose a tile
             int randomIndex = random.nextInt(tiles.size());
             Tile selectedTile = tiles.get(randomIndex);
 
-            // 增加状态值
+            // Increase state
             selectedTile.incrementState();
 
-            selectedTile.draw(); // 重新绘制
+            selectedTile.draw(); // Redraw it
 
-
-            // 在 FloodDeck 后面绘制选中的 Tile 的图片
+            // Draw the image of the selected tile behind FloodDeck
             drawFloodedTileOnDeck(selectedTile);
 
-            // 将选中的岛屿加入临时列表，并从原列表中移除，避免重复选择
+            // Add the selected tiles to the temporary list and remove them from the original list to prevent duplicate selections
             selectedTiles.add(selectedTile);
             tiles.remove(selectedTile);
         }
 
-        // 将临时列表中的岛屿重新加入原列表，以恢复完整的岛屿状态
+        // Re-add the tiles in the temporary list back to the original list to restore the complete tile state
         tiles.addAll(selectedTiles);
     }
 
     public static List<Player> getRandomPlayers(List<Player> players, int count) {
-
         Random random = new Random();
-        List<Player> copyOfPlayers = new ArrayList<>(players); // 创建一个副本，以便不修改原始列表
+        List<Player> copyOfPlayers = new ArrayList<>(players); // Create a copy so as not to modify the original list
         List<Player> selectedPlayers = new ArrayList<>();
 
         for (int i = 0; i < count; i++) {
-            int randomIndex = random.nextInt(copyOfPlayers.size()); // 从副本列表中随机选择一个索引
-            selectedPlayers.add(copyOfPlayers.get(randomIndex)); // 添加到结果列表
-            copyOfPlayers.remove(randomIndex); // 从副本列表中移除已抽取的元素，防止重复
+            int randomIndex = random.nextInt(copyOfPlayers.size()); // Randomly select an index from the list of copies
+            selectedPlayers.add(copyOfPlayers.get(randomIndex)); // Add to the result list
+            copyOfPlayers.remove(randomIndex); // Remove the extracted elements from the copy list to prevent duplication
         }
 
         return selectedPlayers;
     }
 
-
-
+    // Enable the player move mode
     public void enableTileMovement(Player p) {
-        // 遍历 mainBoard 的所有子节点
+        // Traverse all the child nodes of the mainBoard
         for (Node node : mainBoard.getChildren()) {
             if (node instanceof Tile  tile) {
                 tile.setOnMouseClicked(e -> {
                     if (!isMoveMode) return;
-
-//                    boolean validMove = false;
 
                     int targetX = (int) tile.getLayoutX();
                     int targetY = (int) tile.getLayoutY();
@@ -485,22 +484,21 @@ public class ForbiddenGameStarted {
         }
     }
 
-
     private void drawFloodedTileOnDeck(Tile tile) {
-        // 获取 FloodDeck 的位置
+        // Obtain the position of the flood deck
         double floodDeckX = screenController.getFloodDeck().getLayoutX();
         double floodDeckY = screenController.getFloodDeck().getLayoutY();
         double floodDeckWidth = 30;
         double floodDeckHeight = 69;
 
-        // 计算新图片的偏移位置（每次向右偏移一定距离）
-        int offset = 30; // 每张图片的水平偏移量
-        int currentImageCount = floodedTileCanvases.size(); // 使用 floodedTileCanvases 的大小
+        // Calculate the offset position of the new image (shift it a certain distance to the right each time)
+        int offset = 30; // The horizontal offset of each image
+        int currentImageCount = floodedTileCanvases.size(); // Using floodedTileCanvases' size
 
         double newImageX = floodDeckX + offset * currentImageCount + 50;
         double newImageY = floodDeckY;
 
-        // 创建一个新的 Canvas，用于绘制 Tile 的图片
+        // Create a new Canvas for drawing the image of the Tile
         Canvas floodedTileCanvas = new Canvas(floodDeckWidth, floodDeckHeight);
         floodedTileCanvas.setLayoutX(newImageX);
         floodedTileCanvas.setLayoutY(newImageY);
@@ -509,40 +507,38 @@ public class ForbiddenGameStarted {
 
         floodedTileCanvas.setUserData(tile.getTileName1());
 
-        // 根据 Tile 的状态绘制正确的图片
+        // Draw the correct image based on the status of Tile
         String tileImagePath = tile.getTileName1();
         gc.drawImage(new Image(getClass().getResourceAsStream(tileImagePath)), 0, 0, floodDeckWidth, floodDeckHeight);
 
-        // 将新的 Canvas 添加到主 Pane（mainBoard）中
+        // Add the new Canvas to the main Pane (mainBoard)
         mainBoard.getChildren().add(floodedTileCanvas);
 
-        // 将 Canvas 添加到列表中
+        // Add Canvas to the list
         floodedTileCanvases.add(floodedTileCanvas);
     }
 
     public void removeFloodedTileFromDeckByTile(Tile tile) {
-        String tileImagePath = tile.getTileName1(); // 获取当前 Tile 的图片路径
+        String tileImagePath = tile.getTileName1(); // Obtain the image path of the current Tile
 
-        // 遍历 floodedTileCanvases 列表，找到与 Tile 对应的 Canvas
+        // Traverse the "floodedTileCanvases" list and find the Canvas corresponding to the Tile
         for (int i = 0; i < floodedTileCanvases.size(); i++) {
             Canvas canvas = floodedTileCanvases.get(i);
 
-            // 使用 UserData 存储图片路径
+            // Use UserData to store the path of the image
             String canvasImagePath = (String) canvas.getUserData();
 
             if (canvasImagePath != null && canvasImagePath.equals(tileImagePath)) {
-                // 从 UI 和列表中移除 Canvas
+                // Remove the Canvas from the UI and the list
                 mainBoard.getChildren().remove(canvas);
                 floodedTileCanvases.remove(i);
 
-                // 更新剩余图片的位置
+                // Update the positions of the remaining pictures
                 updateFloodDeckImagePositions();
-                break; // 找到后立即退出循环
+                break; // Exit the loop immediately after finding
             }
         }
     }
-
-
 
     private void updateFloodDeckImagePositions() {
         double floodDeckX = screenController.getFloodDeck().getLayoutX();
@@ -557,24 +553,23 @@ public class ForbiddenGameStarted {
         }
     }
 
-
-
     public void enableSaveMode() {
-        // 为所有 Tile 添加点击事件
+        // Add click events to all Tiles
         for (Tile tile : tiles) {
-            tile.setOnMouseClicked(event -> handleTileSave(tile)); // 添加鼠标点击事件
+            tile.setOnMouseClicked(event -> handleTileSave(tile)); // Add mouse clicking event
         }
     }
 
     public void disableSaveMode() {
-        // 禁用所有 Tile 的点击事件
+        // Ban click events to all Tiles
         for (Tile tile : tiles) {
-            tile.setOnMouseClicked(null); // 移除鼠标点击事件
+            tile.setOnMouseClicked(null); // Ban mouse clicking event
         }
     }
 
+    // The logic for tile clicking
     public void handleTileSave(Tile tile) {
-        if (!isSaveMode) return; // 如果不在保存模式，则返回
+        if (!isSaveMode) return; // If not in save mode, return
 
         int targetX = (int) tile.getLayoutX();
         int targetY = (int) tile.getLayoutY();
@@ -601,7 +596,7 @@ public class ForbiddenGameStarted {
             tile.setState(0);
             tile.draw();
 
-            // 删除与当前 Tile 对应的图片
+            // Delete the corresponding Tile picture
             removeFloodedTileFromDeckByTile(tile);
 
             showMessage("Island saved successfully!");
@@ -620,7 +615,6 @@ public class ForbiddenGameStarted {
         }
     }
 
-
     public void showMessage(String message) {
         if (messageLabel == null) {
             messageLabel = new Label();
@@ -633,9 +627,9 @@ public class ForbiddenGameStarted {
 
         messageLabel.setText(message);
 
-        // 动态调整宽度和高度
-        messageLabel.setPrefWidth(200.0); // 设置最大宽度
-        messageLabel.setPrefHeight(Region.USE_COMPUTED_SIZE); // 根据内容自动计算高度
+        // Adjust the width and height dynamically
+        messageLabel.setPrefWidth(200.0); // Set maximum width
+        messageLabel.setPrefHeight(Region.USE_COMPUTED_SIZE); // Automatically calculate the height based on the content
 
         messageLabel.setVisible(true);
 
@@ -644,34 +638,33 @@ public class ForbiddenGameStarted {
         pause.play();
     }
 
-
+    // The logic for handling the turn for each player
     private void handleTurnOver() {
         turnManage.setStep(0);
         turnManage.showRemainSteps();
         changeCurrentPlayer();
         drawAllTreasureCards();
     }
+
     public void sentSpecialCards(List<TreasureCard> playerBag){
-        // 根据概率分配宝藏牌
+        // Distribute the treasure cards based on the probability
         List<TreasureCard> availableCards = new ArrayList<>();
 
-        // 每种宝藏牌按其概率加入到 availableCards 中
+        // Each treasure card is added to the "availableCards" list according to its probability
         for (int i = 0; i < 5; i++) availableCards.add(new TreasureCard(0)); // soil
         for (int i = 0; i < 5; i++) availableCards.add(new TreasureCard(5)); // cloud
         for (int i = 0; i < 5; i++) availableCards.add(new TreasureCard(10)); // water
         for (int i = 0; i < 5; i++) availableCards.add(new TreasureCard(15)); // fire
         for (int i = 0; i < 3; i++) availableCards.add(new TreasureCard(20)); // helicopter
-        for (int i = 0; i < 3; i++) availableCards.add(new TreasureCard(26)); // waterrise
+        for (int i = 0; i < 3; i++) availableCards.add(new TreasureCard(26)); // waterRise
         for (int i = 0; i < 2; i++) availableCards.add(new TreasureCard(23)); // sandbags
 
-        // 随机抽取两个宝藏牌
+        // Randomly draw two treasure cards
         Random random = new Random();
         TreasureCard card1 = availableCards.get(random.nextInt(availableCards.size()));
         TreasureCard card2 = availableCards.get(random.nextInt(availableCards.size()));
 
-
-
-        // 检查是否抽到了 waterrise 卡片
+        // Check if waterRise card is drawn
         if (card1.getCardType() == 26 ) {
             updateWaterMeter();
         }else{
@@ -687,16 +680,16 @@ public class ForbiddenGameStarted {
 
         if (playerBag.size() > 5) {
             x=0;
-            promptDiscardCards(currentBag);  // 弹出丢弃界面
+            promptDiscardCards(currentBag);  // Show discard panel
         }
 
     }
 
     public void sentSpecialCardsWithoutWaterRise(List<TreasureCard> playerBag){
-        // 根据概率分配宝藏牌
+        // Distribute the treasure cards based on the probability
         List<TreasureCard> availableCards = new ArrayList<>();
 
-        // 每种宝藏牌按其概率加入到 availableCards 中
+        // Each treasure card is added to the "availableCards" list according to its probability
         for (int i = 0; i < 5; i++) availableCards.add(new TreasureCard(0)); // soil
         for (int i = 0; i < 5; i++) availableCards.add(new TreasureCard(5)); // cloud
         for (int i = 0; i < 5; i++) availableCards.add(new TreasureCard(10)); // water
@@ -704,24 +697,21 @@ public class ForbiddenGameStarted {
         for (int i = 0; i < 3; i++) availableCards.add(new TreasureCard(20)); // helicopter
         for (int i = 0; i < 2; i++) availableCards.add(new TreasureCard(23)); // sandbags
 
-        // 随机抽取两个宝藏牌
+        // Randomly draw two treasure cards
         Random random = new Random();
         TreasureCard card1 = availableCards.get(random.nextInt(availableCards.size()));
         TreasureCard card2 = availableCards.get(random.nextInt(availableCards.size()));
 
-
         playerBag.add(card1);
 
         playerBag.add(card2);
-
-
     }
 
 
     public void promptDiscardCards(List<TreasureCard> bag) {
         showMessage("You have too many cards! Please discard until only 5 remain.");
 
-        // 禁用所有其他控件
+        // Ban all the other controls
         setAllControlsDisabled(true);
 
         double centerX = mainBoard.getWidth() / 2;
@@ -745,7 +735,7 @@ public class ForbiddenGameStarted {
                 GraphicsContext gc = cardCanvas.getGraphicsContext2D();
                 gc.drawImage(new Image(getClass().getResourceAsStream(card.cardname)), 0, 0, cardWidth, cardHeight);
 
-                // 每个卡片都可点击丢弃
+                // Every card can be clicked to discard
                 int index = i;
                 cardCanvas.setOnMouseClicked(e -> {
                     confirmDiscard(index);
@@ -773,7 +763,7 @@ public class ForbiddenGameStarted {
                 GraphicsContext gc = cardCanvas.getGraphicsContext2D();
                 gc.drawImage(new Image(getClass().getResourceAsStream(card.cardname)), 0, 0, cardWidth, cardHeight);
 
-                // 每个卡片都可点击丢弃
+                // Every card can be clicked to discard
                 int index = i;
                 cardCanvas.setOnMouseClicked(e -> {
                     confirmDiscard(index);
@@ -784,8 +774,6 @@ public class ForbiddenGameStarted {
         }
 
     }
-
-
 
     private void confirmDiscard(int index) {
         x++;
@@ -798,26 +786,24 @@ public class ForbiddenGameStarted {
 
         currentBags.get(t).remove(index);
 
-
-        // 清除 discard 卡牌 UI
+        // Clear the discard card UI
         mainBoard.getChildren().removeIf(node -> "discard".equals(node.getUserData()));
 
         drawAllTreasureCards();
 
         if (currentBags.get(t).size() > 5) {
-            promptDiscardCards(currentBag);  // 继续丢弃
+            promptDiscardCards(currentBag);  // Keep discarding
         } else {
             showMessage("You now have 5 cards or fewer.");
 
-            // 丢弃完成后，重新启用其他控件
+            // After discard is done, enable all other controls
             setAllControlsDisabled(false);
         }
-
     }
 
 
     public void drawAllTreasureCards() {
-        // 先移除旧的卡牌 Canvas
+        // Firstly remove the old card Canvas
         mainBoard.getChildren().removeIf(node -> node instanceof Canvas && "treasure".equals(node.getUserData()));
 
         double cardWidth = 50;
@@ -836,25 +822,23 @@ public class ForbiddenGameStarted {
                 Card cardCanvas = new Card();
                 cardCanvas.setLayoutX(x);
                 cardCanvas.setLayoutY(y);
-                cardCanvas.setUserData("treasure");  // 标记方便清除
+                cardCanvas.setUserData("treasure");  // Marking that can be easily removed
                 GraphicsContext gc = cardCanvas.getGraphicsContext2D();
                 gc.drawImage(new Image(getClass().getResourceAsStream(card.cardname)), 0, 0, cardWidth, cardHeight);
                 mainBoard.getChildren().add(cardCanvas);
             }
-
         }
-
     }
 
     private void updateWaterMeter() {
         if (currentWaterMeterIndex < waterMeters.size() - 1) {
-            // 从主 Pane 中移除当前 WaterMeter
+            // Remove the current WaterMeter from the main pane
             mainBoard.getChildren().remove(waterMeters.get(currentWaterMeterIndex));
 
-            // 更新索引到下一个 WaterMeter
+            // Update the index to the next WaterMeter
             currentWaterMeterIndex++;
 
-            // 添加新的 WaterMeter 到主 Pane
+            // Add a new WaterMeter to the main Pane
             WaterMeter nextWaterMeter = waterMeters.get(currentWaterMeterIndex);
             nextWaterMeter.draw();
             mainBoard.getChildren().add(nextWaterMeter);
@@ -864,8 +848,6 @@ public class ForbiddenGameStarted {
             checkDefeat();
         }
     }
-
-
 
     private List<TreasureCard> getSpecialCards() {
         List<TreasureCard> specialCards = new ArrayList<>();
@@ -893,7 +875,7 @@ public class ForbiddenGameStarted {
             double cardHeight = 120;
             int offset = 90;
 
-            // 创建一个列表来保存当前添加的UI元素，以便稍后清除
+            // Create a list to store the currently added UI elements, so that they can be cleared later
             List<Node> tempUIElements = new ArrayList<>();
 
             for (int i = 0; i < getSpecialCards().size(); i++) {
@@ -912,36 +894,34 @@ public class ForbiddenGameStarted {
                 int index = i;
                 cardCanvas.setOnMouseClicked(e -> {
                     useThisCard(index);
-                    // 清理临时UI元素
+                    // Clean the temporary UI elements
                     clearTempUIElements(tempUIElements);
                 });
 
                 mainBoard.getChildren().add(cardCanvas);
-                tempUIElements.add(cardCanvas); // 保存到临时UI列表
+                tempUIElements.add(cardCanvas); // Save to the temporary UI list
             }
 
-            // 创建取消按钮
+            // Create the "Cancel" button
             Button cancelButton = new Button("Cancel");
-            cancelButton.setLayoutX(centerX - 50); // 按钮中心位置
-            cancelButton.setLayoutY(discardAreaY + 200); // 按钮位置调整
+            cancelButton.setLayoutX(centerX - 50); // The centre of the button
+            cancelButton.setLayoutY(discardAreaY + 200); // Adjusting the button's position
             cancelButton.setOnAction(e -> {
-                // 清理临时UI元素
+                // Clean the temporary UI elements
                 clearTempUIElements(tempUIElements);
             });
 
             mainBoard.getChildren().add(cancelButton);
-            tempUIElements.add(cancelButton); // 保存到临时UI列表
+            tempUIElements.add(cancelButton); // Save to the temporary UI list
         }
     }
 
-    // 清理临时UI元素的方法
     private void clearTempUIElements(List<Node> tempUIElements) {
         for (Node node : tempUIElements) {
             mainBoard.getChildren().remove(node);
         }
-        tempUIElements.clear(); // 清空列表以避免重复清理
+        tempUIElements.clear(); // Clear the list to avoid repeated cleaning
     }
-
 
     private void useThisCard(int index){
             List<TreasureCard> specialCards = getSpecialCards();
@@ -959,7 +939,6 @@ public class ForbiddenGameStarted {
                     });
                 }
             }
-
     }
 
     private void saveBySandbags(Tile tile) {
@@ -968,7 +947,7 @@ public class ForbiddenGameStarted {
             tile.setState(0);
             tile.draw();
 
-            // 删除与当前 Tile 对应的图片
+            // Delete the corresponding Tile picture
             removeFloodedTileFromDeckByTile(tile);
 
             showMessage("Island saved successfully!");
@@ -1158,7 +1137,7 @@ public class ForbiddenGameStarted {
     public void promptDiscardCardsByExchange(List<TreasureCard> bag) {
         showMessage("You have too many cards! Please discard until only 5 remain.");
 
-        // 禁用所有其他控件
+        // Ban all the other controls
         setAllControlsDisabled(true);
 
         double centerX = mainBoard.getWidth() / 2;
@@ -1181,7 +1160,7 @@ public class ForbiddenGameStarted {
             GraphicsContext gc = cardCanvas.getGraphicsContext2D();
             gc.drawImage(new Image(getClass().getResourceAsStream(card.cardname)), 0, 0, cardWidth, cardHeight);
 
-            // 每个卡片都可点击丢弃
+            // Every card can be clicked to discard
             int index = i;
             cardCanvas.setOnMouseClicked(e -> {
                 confirmDiscard(index);
@@ -1256,7 +1235,7 @@ public class ForbiddenGameStarted {
         showMessage("Choose the card you want to send!");
 
         List<TreasureCard> bag = selectTreasureCards(currentBag);
-        setAllControlsDisabled(true); // 禁用所有其他控件
+        setAllControlsDisabled(true); // Ban all the other controls
 
         double centerX = mainBoard.getWidth() / 2;
         double discardAreaY = screenController.getDiverBag().getLayoutY() - 150;
@@ -1265,7 +1244,7 @@ public class ForbiddenGameStarted {
         double cardHeight = 120;
         int offset = 90;
 
-        // 保存所有添加到 UI 的节点，用于后续清理
+        // Save all the nodes added to the UI for subsequent cleanup
         List<Node> tempUIElements = new ArrayList<>();
 
         for (int i = 0; i < bag.size(); i++) {
@@ -1285,7 +1264,7 @@ public class ForbiddenGameStarted {
             cardCanvas.setOnMouseClicked(e -> {
                 giveCards(index);
 
-                // 清理临时UI元素
+                // Clean up the temporary UI elements
                 clearTempUIElements(tempUIElements);
             });
 
@@ -1293,14 +1272,14 @@ public class ForbiddenGameStarted {
             tempUIElements.add(cardCanvas);
         }
 
-        // 添加取消按钮
+        // Add the "Cancel" button
         Button cancelButton = new Button("Cancel");
         cancelButton.setLayoutX(centerX - 40);
-        cancelButton.setLayoutY(discardAreaY + 150); // 放在卡片下方
+        cancelButton.setLayoutY(discardAreaY + 150); // Put under the card
 
         cancelButton.setOnAction(e -> {
             clearTempUIElements(tempUIElements);
-            setAllControlsDisabled(false); // 恢复控件
+            setAllControlsDisabled(false); // Restore control
             showMessage("Action canceled.");
         });
 
@@ -1311,8 +1290,7 @@ public class ForbiddenGameStarted {
 
 
     private void giveCards(int index) {
-
-        // 清除 discard 卡牌 UI
+        // Clear discard card UI
         mainBoard.getChildren().removeIf(node -> "discard".equals(node.getUserData()));
 
         List<Player> sameTilePlayers = findSamePositionPlayers(currentPlayer);
@@ -1345,13 +1323,8 @@ public class ForbiddenGameStarted {
                 setAllControlsDisabled(false);
                 pb.setDisable(true);
                 drawAllTreasureCards();
-
-
-
-
             });
         }
-
     }
 
     public void changeCurrentPlayer(){
@@ -1425,18 +1398,18 @@ public class ForbiddenGameStarted {
     }
 
     public boolean allAtFoolLanding(){
-        int index=0;
-        Tile foolLanading = null;
+        int index = 0;
+        Tile foolLanding = null;
         for(Tile t: tiles){
             if(t.getName().equals("14")){
-                foolLanading = t;
+                foolLanding = t;
             }
         }
-        if (foolLanading == null) {
+        if (foolLanding == null) {
             return false;
         }
         for(Player p : currentPlayers){
-            if(p.getX() == foolLanading.getPositionX() && p.getY() == foolLanading.getPositionY()){
+            if(p.getX() == foolLanding.getPositionX() && p.getY() == foolLanding.getPositionY()){
                 index++;
             }
         }
@@ -1515,7 +1488,6 @@ public class ForbiddenGameStarted {
             if (t.getName().equals("8") && t.getState() > 1 ){
                 indexWater++;
             }
-
         }
 
         if(indexSoil ==2 && !isGetSoil()){
@@ -1533,6 +1505,7 @@ public class ForbiddenGameStarted {
 
         return isDefeat;
     }
+
     public void checkDefeat(){
         if(isDefeat()){
             String reason = getDefeatReason();
@@ -1584,9 +1557,6 @@ public class ForbiddenGameStarted {
         if (indexWater == 2 && !isGetWater()) {
             return "Both Water treasure tiles sank before the treasure was collected!";
         }
-
         return "Game Over";
     }
-
-
 }
