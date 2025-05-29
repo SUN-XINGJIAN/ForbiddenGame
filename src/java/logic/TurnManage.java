@@ -8,6 +8,8 @@ import java.util.List;
 public class TurnManage {
     public int step = 0;
     private ScreenController screenController;
+
+    // Initializing with 3 steps each turn
     public TurnManage(ScreenController screenController){
         step = 3;
         this.screenController = screenController;
@@ -24,8 +26,9 @@ public class TurnManage {
             screenController.getRemainSteps().setText("Remain Steps: " + step);}
     }
 
+    // Moves to next player's index
     public int getIndex(int index,List<Player> players){
-        step = 3;
+        step = 3; // Reset actions
         index++;
         if(index == players.size()){
             index = 0;
@@ -33,6 +36,7 @@ public class TurnManage {
         return index;
     }
 
+    // Moves to previous player's index
     public int getIndex1(int index,List<Player> players){
         index--;
         if(index == -1){
@@ -49,7 +53,8 @@ public class TurnManage {
         this.step = step;
     }
 
+    // Reset to initial steps
     public void resetSteps() {
-        step = 3; // Reset as initial steps
+        step = 3;
     }
 }
