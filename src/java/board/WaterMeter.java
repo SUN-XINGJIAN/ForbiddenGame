@@ -7,6 +7,7 @@ import javafx.scene.image.Image;
 public class WaterMeter extends Canvas {
     private String pictureName;
     public int stage;
+
     public WaterMeter(int number) {
         super(105,315);
         this.setLayoutX(541);
@@ -24,7 +25,6 @@ public class WaterMeter extends Canvas {
     }
 
     public void draw(){
-
         GraphicsContext gc = getGraphicsContext2D();
         gc.clearRect(0, 0, getWidth(), getHeight());
         gc.drawImage(new Image(getClass().getResourceAsStream(pictureName)), 0, 0, getWidth(), getHeight());

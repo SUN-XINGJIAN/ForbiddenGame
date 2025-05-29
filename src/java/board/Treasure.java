@@ -21,7 +21,6 @@ public class Treasure extends Canvas {
     }
 
     public void draw(){
-
         GraphicsContext gc = getGraphicsContext2D();
         gc.clearRect(0, 0, getWidth(), getHeight());
         gc.drawImage(new Image(getClass().getResourceAsStream(treasureName)), 0, 0, getWidth(), getHeight());

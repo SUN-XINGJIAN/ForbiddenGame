@@ -18,13 +18,11 @@ public class Pilot extends Player {
 
     public Pilot(String name){
         super("Pilot");
-
         pawnName = "/image/Pawns/@2x/Pilot@2x.png";
     }
 
     @Override
     public void draw() {
-
         GraphicsContext gc = getGraphicsContext2D();
         gc.clearRect(0, 0, getWidth(), getHeight());
         gc.drawImage(new Image(getClass().getResourceAsStream(pawnName)),0,0,getWidth(),getHeight());
@@ -41,6 +39,7 @@ public class Pilot extends Player {
         }
         return x;
     }
+
     public int getPositionY(ForbiddenGameStarted forbiddenGameStarted){
         int y=0;
         t = forbiddenGameStarted.getTiles();
@@ -57,7 +56,6 @@ public class Pilot extends Player {
     public module.PlayerBag.playerType getType() {
         return type;
     }
-
 
     @Override
     public List<TreasureCard> getBag() {
@@ -128,7 +126,5 @@ public class Pilot extends Player {
 
                 });
                 }
-
-
     }
 }

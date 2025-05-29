@@ -16,19 +16,15 @@ public class Engineer extends module.Player {
     private List<TreasureCard> EngineerBag = new ArrayList<>();
     private int saveTiles = 0;
 
-
-
     public Engineer(String name){
         super("Engineer");
         pawnName = "/image/Pawns/@2x/Engineer@2x.png";
     }
 
-
     public void useSpecialAbility(ForbiddenGameStarted forbiddenGameStarted, Player player) {
         super.useSpecialAbility(forbiddenGameStarted, player);
 
-        saveTiles = 0; // 每次调用此方法时，重置保存计数
-
+        saveTiles = 0; // Each time this method is called, the saved count is reset
 
         if (countSaveableTilesInRange(forbiddenGameStarted, player) < 2) {
             forbiddenGameStarted.showMessage("Not enough islands to save in range!");
@@ -60,7 +56,7 @@ public class Engineer extends module.Player {
                     return;
                 }
 
-                // 合法并可拯救，执行拯救
+                // Perform rescue if possible
                 tile.setState(0);
                 tile.draw();
                 forbiddenGameStarted.removeFloodedTileFromDeckByTile(tile);
@@ -69,11 +65,11 @@ public class Engineer extends module.Player {
 
                 forbiddenGameStarted.showMessage("Island saved successfully!");
 
-                // 判断是否保存了2个
+                // Check if 2 is saved
                 if (saveTiles == 1) {
                     forbiddenGameStarted.showMessage("You can save one more island!");
                 } else if (saveTiles == 2) {
-                    // 满两次，结束操作
+                    // If up to 2, end the operation
                     forbiddenGameStarted.disableSaveMode();
                     forbiddenGameStarted.engineerCount++;
 
@@ -106,7 +102,7 @@ public class Engineer extends module.Player {
             }
         }
 
-        return saveableCount; // 返回可拯救的岛屿数量
+        return saveableCount; // Return the number of tiles that can be saved
     }
 
 
@@ -162,11 +158,10 @@ public class Engineer extends module.Player {
         return floodTiles.size();
     }
 
-
-
     public String getName(){
         return "Engineer";
     }
+
     public module.PlayerBag.playerType getType() {
         return type;
     }
@@ -180,5 +175,4 @@ public class Engineer extends module.Player {
     public List<TreasureCard> getBag() {
         return EngineerBag;
     }
-
 }

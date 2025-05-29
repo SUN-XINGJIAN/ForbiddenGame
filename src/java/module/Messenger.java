@@ -17,9 +17,9 @@ public class Messenger extends Player {
     private String pawnName;
     private module.PlayerBag.playerType type = module.PlayerBag.playerType.Messenger;
     private List<TreasureCard> MessengerBag = new ArrayList<>();
+
     public Messenger(String name){
         super("Diver");
-
         pawnName = "/image/Pawns/@2x/Messenger@2x.png";
     }
 
@@ -45,7 +45,7 @@ public class Messenger extends Player {
         double cardHeight = 120;
         int offset = 90;
 
-        // 创建一个列表来保存当前添加的UI元素，以便稍后清除
+        // Create a list to store the currently added UI elements, so that they can be cleared later
         List<Node> tempUIElements = new ArrayList<>();
 
         for (int i = 0; i < bag.size(); i++) {
@@ -90,7 +90,7 @@ public class Messenger extends Player {
                                 forbiddenGameStarted.turnManage.step = forbiddenGameStarted.turnManage.getStep();
                                 forbiddenGameStarted.changeCurrentPlayer();
 
-                                // 清理临时UI元素
+                                // Clean up the temporary UI elements
                                 clearTempUIElements(tempUIElements,forbiddenGameStarted);
 
                                 forbiddenGameStarted.messengerCount++;
@@ -101,34 +101,32 @@ public class Messenger extends Player {
             });
 
             forbiddenGameStarted.mainBoard.getChildren().add(cardCanvas);
-            tempUIElements.add(cardCanvas); // 保存到临时UI列表
+            tempUIElements.add(cardCanvas); // Save to the temporary UI list
         }
 
-        // 添加取消按钮
+        // Add "Cancel" button
         Button cancelButton = new Button("Cancel");
-        cancelButton.setLayoutX(centerX - 50); // 按钮中心位置
-        cancelButton.setLayoutY(discardAreaY + 200); // 按钮位置调整
+        cancelButton.setLayoutX(centerX - 50); // The centre of the button
+        cancelButton.setLayoutY(discardAreaY + 200); // Adjust the position of the button
         cancelButton.setOnAction(e -> {
-            // 清理临时UI元素
+            // Clean up the temporary UI elements
             clearTempUIElements(tempUIElements,forbiddenGameStarted);
 
-            // 恢复控件状态
+            // Restore control state
             forbiddenGameStarted.setAllControlsDisabled(false);
         });
 
         forbiddenGameStarted.mainBoard.getChildren().add(cancelButton);
-        tempUIElements.add(cancelButton); // 保存到临时UI列表
+        tempUIElements.add(cancelButton); // Save to the temporary UI list
     }
 
-    // 清理临时UI元素的方法
+    // The method for cleaning up temporary UI elements
     private void clearTempUIElements(List<Node> tempUIElements,ForbiddenGameStarted forbiddenGameStarted) {
         for (Node node : tempUIElements) {
             forbiddenGameStarted.mainBoard.getChildren().remove(node);
         }
-        tempUIElements.clear(); // 清空列表以避免重复清理
+        tempUIElements.clear(); // Clear the list to avoid repeated cleaning
     }
-
-
 
     @Override
     public void draw() {
@@ -137,7 +135,6 @@ public class Messenger extends Player {
         gc.clearRect(0, 0, getWidth(), getHeight());
         gc.drawImage(new Image(getClass().getResourceAsStream(pawnName)),0,0,getWidth(),getHeight());
     }
-
 
     public int getPositionX(ForbiddenGameStarted forbiddenGameStarted){
         int x=0;
@@ -149,6 +146,7 @@ public class Messenger extends Player {
         }
         return x;
     }
+
     public int getPositionY(ForbiddenGameStarted forbiddenGameStarted){
         int y=0;
         t = forbiddenGameStarted.getTiles();
@@ -158,6 +156,7 @@ public class Messenger extends Player {
         }
         return y;
     }
+
     public String getName(){
         return "Messenger";
     }

@@ -13,7 +13,6 @@ public class TurnManage {
         this.screenController = screenController;
     }
 
-
     public void useStep(){
         if (step > 0) step--;
     }
@@ -45,11 +44,12 @@ public class TurnManage {
     public int getStep() {
         return step;
     }
+
     public void setStep(int step) {
         this.step = step;
     }
 
     public void resetSteps() {
-        step = 3; // 重置为初始步数
+        step = 3; // Reset as initial steps
     }
 }

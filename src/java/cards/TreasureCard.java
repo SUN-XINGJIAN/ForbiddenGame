@@ -7,11 +7,10 @@ public class TreasureCard extends Card {
     private final Treasure.Type treasureType = null;
     private Type type;
 
-
-
     public enum Type {
         SOIL, CLOUD, WATER, FIRE, HELICOPTER, SANDBAGS, WATERRISE
     }
+
     public TreasureCard(int number) {
         cardname = "/image/TreasureCards/" + number + ".png";
         num = number;
@@ -41,7 +40,6 @@ public class TreasureCard extends Card {
     public Type getType() {
         return type;
     }
-
 
     public int getCardType() {
         return num;

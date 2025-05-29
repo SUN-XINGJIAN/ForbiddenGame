@@ -23,11 +23,8 @@ public class Tile extends Canvas {
 
     }
 
-
-
-
     public void draw(){
-        // 如果 state >= 2，不绘制
+        // If state >= 2, don't draw
         if (state >= 2) {
             return;
         }
@@ -53,7 +50,6 @@ public class Tile extends Canvas {
         this.state++;
     }
 
-
     public String getTileName1() {
         return tileName1;
     }
@@ -66,9 +62,7 @@ public class Tile extends Canvas {
         return positionY;
     }
 
-
-
-    // 状态相关
+    // State related
     private boolean removed;
 
     public boolean isRemoved() { return removed; }

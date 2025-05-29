@@ -8,25 +8,22 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class Director {
-
     private static Director instance = new Director();
     private Stage stage;
     public static final int FRAME_WIDTH = 900,FRAME_HEIGHT = 900;
-
 
     public Director(){}
 
     public void init(Stage stage){
         this.stage = stage;
         InitialScene(stage);
-
     }
 
     public void InitialScene(Stage stage) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/PlayerCountSelection.fxml"));
             Parent root = loader.load();
-            Scene scene = new Scene(root, FRAME_WIDTH, FRAME_HEIGHT); // 设置窗口尺寸
+            Scene scene = new Scene(root, FRAME_WIDTH, FRAME_HEIGHT); // Set the size of the panel
             stage.setScene(scene);
             stage.setTitle("Choose the number of players");
             stage.show();
@@ -47,8 +44,6 @@ public class Director {
             e.printStackTrace();
         }
     }
-
-
 
     public static Director getInstance(){
         return instance;

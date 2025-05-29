@@ -7,9 +7,11 @@ import javafx.scene.image.Image;
 public class PlayerBag extends Canvas {
     private String bagName;
     private playerType p;
+
     public enum playerType{
         Diver,Engineer,Explorer,Messenger,Navigator,Pilot
     }
+
     public PlayerBag(playerType playerType){
         super(50, 69);
         p = playerType;
@@ -36,7 +38,6 @@ public class PlayerBag extends Canvas {
     }
 
     public void draw(){
-
         GraphicsContext gc = getGraphicsContext2D();
         gc.clearRect(0, 0, getWidth(), getHeight());
         gc.drawImage(new Image(getClass().getResourceAsStream(bagName)), 0, 0, getWidth(), getHeight());

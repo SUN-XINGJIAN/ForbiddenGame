@@ -13,7 +13,7 @@ import logic.ForbiddenGameStarted;
 
 public class ScreenController {
 
-    // 声明一个Pane对象，用于显示棋盘
+    // Declare a Pane object to be used for displaying the chessboard
     @FXML
     private Pane mainBoard;
 
@@ -44,22 +44,17 @@ public class ScreenController {
     @FXML
     private Button useSpecialCardButton;
 
-    // 声明一个PawnCanvas对象，用于绘制棋盘
+    // Declare a PawnCanvas object to be used for drawing the chessboard
     private ForbiddenGameStarted forbiddenGameStarted;
-
 
     private boolean isMoveMode = false;
     private Button currentPawnButton;
-    private int playerCount; // 玩家数量
+    private int playerCount;
 
     @FXML
     private void initialize() {
 //        forbiddenGameStarted = new ForbiddenGameStarted(this);
-
-
     }
-
-
 
     @FXML
     public Button getSaveTheIsland() {
@@ -78,11 +73,9 @@ public class ScreenController {
         return DiverBag;
     }
 
-
     public Pane getMainBoard() {
         return mainBoard;
     }
-
 
     public Label getRemainSteps() {
         return RemainSteps;
@@ -96,10 +89,10 @@ public class ScreenController {
         return useSpecialSkill;
     }
 
-
     public Button getExchangeCards() {
         return ExchangeCards;
     }
+
     public Button getTurnOver() {return TurnOver;}
 
     public void initData(int playerCount, int waterMeterIndex) {
@@ -109,21 +102,21 @@ public class ScreenController {
 
     public void setGameOver(String reason) {
         try {
-            if (forbiddenGameStarted.isDefeat()) { // 判断游戏是否失败
-                // 获取当前窗口的 Stage
+            if (forbiddenGameStarted.isDefeat()) { // See if the game is over
+                // Get the Stage for current window
                 Stage stage = (Stage) mainBoard.getScene().getWindow();
 
-                // 加载失败界面的 FXML 文件
+                // Loading the fxml for the game over panel
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/game_over.fxml"));
                 Parent root = loader.load();
 
-                // 获取GameOverController并设置失败原因
+                // Obtain the GameOverController and set the failure reason
                 GameOverController controller = loader.getController();
                 if (controller != null) {
                     controller.setFailureReason(reason);
                 }
 
-                // 设置新的场景并显示
+                // Set a new scene and display it
                 Scene scene = new Scene(root, 1000, 1000);
                 stage.setScene(scene);
                 stage.setTitle("Game Over");
@@ -136,14 +129,14 @@ public class ScreenController {
 
     public void setWin() {
         try {
-                // 获取当前窗口的 Stage
+                // Get the Stage for current window
                 Stage stage = (Stage) mainBoard.getScene().getWindow();
 
-                // 加载失败界面的 FXML 文件
+                // Loading the fxml for the game success panel
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/game_success.fxml"));
                 Parent root = loader.load();
 
-                // 设置新的场景并显示
+                // Set a new scene and display it
                 Scene scene = new Scene(root, 1000, 1000);
                 stage.setScene(scene);
                 stage.setTitle("Game Over");

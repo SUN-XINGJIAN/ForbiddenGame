@@ -6,7 +6,6 @@ import javafx.scene.image.Image;
 
 
 public class Card extends Canvas {
-
     public String cardname;
 
     public Card(){
@@ -14,7 +13,6 @@ public class Card extends Canvas {
     }
 
     public void draw(){
-
         GraphicsContext gc = getGraphicsContext2D();
         gc.clearRect(0, 0, getWidth(), getHeight());
         gc.drawImage(new Image(getClass().getResourceAsStream(cardname)), 0, 0, getWidth(), getHeight());

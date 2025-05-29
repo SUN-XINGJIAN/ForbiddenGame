@@ -15,15 +15,14 @@ public class Navigator extends Player {
     private String pawnName;
     private module.PlayerBag.playerType type = module.PlayerBag.playerType.Navigator;
     private List<TreasureCard> NavigatorBag = new ArrayList<>();
+
     public Navigator(String name){
         super("Diver");
-
         pawnName = "/image/Pawns/@2x/Navigator@2x.png";
     }
 
     @Override
     public void draw() {
-
         GraphicsContext gc = getGraphicsContext2D();
         gc.clearRect(0, 0, getWidth(), getHeight());
         gc.drawImage(new Image(getClass().getResourceAsStream(pawnName)),0,0,getWidth(),getHeight());
@@ -36,23 +35,22 @@ public class Navigator extends Player {
 
         forbiddenGameStarted.showMessage("Select a player to move!");
 
-        // 启用对其他玩家的监听
+        // Enable controlling to other players
         for (Player p : forbiddenGameStarted.currentPlayers) {
-            if (!p.equals(player)) { // 排除 currentPlayer
+            if (!p.equals(player)) { // Exclude currentPlayer
                 for (PlayerBag pb : forbiddenGameStarted.playerBags) {
                     if (pb.getPlayerType().equals(p.getType())) {
-                        pb.setDisable(false); // 启用该玩家的控件
+                        pb.setDisable(false); // Enable the controls for this player
                         pb.setOnMouseClicked(e -> {
-                            forbiddenGameStarted.isMoveMode = !forbiddenGameStarted.isMoveMode;  // 切换移动模式
+                            forbiddenGameStarted.isMoveMode = !forbiddenGameStarted.isMoveMode;  // Switch to the move mode
                             if (forbiddenGameStarted.isMoveMode) {
-                                forbiddenGameStarted.enableTileMovement(p);  // 启动每次点击时可以移动棋子的模式
+                                forbiddenGameStarted.enableTileMovement(p);  // Enable the mode where the pawns can be moved each time a click occurs
                             }
                         });
                     }
                 }
             }
         }
-
     }
 
     public int getPositionX(ForbiddenGameStarted forbiddenGameStarted){
@@ -65,6 +63,7 @@ public class Navigator extends Player {
         }
         return x;
     }
+
     public int getPositionY(ForbiddenGameStarted forbiddenGameStarted){
         int y=0;
         t = forbiddenGameStarted.getTiles();
@@ -74,9 +73,11 @@ public class Navigator extends Player {
         }
         return y;
     }
+
     public String getName(){
         return "Navigator";
     }
+
     public module.PlayerBag.playerType getType() {
         return type;
     }

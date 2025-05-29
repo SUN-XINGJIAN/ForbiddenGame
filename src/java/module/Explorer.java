@@ -14,6 +14,7 @@ public class Explorer extends module.Player {
     private String pawnName;
     private module.PlayerBag.playerType type = module.PlayerBag.playerType.Explorer;
     private List<TreasureCard> ExplorerBag = new ArrayList<>();
+
     public Explorer(String name){
         super("Diver");
         pawnName = "/image/Pawns/@2x/Explorer@2x.png";
@@ -73,7 +74,6 @@ public class Explorer extends module.Player {
         gc.drawImage(new Image(getClass().getResourceAsStream(pawnName)),0,0,getWidth(),getHeight());
     }
 
-
     public int getPositionX(ForbiddenGameStarted forbiddenGameStarted){
         int x=0;
         t = forbiddenGameStarted.getTiles();
@@ -84,6 +84,7 @@ public class Explorer extends module.Player {
         }
         return x;
     }
+
     public int getPositionY(ForbiddenGameStarted forbiddenGameStarted){
         int y=0;
         t = forbiddenGameStarted.getTiles();
@@ -93,9 +94,11 @@ public class Explorer extends module.Player {
         }
         return y;
     }
+
     public String getName(){
         return "Explorer";
     }
+
     public module.PlayerBag.playerType getType() {
         return type;
     }
