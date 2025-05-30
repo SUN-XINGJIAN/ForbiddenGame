@@ -21,6 +21,7 @@ public class Engineer extends module.Player {
         pawnName = "/image/Pawns/@2x/Engineer@2x.png";
     }
 
+    // Engineer's special ability: shore up to 2 flooded adjacent tiles per turn
     public void useSpecialAbility(ForbiddenGameStarted forbiddenGameStarted, Player player) {
         super.useSpecialAbility(forbiddenGameStarted, player);
 
@@ -82,6 +83,7 @@ public class Engineer extends module.Player {
         }
     }
 
+    // Counts flooded tiles adjacent to player's position
     private int countSaveableTilesInRange(ForbiddenGameStarted forbiddenGameStarted, Player player) {
         int saveableCount = 0;
         int currX = (int) player.getLayoutX() - 30;

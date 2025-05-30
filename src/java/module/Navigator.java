@@ -28,6 +28,7 @@ public class Navigator extends Player {
         gc.drawImage(new Image(getClass().getResourceAsStream(pawnName)),0,0,getWidth(),getHeight());
     }
 
+    // Navigator's special ability: may move other players up to 2 adjacent tiles per action
     @Override
     public void useSpecialAbility(ForbiddenGameStarted forbiddenGameStarted, Player player) {
         super.useSpecialAbility(forbiddenGameStarted, player);

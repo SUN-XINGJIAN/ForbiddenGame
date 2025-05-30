@@ -9,6 +9,7 @@ public abstract class Player extends PawnCanvas {
     public String name;
     private List<TreasureCard> bag;
     private module.PlayerBag.playerType type;
+
     public Player(String name) {
         super(name);
         this.name = name;

@@ -46,6 +46,7 @@ public class PlayerBag extends Canvas {
     public String getBagName(){
         return bagName;
     }
+
     public playerType getPlayerType(){
         return p;
     }

@@ -23,6 +23,7 @@ public class Diver extends module.Player {
         pawnName = "/image/Pawns/@2x/Diver@2x.png";
     }
 
+    // Diver's special ability: move through flooded tiles
     @Override
     public void useSpecialAbility(ForbiddenGameStarted forbiddenGameStarted, Player player) {
         super.useSpecialAbility(forbiddenGameStarted, player);
@@ -146,6 +147,7 @@ public class Diver extends module.Player {
         return "Diver";
     }
 
+    // Returns player type identifier
     public module.PlayerBag.playerType getType() {
         return type;
     }

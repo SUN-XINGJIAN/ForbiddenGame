@@ -1387,12 +1387,15 @@ public class ForbiddenGameStarted {
     public boolean isGetSoil(){
         return isGetSOIL;
     }
+
     public boolean isGetFire(){
         return isGetFIRE;
     }
+
     public boolean isGetWater(){
         return isGetWATER;
     }
+
     public boolean isGetCloud(){
         return isGetCLOUD;
     }

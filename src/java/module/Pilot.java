@@ -91,6 +91,7 @@ public class Pilot extends Player {
         this.specialFlightUsed = other.specialFlightUsed;
     }
 
+    // Pilot's special ability: may move to any tile once per turn for 1 action
     @Override
     public void useSpecialAbility(ForbiddenGameStarted forbiddenGameStarted,Player player) {
         super.useSpecialAbility(forbiddenGameStarted, player);

@@ -8,9 +8,9 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class Director {
-    private static Director instance = new Director();
+    private static Director instance = new Director(); // Singleton instance
     private Stage stage;
-    public static final int FRAME_WIDTH = 900,FRAME_HEIGHT = 900;
+    public static final int FRAME_WIDTH = 900, FRAME_HEIGHT = 900;
 
     public Director(){}
 
@@ -19,6 +19,7 @@ public class Director {
         InitialScene(stage);
     }
 
+    // Load and displays the player count selection screen
     public void InitialScene(Stage stage) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/PlayerCountSelection.fxml"));

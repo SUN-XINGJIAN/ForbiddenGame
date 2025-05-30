@@ -23,6 +23,7 @@ public class Messenger extends Player {
         pawnName = "/image/Pawns/@2x/Messenger@2x.png";
     }
 
+    // Messenger's special ability: give cards without having to be on the same tile
     @Override
     public void useSpecialAbility(ForbiddenGameStarted forbiddenGameStarted, Player player) {
         super.useSpecialAbility(forbiddenGameStarted, player);

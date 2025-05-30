@@ -20,6 +20,7 @@ public class Explorer extends module.Player {
         pawnName = "/image/Pawns/@2x/Explorer@2x.png";
     }
 
+    // Explorer's special ability: move diagonally
     @Override
     public void useSpecialAbility(ForbiddenGameStarted forbiddenGameStarted, Player player) {
         super.useSpecialAbility(forbiddenGameStarted, player);
