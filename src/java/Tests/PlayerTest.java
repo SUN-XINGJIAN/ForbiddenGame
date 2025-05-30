@@ -17,7 +17,6 @@ import java.util.*;
 import java.util.concurrent.*;
 
 public class PlayerTest {
-    
     private ForbiddenGameStarted game;
     private ScreenController screenController;
     private Diver diver;
@@ -27,14 +26,12 @@ public class PlayerTest {
     private Navigator navigator;
     private Pilot pilot;
 
-
-
     @BeforeClass
     public static void setupJavaFX() {
         try {
             Platform.startup(() -> {});
         } catch (Exception e) {
-            // 如果已经启动，忽略异常
+            // If already started, ignore the exception
         }
     }
 
@@ -44,12 +41,12 @@ public class PlayerTest {
 
         Platform.runLater(() -> {
             try {
-                // 尝试多个可能的路径
+                // Try different routes
                 String[] possiblePaths = {
-                    "/fxml/Screen.fxml",           // 标准路径
-                    "fxml/Screen.fxml",            // 不带前导斜杠
-                    "/Screen.fxml",                // 根目录
-                    "Screen.fxml"                  // 当前目录
+                    "/fxml/Screen.fxml",           // Standard route
+                    "fxml/Screen.fxml",            // Without a leading slash
+                    "/Screen.fxml",                // Root directory
+                    "Screen.fxml"                  // Current
                 };
 
                 URL fxmlUrl = null;
@@ -68,24 +65,24 @@ public class PlayerTest {
                     throw new RuntimeException("Cannot find FXML file. Tried paths: " + Arrays.toString(possiblePaths));
                 }
 
-                // 初始化FXML加载器
+                // Initialize the FXML loader
                 FXMLLoader loader = new FXMLLoader(fxmlUrl);
                 Parent root = loader.load();
 
-                // 获取ScreenController实例
+                // Obtain the instance of ScreenController
                 screenController = loader.getController();
                 if (screenController == null) {
                     throw new RuntimeException("ScreenController is null");
                 }
 
-                // 初始化游戏
+                // Initialize the game
                 screenController.initData(2, 1);
                 game = new ForbiddenGameStarted(screenController, 2, 1);
                 if (game == null) {
                     throw new RuntimeException("Game object is null after initialization");
                 }
 
-                // 初始化所有角色
+                // Initialize all roles
                 diver = new Diver("Diver");
                 engineer = new Engineer("Engineer");
                 explorer = new Explorer("Explorer");
@@ -113,63 +110,65 @@ public class PlayerTest {
 
     @Test
     public void testPlayerMovement() {
+        // Create a CountDownLatch to wait for the test to complete
         CountDownLatch latch = new CountDownLatch(1);
-        
+
+        // Executing the test in the JavaFX thread
         Platform.runLater(() -> {
             try {
                 System.out.println("Starting player movement test...");
                 
-                // 测试所有角色的基本移动功能
+                // Testing the movement of all roles
                 Player[] players = {diver, engineer, explorer, messenger, navigator, pilot};
                 
                 for (Player player : players) {
                     System.out.println("\nTesting movement for " + player.getClass().getSimpleName());
                     
-                    // 重置步数
-                    game.turnManage.setStep(3);  // 设置初始步数为3
+                    // Reset action points
+                    game.turnManage.setStep(3);  // Set initial action points to 3
                     System.out.println("Reset steps to: " + game.turnManage.getStep());
                     
-                    // 设置初始位置
-                    Tile startTile = game.getTiles().get(0);
+                    // Set the initial position
+                    Tile startTile = game.getTiles().get(0); // Get the first tile as initial position
                     player.setX(startTile.getPositionX());
                     player.setY(startTile.getPositionY());
                     player.setLayoutX(startTile.getPositionX() + 30);
                     player.setLayoutY(startTile.getPositionY());
                     
-                    // 验证初始位置
+                    // Check initial position
                     assertEquals("Initial X position should match", startTile.getPositionX(), player.getX());
                     assertEquals("Initial Y position should match", startTile.getPositionY(), player.getY());
                     
-                    // 测试移动到相邻位置
+                    // Test moving to adjacent tiles
                     List<Tile> adjacentTiles = game.getTiles();
                     for (Tile tile : adjacentTiles) {
                         if (isAdjacentOrSame(tile, player)) {
-                            // 记录移动前的行动点
+                            // Record action points before movement
                             int initialSteps = game.turnManage.getStep();
                             System.out.println("Initial steps before move: " + initialSteps);
                             
-                            // 执行移动
+                            // Execute movement
                             player.setX(tile.getPositionX());
                             player.setY(tile.getPositionY());
                             player.setLayoutX(tile.getPositionX() + 30);
                             player.setLayoutY(tile.getPositionY());
                             player.draw();
                             
-                            // 使用行动点
+                            // Use action points
                             game.turnManage.useStep();
                             System.out.println("Steps after move: " + game.turnManage.getStep());
                             
-                            // 验证新位置
+                            // Check new position
                             assertEquals("New X position should match", tile.getPositionX(), player.getX());
                             assertEquals("New Y position should match", tile.getPositionY(), player.getY());
                             assertEquals("Should use one step", initialSteps - 1, game.turnManage.getStep());
                             
-                            // 只测试一次移动
+                            // Test movement only once
                             break;
                         }
                     }
                     
-                    // 验证剩余步数
+                    // Check leftover action points
                     assertTrue("Should have remaining steps", game.turnManage.getStep() > 0);
                     System.out.println("Remaining steps: " + game.turnManage.getStep());
                 }
@@ -203,17 +202,17 @@ public class PlayerTest {
             try {
                 System.out.println("Starting player position test...");
                 
-                // 测试所有角色的位置获取方法
+                // Test the get position method for all roles
                 Player[] players = {diver, engineer, explorer, messenger, navigator, pilot};
                 
                 for (Player player : players) {
                     System.out.println("\nTesting position for " + player.getClass().getSimpleName());
                     
-                    // 获取位置
+                    // Get position
                     int x = player.getPositionX(game);
                     int y = player.getPositionY(game);
                     
-                    // 验证位置是否有效
+                    // Check valid position
                     assertTrue("X position should be valid", x >= 0);
                     assertTrue("Y position should be valid", y >= 0);
                 }
@@ -246,20 +245,20 @@ public class PlayerTest {
             try {
                 System.out.println("Starting player card exchange test...");
                 
-                // 测试所有角色的卡牌交换功能
+                // Check the card exchange function for all players
                 Player[] players = {diver, engineer, explorer, messenger, navigator, pilot};
                 
-                // 第一步：初始化所有玩家的卡包
+                // Firstly initialize all the cards for the players
                 System.out.println("Initializing player card bags...");
                 for (Player player : players) {
                     System.out.println("\nInitializing card bag for " + player.getClass().getSimpleName());
                     
-                    // 获取玩家的卡牌包并清空
+                    // Get the card bag of players and clear it
                     List<TreasureCard> playerBag = player.getBag();
                     assertNotNull("Player bag should not be null", playerBag);
                     playerBag.clear();
                     
-                    // 添加初始卡牌
+                    // Add initial cards
                     TreasureCard card1 = new TreasureCard(0);
                     TreasureCard card2 = new TreasureCard(5);
                     TreasureCard card3 = new TreasureCard(10);
@@ -268,13 +267,13 @@ public class PlayerTest {
                     playerBag.add(card2);
                     playerBag.add(card3);
                     
-                    // 验证初始卡牌数量
+                    // Test initial card count
                     assertEquals("Should have 3 cards in bag", 3, player.getBag().size());
                     System.out.println("Initial card count for " + player.getClass().getSimpleName() + 
                                      ": " + player.getBag().size());
                 }
                 
-                // 第二步：测试卡牌交换
+                // Secondly test the exchange of cards
                 System.out.println("\nTesting card exchange between players...");
                 for (int i = 0; i < players.length - 1; i++) {
                     Player player1 = players[i];
@@ -287,17 +286,17 @@ public class PlayerTest {
                     List<TreasureCard> bag1 = player1.getBag();
                     List<TreasureCard> bag2 = player2.getBag();
                     
-                    // 记录交换前的卡牌数量
+                    // Record the card count before exchanging
                     int initialCount1 = bag1.size();
                     int initialCount2 = bag2.size();
                     
-                    // 模拟交换卡牌
-                    TreasureCard cardToExchange = bag1.get(0); // 获取第一张卡牌用于交换
+                    // Simulate exchanging cards
+                    TreasureCard cardToExchange = bag1.get(0); // Get the first card for exchange
                     bag1.remove(cardToExchange);
                     bag2.add(cardToExchange);
                     
-                    // 验证交换后的卡牌数量
-                    assertEquals("First player should have one less card", 
+                    // Test the card count after exchanging
+                    assertEquals("First player should have one less card",
                                initialCount1 - 1, bag1.size());
                     assertEquals("Second player should have one more card", 
                                initialCount2 + 1, bag2.size());
@@ -306,7 +305,7 @@ public class PlayerTest {
                                      player1.getClass().getSimpleName() + ": " + bag1.size() + 
                                      ", " + player2.getClass().getSimpleName() + ": " + bag2.size());
                     
-                    // 验证交换后的卡牌内容
+                    // Test the cards after exchanging
                     assertTrue("Second player should have the exchanged card", 
                               bag2.contains(cardToExchange));
                     assertFalse("First player should not have the exchanged card", 
@@ -333,14 +332,14 @@ public class PlayerTest {
         }
     }
 
-    // 辅助方法：检查tile是否相邻或相同
+    // Check if tiles are adjacent or same
     private boolean isAdjacentOrSame(Tile tile, Player player) {
         int tileX = tile.getPositionX();
         int tileY = tile.getPositionY();
         int playerX = player.getX();
         int playerY = player.getY();
         
-        // 检查是否相邻或相同（距离为1个tile或相同位置）
+        // Check for adjacency or similarity (With the distance of 1 tile or the same position)
         return (Math.abs(tileX - playerX) <= 50 && Math.abs(tileY - playerY) <= 50);
     }
 }

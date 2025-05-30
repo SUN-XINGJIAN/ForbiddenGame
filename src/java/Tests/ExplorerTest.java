@@ -24,7 +24,7 @@ public class ExplorerTest {
         try {
             Platform.startup(() -> {});
         } catch (Exception e) {
-            // 如果已经启动，忽略异常
+            // If already started, ignore the exception
         }
     }
 
@@ -34,12 +34,12 @@ public class ExplorerTest {
 
         Platform.runLater(() -> {
             try {
-                // 尝试多个可能的路径
+                // Try different routes
                 String[] possiblePaths = {
-                        "/fxml/Screen.fxml",           // 标准路径
-                        "fxml/Screen.fxml",            // 不带前导斜杠
-                        "/Screen.fxml",                // 根目录
-                        "Screen.fxml"                  // 当前目录
+                        "/fxml/Screen.fxml",           // Standard route
+                        "fxml/Screen.fxml",            // Without a leading slash
+                        "/Screen.fxml",                // Root directory
+                        "Screen.fxml"                  // Current
                 };
 
                 URL fxmlUrl = null;
@@ -55,24 +55,24 @@ public class ExplorerTest {
                     throw new RuntimeException("Cannot find FXML file. Tried paths: " + Arrays.toString(possiblePaths));
                 }
 
-                // 初始化FXML加载器
+                // Initialize the FXML loader
                 FXMLLoader loader = new FXMLLoader(fxmlUrl);
                 Parent root = loader.load();
 
-                // 获取ScreenController实例
+                // Obtain the instance of ScreenController
                 screenController = loader.getController();
                 if (screenController == null) {
                     throw new RuntimeException("ScreenController is null");
                 }
 
-                // 初始化游戏
+                // Initialize the game
                 screenController.initData(2, 1);
                 game = new ForbiddenGameStarted(screenController, 2, 1);
                 if (game == null) {
                     throw new RuntimeException("Game object is null after initialization");
                 }
 
-                // 初始化探险家
+                // Initialize explorer
                 explorer = new Explorer("Explorer");
 
                 latch.countDown();
@@ -95,36 +95,36 @@ public class ExplorerTest {
 
     @Test
     public void testExplorerSpecialAbility() {
-        // 创建一个 CountDownLatch 来等待测试完成
+        // Create a CountDownLatch to wait for the test to complete
         CountDownLatch latch = new CountDownLatch(1);
-        
-        // 在JavaFX线程中执行测试
+
+        // Executing the test in the JavaFX thread
         Platform.runLater(() -> {
             try {
                 System.out.println("Starting test in JavaFX thread...");
-                
-                // 设置测试环境
+
+                // Set testing environment
                 game.isSpecialMode = true;
-                
-                // 首先设置explorer的初始位置
-                Tile startTile = game.getTiles().get(0);  // 获取第一个tile作为起始位置
+
+                // Firstly set the initial position of the explorer
+                Tile startTile = game.getTiles().get(0);  // Get the first tile as initial position
                 explorer.setX(startTile.getPositionX());
                 explorer.setY(startTile.getPositionY());
                 explorer.setLayoutX(startTile.getPositionX() + 30);
                 explorer.setLayoutY(startTile.getPositionY());
-                
-                // 打印初始位置
+
+                // print initial position
                 System.out.println("Initial explorer position: X=" + explorer.getX() + ", Y=" + explorer.getY());
-                
-                // 使用特殊能力
+
+                // Use special ability
                 explorer.useSpecialAbility(game, explorer);
 
-                // 获取所有版块
+                // Get all tiles
                 List<Tile> adjacentTiles = game.getTiles();
                 int diagonalTilesCount = 0;
                 List<Tile> diagonalTiles = new ArrayList<>();
 
-                // 找到对角线方向的岛屿
+                // Find diagonal tile
                 for (Tile tile : adjacentTiles) {
                     if (isAround(tile, explorer)) {
                         diagonalTiles.add(tile);
@@ -132,36 +132,36 @@ public class ExplorerTest {
                     }
                 }
 
-                // 验证是否找到对角线方向的岛屿
+                // Test if diagonal tile is found
                 assertTrue("Should find diagonal tiles", diagonalTilesCount > 0);
 
-                // 打印选中的对角线岛屿的位置
+                // Print the position of the selected diagonal tile
                 System.out.println("Selected diagonal tiles for testing:");
                 for (Tile tile : diagonalTiles) {
                     System.out.println("Diagonal tile position: X=" + tile.getPositionX() + 
                                      ", Y=" + tile.getPositionY());
                 }
 
-                // 记录初始位置
+                // Record initial position
                 int initialX = explorer.getX();
                 int initialY = explorer.getY();
 
-                // 记录初始行动点
+                // Record initial action points
                 int initialSteps = game.turnManage.getStep();
 
-                // 测试移动到对角线位置
+                // Test moving to diagonal tile
                 System.out.println("\nStarting move test...");
                 Tile targetTile = diagonalTiles.get(0);
                 System.out.println("Moving to tile: X=" + targetTile.getPositionX() + ", Y=" + targetTile.getPositionY());
 
-                // 手动执行移动逻辑
+                // Manually execute the movement logic
                 explorer.setLayoutX(targetTile.getPositionX() + 30);
                 explorer.setX(targetTile.getPositionX());
                 explorer.setLayoutY(targetTile.getPositionY());
                 explorer.setY(targetTile.getPositionY());
                 explorer.draw();
                 
-                // 使用行动点
+                // Use action points
                 game.turnManage.useStep();
                 game.turnManage.showRemainSteps();
                 game.changeCurrentPlayer();
@@ -169,7 +169,7 @@ public class ExplorerTest {
                 game.checkTreasureSubmit();
                 game.isVictory();
 
-                // 等待处理完成
+                // Wait for the process to finish
                 try {
                     System.out.println("Waiting for move processing...");
                     Thread.sleep(500);
@@ -177,14 +177,14 @@ public class ExplorerTest {
                     e.printStackTrace();
                 }
 
-                // 验证位置已更新
+                // Test if position is updated
                 int newX = explorer.getX();
                 int newY = explorer.getY();
                 
                 System.out.println("After move - Initial X: " + initialX + ", New X: " + newX);
                 System.out.println("After move - Initial Y: " + initialY + ", New Y: " + newY);
                 
-                // 使用更严格的断言
+                // Use stricter assertions
                 assertTrue("Explorer should move to new position. Initial X: " + initialX + ", New X: " + newX, 
                           newX != initialX);
                 assertTrue("Explorer should move to new position. Initial Y: " + initialY + ", New Y: " + newY, 
@@ -192,16 +192,16 @@ public class ExplorerTest {
                 
                 assertEquals("Should use one step", initialSteps - 1, game.turnManage.getStep());
 
-                // 手动关闭特殊模式
+                // Manually disable special mode
                 game.isSpecialMode = false;
                 System.out.println("Special mode disabled: " + !game.isSpecialMode);
 
-                // 验证特殊模式是否关闭
+                // Test if special mode is disabled
                 assertFalse("Special mode should be disabled after using ability", game.isSpecialMode);
 
                 System.out.println("Test completed successfully!");
-                
-                // 测试完成后，减少 latch 计数
+
+                // After the test is completed, reduce the latch count
                 latch.countDown();
                 
             } catch (Exception e) {
@@ -210,8 +210,8 @@ public class ExplorerTest {
                 latch.countDown();
             }
         });
-        
-        // 等待测试完成
+
+        // Wait for the test to finish
         try {
             boolean completed = latch.await(10, TimeUnit.SECONDS);
             if (!completed) {
@@ -222,14 +222,14 @@ public class ExplorerTest {
         }
     }
 
-    // 辅助方法：检查tile是否在对角线方向
+    // Check if tile is diagonal
     private boolean isAround(Tile tile, Explorer explorer) {
         int tileX = tile.getPositionX();
         int tileY = tile.getPositionY();
         int explorerX = explorer.getX();
         int explorerY = explorer.getY();
         
-        // 检查是否在对角线方向（距离为1个tile）
+        // Check if diagonally (The distance is 1 tile)
         return Math.abs(tileX - explorerX) == 50 && Math.abs(tileY - explorerY) == 50;
     }
 }

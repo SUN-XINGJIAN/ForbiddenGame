@@ -20,14 +20,14 @@ public class MessengerTest {
     private ForbiddenGameStarted game;
     private ScreenController screenController;
     private Messenger messenger;
-    private Player otherPlayer; // 添加另一个玩家用于测试卡牌交换
+    private Player otherPlayer; // Add another player to test exchanging cards
 
     @BeforeClass
     public static void setupJavaFX() {
         try {
             Platform.startup(() -> {});
         } catch (Exception e) {
-            // 如果已经启动，忽略异常
+            // If already started, ignore the exception
         }
     }
 
@@ -37,12 +37,12 @@ public class MessengerTest {
 
         Platform.runLater(() -> {
             try {
-                // 尝试多个可能的路径
+                // Try different routes
                 String[] possiblePaths = {
-                    "/fxml/Screen.fxml",           // 标准路径
-                    "fxml/Screen.fxml",            // 不带前导斜杠
-                    "/Screen.fxml",                // 根目录
-                    "Screen.fxml"                  // 当前目录
+                    "/fxml/Screen.fxml",           // Standard route
+                    "fxml/Screen.fxml",            // Without a leading slash
+                    "/Screen.fxml",                // Root directory
+                    "Screen.fxml"                  // Current
                 };
 
                 URL fxmlUrl = null;
@@ -58,26 +58,26 @@ public class MessengerTest {
                     throw new RuntimeException("Cannot find FXML file. Tried paths: " + Arrays.toString(possiblePaths));
                 }
 
-                // 初始化FXML加载器
+                // Initialize the FXML loader
                 FXMLLoader loader = new FXMLLoader(fxmlUrl);
                 Parent root = loader.load();
 
-                // 获取ScreenController实例
+                // Obtain the instance of ScreenController
                 screenController = loader.getController();
                 if (screenController == null) {
                     throw new RuntimeException("ScreenController is null");
                 }
 
-                // 初始化游戏
+                // Initialize the game
                 screenController.initData(2, 1);
                 game = new ForbiddenGameStarted(screenController, 2, 1);
                 if (game == null) {
                     throw new RuntimeException("Game object is null after initialization");
                 }
 
-                // 初始化信使和另一个玩家
+                // Initialize messenger and another player
                 messenger = new Messenger("Messenger");
-                otherPlayer = new Messenger("OtherPlayer"); // 使用另一个信使作为测试对象
+                otherPlayer = new Messenger("OtherPlayer"); // Use another messenger as the other player
                 game.currentPlayers.add(messenger);
                 game.currentPlayers.add(otherPlayer);
 
@@ -101,27 +101,30 @@ public class MessengerTest {
 
     @Test
     public void testMessengerSpecialAbility() {
+        // Create a CountDownLatch to wait for the test to complete
         CountDownLatch latch = new CountDownLatch(1);
 
+        // Executing the test in the JavaFX thread
         Platform.runLater(() -> {
             try {
                 System.out.println("Starting test in JavaFX thread...");
 
-                // 设置测试环境
+                // Set testing environment
                 game.isSpecialMode = true;
-                game.turnManage.setStep(3); // 设置初始行动点为3
+                game.turnManage.setStep(3); // Set initial action points as 3
                 System.out.println("Initial steps: " + game.turnManage.getStep());
 
-                // 设置messenger的初始位置
-                Tile startTile = game.getTiles().get(0);
+                // Firstly set the initial position of the messenger
+                Tile startTile = game.getTiles().get(0); // Get the first tile as initial position
                 messenger.setX(startTile.getPositionX());
                 messenger.setY(startTile.getPositionY());
                 messenger.setLayoutX(startTile.getPositionX() + 30);
                 messenger.setLayoutY(startTile.getPositionY());
 
+                // print initial position
                 System.out.println("Initial messenger position: X=" + messenger.getX() + ", Y=" + messenger.getY());
 
-                // 初始化messenger的卡牌包
+                // Initialize the card bag for messenger
                 List<TreasureCard> messengerBag = new ArrayList<>();
                 TreasureCard card1 = new TreasureCard(0);
                 TreasureCard card2 = new TreasureCard(5);
@@ -131,35 +134,35 @@ public class MessengerTest {
                 messengerBag.add(card3);
                 messenger.getBag().addAll(messengerBag);
 
-                // 初始化otherPlayer的卡牌包
+                // Initialize the card bag for other player
                 List<TreasureCard> otherPlayerBag = new ArrayList<>();
                 TreasureCard card4 = new TreasureCard(15);
                 otherPlayerBag.add(card4);
                 otherPlayer.getBag().addAll(otherPlayerBag);
 
-                // 记录初始卡牌数量
+                // Record initial card count
                 int initialMessengerCardCount = messenger.getBag().size();
                 int initialOtherPlayerCardCount = otherPlayer.getBag().size();
                 System.out.println("Initial messenger card count: " + initialMessengerCardCount);
                 System.out.println("Initial other player card count: " + initialOtherPlayerCardCount);
 
-                // 使用特殊能力
+                // Use special ability
                 messenger.useSpecialAbility(game, messenger);
 
-                // 等待UI更新
+                // Wait for the UI to update
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
 
-                // 模拟卡牌交换
+                // Simulate card exchange
                 if (!messenger.getBag().isEmpty()) {
                     TreasureCard cardToExchange = messenger.getBag().get(0);
                     messenger.getBag().remove(cardToExchange);
                     otherPlayer.getBag().add(cardToExchange);
                     
-                    // 模拟使用行动点
+                    // Simulate using action points
                     game.turnManage.useStep();
                     game.turnManage.showRemainSteps();
                     game.changeCurrentPlayer();
@@ -167,7 +170,7 @@ public class MessengerTest {
                     System.out.println("Steps after exchange: " + game.turnManage.getStep());
                 }
 
-                // 验证卡牌交换
+                // Test card exchange
                 assertEquals("Messenger should have one less card", 
                            initialMessengerCardCount - 1, messenger.getBag().size());
                 assertEquals("Other player should have one more card", 
@@ -175,7 +178,7 @@ public class MessengerTest {
                 System.out.println("Final messenger card count: " + messenger.getBag().size());
                 System.out.println("Final other player card count: " + otherPlayer.getBag().size());
 
-                // 验证行动点使用
+                // Test using action points
                 int remainingSteps = game.turnManage.getStep();
                 assertEquals("Should use one step", 2, remainingSteps);
                 System.out.println("Remaining steps: " + remainingSteps);

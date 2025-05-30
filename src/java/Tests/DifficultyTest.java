@@ -25,7 +25,7 @@ public class DifficultyTest {
         try {
             javafx.application.Platform.startup(() -> {});
         } catch (Exception e) {
-            // 如果已经启动，忽略异常
+            // If already started, ignore the exception
         }
     }
 
@@ -35,12 +35,12 @@ public class DifficultyTest {
 
         javafx.application.Platform.runLater(() -> {
             try {
-                // 尝试多个可能的路径
+                // Try different routes
                 String[] possiblePaths = {
-                    "/fxml/DifficultySelection.fxml",           // 标准路径
-                    "fxml/DifficultySelection.fxml",            // 不带前导斜杠
-                    "/DifficultySelection.fxml",                // 根目录
-                    "DifficultySelection.fxml"                  // 当前目录
+                    "/fxml/DifficultySelection.fxml",           // Standard route
+                    "fxml/DifficultySelection.fxml",            // Without a leading slash
+                    "/DifficultySelection.fxml",                // Root directory
+                    "DifficultySelection.fxml"                  // Current
                 };
 
                 FXMLLoader loader = null;
@@ -52,7 +52,7 @@ public class DifficultyTest {
                             break;
                         }
                     } catch (Exception e) {
-                        // 继续尝试下一个路径
+                        // Keep trying the next route
                         continue;
                     }
                 }
@@ -61,27 +61,27 @@ public class DifficultyTest {
                     throw new RuntimeException("Cannot find Difficulty.fxml file");
                 }
 
-                // 加载FXML文件
+                // Load FXML
                 Parent root = loader.load();
 
-                // 获取控制器
+                // Obtain the constructor
                 controller = loader.getController();
                 if (controller == null) {
                     throw new RuntimeException("DifficultyController is null");
                 }
 
-                // 创建舞台
+                // Create the stage
                 stage = new Stage();
                 stage.setScene(new Scene(root));
                 stage.show();
 
-                // 获取RadioButton控件
+                // Obtain the RadioButton control
                 rbNovice = (RadioButton) stage.getScene().lookup("#rbNovice");
                 rbNormal = (RadioButton) stage.getScene().lookup("#rbNormal");
                 rbElite = (RadioButton) stage.getScene().lookup("#rbElite");
                 rbLegendary = (RadioButton) stage.getScene().lookup("#rbLegendary");
 
-                // 设置玩家数量
+                // Set player count
                 controller.setPlayerCount(2);
 
                 latch.countDown();
@@ -106,16 +106,16 @@ public class DifficultyTest {
             try {
                 System.out.println("Starting difficulty test...");
 
-                // 测试新手难度
+                // Test novice difficulty
                 testDifficultyLevel(rbNovice, 1);
                 
-                // 测试普通难度
+                // Test normal difficulty
                 testDifficultyLevel(rbNormal, 2);
                 
-                // 测试精英难度
+                // Test elite difficulty
                 testDifficultyLevel(rbElite, 3);
                 
-                // 测试传奇难度
+                // Test legendary difficulty
                 testDifficultyLevel(rbLegendary, 4);
 
                 System.out.println("All difficulty tests completed successfully!");
@@ -141,11 +141,11 @@ public class DifficultyTest {
     private void testDifficultyLevel(RadioButton radioButton, int expectedWaterMeterIndex) {
         System.out.println("\nTesting " + radioButton.getId() + " difficulty...");
 
-        // 直接设置选中状态
+        // Directly set the selected state
         radioButton.setSelected(true);
         System.out.println("Selected " + radioButton.getId() + " difficulty");
 
-        // 验证水位计索引
+        // Verify the index of the water level marker
         int waterMeterIndex = getWaterMeterIndex(radioButton);
         assertEquals("Water meter index for " + radioButton.getId() + " should be " + expectedWaterMeterIndex,
                 expectedWaterMeterIndex, waterMeterIndex);

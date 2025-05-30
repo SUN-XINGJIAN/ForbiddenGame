@@ -25,7 +25,7 @@ public class NavigatorTest {
         try {
             Platform.startup(() -> {});
         } catch (Exception e) {
-            // 如果已经启动，忽略异常
+            // If already started, ignore the exception
         }
     }
 
@@ -35,12 +35,12 @@ public class NavigatorTest {
 
         Platform.runLater(() -> {
             try {
-                // 尝试多个可能的路径
+                // Try different routes
                 String[] possiblePaths = {
-                        "/fxml/Screen.fxml",           // 标准路径
-                        "fxml/Screen.fxml",            // 不带前导斜杠
-                        "/Screen.fxml",                // 根目录
-                        "Screen.fxml"                  // 当前目录
+                        "/fxml/Screen.fxml",           // Standard route
+                        "fxml/Screen.fxml",            // Without a leading slash
+                        "/Screen.fxml",                // Root directory
+                        "Screen.fxml"                  // Current
                 };
 
                 URL fxmlUrl = null;
@@ -56,24 +56,24 @@ public class NavigatorTest {
                     throw new RuntimeException("Cannot find FXML file. Tried paths: " + Arrays.toString(possiblePaths));
                 }
 
-                // 初始化FXML加载器
+                // Initialize the FXML loader
                 FXMLLoader loader = new FXMLLoader(fxmlUrl);
                 Parent root = loader.load();
 
-                // 获取ScreenController实例
+                // Obtain the instance of ScreenController
                 screenController = loader.getController();
                 if (screenController == null) {
                     throw new RuntimeException("ScreenController is null");
                 }
 
-                // 初始化游戏
+                // Initialize the game
                 screenController.initData(2, 1);
                 game = new ForbiddenGameStarted(screenController, 2, 1);
                 if (game == null) {
                     throw new RuntimeException("Game object is null after initialization");
                 }
 
-                // 初始化导航员和其他玩家
+                // Initialize messenger and another player
                 navigator = new Navigator("Navigator");
                 diver = new Diver("testdiver");
 
@@ -97,19 +97,21 @@ public class NavigatorTest {
 
     @Test
     public void testNavigatorSpecialAbility() {
+        // Create a CountDownLatch to wait for the test to complete
         CountDownLatch latch = new CountDownLatch(1);
 
+        // Executing the test in the JavaFX thread
         Platform.runLater(() -> {
             try {
                 System.out.println("Starting test in JavaFX thread...");
 
-                // 设置测试环境
+                // Set testing environment
                 game.isSpecialMode = true;
-                game.turnManage.setStep(3); // 设置初始行动点为3
+                game.turnManage.setStep(3); // Set initial action points as 3
                 System.out.println("Initial steps: " + game.turnManage.getStep());
 
-                // 设置导航员和其他玩家的初始位置
-                Tile startTile = game.getTiles().get(0);
+                // Firstly set the initial position of the messenger
+                Tile startTile = game.getTiles().get(0); // Get the first tile as initial position
                 navigator.setX(startTile.getPositionX());
                 navigator.setY(startTile.getPositionY());
                 navigator.setLayoutX(startTile.getPositionX() + 30);
@@ -123,46 +125,46 @@ public class NavigatorTest {
                 System.out.println("Initial navigator position: X=" + navigator.getX() + ", Y=" + navigator.getY());
                 System.out.println("Initial other player position: X=" + diver.getX() + ", Y=" + diver.getY());
 
-                // 使用特殊能力
+                // Use special ability
                 navigator.useSpecialAbility(game, navigator);
 
-                // 获取所有版块
+                // Get all the tiles
                 List<Tile> allTiles = game.getTiles();
                 List<Tile> availableTiles = new ArrayList<>();
 
-                // 找到可用的目标岛屿（未淹没的且与当前位置不同）
+                // Find usable target tile (Not flooded and different from current position)
                 for (Tile tile : allTiles) {
-                    if (tile.getState() == 0 && // 0表示未淹没
+                    if (tile.getState() == 0 && // 0 represents unflooded
                         (tile.getPositionX() != diver.getX() || tile.getPositionY() != diver.getY())) {
                         availableTiles.add(tile);
                     }
                 }
 
-                // 验证是否找到可用的目标岛屿
+                // Check if found usable target tile
                 assertTrue("Should find available tiles", !availableTiles.isEmpty());
 
-                // 选择目标岛屿
+                // Choose target tile
                 Tile targetTile = availableTiles.get(0);
                 System.out.println("Selected target tile: X=" + targetTile.getPositionX() + 
                                  ", Y=" + targetTile.getPositionY());
 
-                // 记录初始位置
+                // Record initial position
                 int initialX = diver.getX();
                 int initialY = diver.getY();
                 int initialSteps = game.turnManage.getStep();
 
-                // 模拟移动其他玩家
+                // Simulate moving other players
                 diver.setLayoutX(targetTile.getPositionX() + 30);
                 diver.setX(targetTile.getPositionX());
                 diver.setLayoutY(targetTile.getPositionY());
                 diver.setY(targetTile.getPositionY());
                 diver.draw();
 
-                // 使用行动点
+                // Testing using action points
                 game.turnManage.useStep();
                 game.turnManage.showRemainSteps();
 
-                // 等待处理完成
+                // Wait for the process to finish
                 try {
                     System.out.println("Waiting for movement processing...");
                     Thread.sleep(500);
@@ -170,26 +172,28 @@ public class NavigatorTest {
                     e.printStackTrace();
                 }
 
-                // 验证位置已更新
+                // Test if position is updated
                 int newX = diver.getX();
                 int newY = diver.getY();
 
                 System.out.println("After movement - Initial X: " + initialX + ", New X: " + newX);
                 System.out.println("After movement - Initial Y: " + initialY + ", New Y: " + newY);
 
-                // 验证位置变化
+                // Check for position change
                 assertTrue("Other player should move to new position", 
                           newX != initialX || newY != initialY);
                 assertEquals("Should use one step", initialSteps - 1, game.turnManage.getStep());
 
-                // 手动关闭特殊模式
+                // Manually disable special mode
                 game.isSpecialMode = false;
                 System.out.println("Special mode disabled: " + !game.isSpecialMode);
 
-                // 验证特殊模式是否关闭
+                // Test if special mode is disabled
                 assertFalse("Special mode should be disabled after using ability", game.isSpecialMode);
 
                 System.out.println("Test completed successfully!");
+
+                // After the test is completed, reduce the latch count
                 latch.countDown();
 
             } catch (Exception e) {

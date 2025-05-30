@@ -24,7 +24,7 @@ public class PilotTest {
         try {
             Platform.startup(() -> {});
         } catch (Exception e) {
-            // 如果已经启动，忽略异常
+            // If already started, ignore the exception
         }
     }
 
@@ -34,12 +34,12 @@ public class PilotTest {
 
         Platform.runLater(() -> {
             try {
-                // 尝试多个可能的路径
+                // Try different routes
                 String[] possiblePaths = {
-                        "/fxml/Screen.fxml",           // 标准路径
-                        "fxml/Screen.fxml",            // 不带前导斜杠
-                        "/Screen.fxml",                // 根目录
-                        "Screen.fxml"                  // 当前目录
+                        "/fxml/Screen.fxml",           // Standard route
+                        "fxml/Screen.fxml",            // Without a leading slash
+                        "/Screen.fxml",                // Root directory
+                        "Screen.fxml"                  // Current
                 };
 
                 URL fxmlUrl = null;
@@ -55,24 +55,24 @@ public class PilotTest {
                     throw new RuntimeException("Cannot find FXML file. Tried paths: " + Arrays.toString(possiblePaths));
                 }
 
-                // 初始化FXML加载器
+                // Initialize the FXML loader
                 FXMLLoader loader = new FXMLLoader(fxmlUrl);
                 Parent root = loader.load();
 
-                // 获取ScreenController实例
+                // Obtain the instance of ScreenController
                 screenController = loader.getController();
                 if (screenController == null) {
                     throw new RuntimeException("ScreenController is null");
                 }
 
-                // 初始化游戏
+                // Initialize the game
                 screenController.initData(2, 1);
                 game = new ForbiddenGameStarted(screenController, 2, 1);
                 if (game == null) {
                     throw new RuntimeException("Game object is null after initialization");
                 }
 
-                // 初始化飞行员
+                // Initialize pilot
                 pilot = new Pilot("Pilot");
 
                 latch.countDown();
@@ -95,19 +95,21 @@ public class PilotTest {
 
     @Test
     public void testPilotSpecialAbility() {
+        // Create a CountDownLatch to wait for the test to complete
         CountDownLatch latch = new CountDownLatch(1);
 
+        // Executing the test in the JavaFX thread
         Platform.runLater(() -> {
             try {
                 System.out.println("Starting test in JavaFX thread...");
 
-                // 设置测试环境
+                // Set testing environment
                 game.isSpecialMode = true;
                 game.turnManage.setStep(3);
                 System.out.println("Initial steps: " + game.turnManage.getStep());
 
-                // 设置pilot的初始位置
-                Tile startTile = game.getTiles().get(0);
+                // Firstly set the initial position of the explorer
+                Tile startTile = game.getTiles().get(0); // Get the first tile as initial position
                 pilot.setX(startTile.getPositionX());
                 pilot.setY(startTile.getPositionY());
                 pilot.setLayoutX(startTile.getPositionX() + 30);
@@ -115,11 +117,11 @@ public class PilotTest {
 
                 System.out.println("Initial pilot position: X=" + pilot.getX() + ", Y=" + pilot.getY());
 
-                // 获取所有版块
+                // Get all tiles
                 List<Tile> allTiles = game.getTiles();
                 List<Tile> availableTiles = new ArrayList<>();
 
-                // 找到可用的目标岛屿
+                // Find usable target tile
                 for (Tile tile : allTiles) {
                     if (tile.getState() == 0 && 
                         (tile.getPositionX() != pilot.getX() || tile.getPositionY() != pilot.getY())) {
@@ -129,23 +131,25 @@ public class PilotTest {
 
                 assertTrue("Should find available tiles", !availableTiles.isEmpty());
 
-                // 选择目标岛屿
+                // Choose target tile
                 Tile targetTile = availableTiles.get(0);
                 System.out.println("Selected target tile: X=" + targetTile.getPositionX() + 
                                  ", Y=" + targetTile.getPositionY());
 
-                // 使用特殊能力
+                // Use special ability
                 pilot.useSpecialAbility(game, pilot);
 
-                // 记录初始位置和行动点
+                // Record initial position
                 int initialX = pilot.getX();
                 int initialY = pilot.getY();
+
+                // Record initial action points
                 int initialSteps = game.turnManage.getStep();
 
-                // 模拟点击事件
+                // Simulate click event
                 targetTile.getOnMouseClicked().handle(null);
 
-                // 等待处理完成
+                // Wait for the process to finish
                 try {
                     System.out.println("Waiting for flight processing...");
                     Thread.sleep(1000);
@@ -153,18 +157,18 @@ public class PilotTest {
                     e.printStackTrace();
                 }
 
-                // 验证位置已更新
+                // Test if position is updated
                 int newX = pilot.getX();
                 int newY = pilot.getY();
 
                 System.out.println("After flight - Initial X: " + initialX + ", New X: " + newX);
                 System.out.println("After flight - Initial Y: " + initialY + ", New Y: " + newY);
 
-                // 验证位置变化
+                // Test the position change
                 assertTrue("Pilot should move to new position", newX != initialX || newY != initialY);
                 assertEquals("Should use one step", initialSteps - 1, game.turnManage.getStep());
 
-                // 验证特殊模式是否在点击事件后关闭
+                // Test if special mode closes after click event
                 assertFalse("Special mode should be disabled after using ability", game.isSpecialMode);
 
                 System.out.println("Test completed successfully!");

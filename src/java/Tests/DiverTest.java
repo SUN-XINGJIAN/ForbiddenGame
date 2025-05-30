@@ -24,7 +24,7 @@ public class DiverTest {
         try {
             Platform.startup(() -> {});
         } catch (Exception e) {
-            // 如果已经启动，忽略异常
+            // If already started, ignore the exception
         }
     }
 
@@ -34,12 +34,12 @@ public class DiverTest {
 
         Platform.runLater(() -> {
             try {
-                // 尝试多个可能的路径
+                // Try different routes
                 String[] possiblePaths = {
-                        "/fxml/Screen.fxml",           // 标准路径
-                        "fxml/Screen.fxml",            // 不带前导斜杠
-                        "/Screen.fxml",                // 根目录
-                        "Screen.fxml"                  // 当前目录
+                        "/fxml/Screen.fxml",           // Standard route
+                        "fxml/Screen.fxml",            // Without a leading slash
+                        "/Screen.fxml",                // Root directory
+                        "Screen.fxml"                  // Current
                 };
 
                 URL fxmlUrl = null;
@@ -55,24 +55,24 @@ public class DiverTest {
                     throw new RuntimeException("Cannot find FXML file. Tried paths: " + Arrays.toString(possiblePaths));
                 }
 
-                // 初始化FXML加载器
+                // Initialize the FXML loader
                 FXMLLoader loader = new FXMLLoader(fxmlUrl);
                 Parent root = loader.load();
 
-                // 获取ScreenController实例
+                // Obtain the instance of ScreenController
                 screenController = loader.getController();
                 if (screenController == null) {
                     throw new RuntimeException("ScreenController is null");
                 }
 
-                // 初始化游戏
+                // Initialize the game
                 screenController.initData(2, 1);
                 game = new ForbiddenGameStarted(screenController, 2, 1);
                 if (game == null) {
                     throw new RuntimeException("Game object is null after initialization");
                 }
 
-                // 初始化潜水员
+                // Initialize diver
                 diver = new Diver("Diver");
 
                 latch.countDown();
@@ -95,35 +95,37 @@ public class DiverTest {
 
     @Test
     public void testDiverSpecialAbility() {
+        // Create a CountDownLatch to wait for the test to complete
         CountDownLatch latch = new CountDownLatch(1);
-        
+
+        // Executing the test in the JavaFX thread
         Platform.runLater(() -> {
             try {
                 System.out.println("Starting test in JavaFX thread...");
                 
-                // 设置测试环境
+                // Set testing environment
                 game.isSpecialMode = true;
                 
-                // 首先设置diver的初始位置
-                Tile startTile = game.getTiles().get(0);  // 获取第一个tile作为起始位置
+                // Firstly set the initial position of the diver
+                Tile startTile = game.getTiles().get(0);  // Get the first tile as initial position
                 diver.setX(startTile.getPositionX());
                 diver.setY(startTile.getPositionY());
                 diver.setLayoutX(startTile.getPositionX() + 30);
                 diver.setLayoutY(startTile.getPositionY());
                 
-                // 打印初始位置
+                // print initial position
                 System.out.println("Initial diver position: X=" + diver.getX() + ", Y=" + diver.getY());
                 
-                // 获取所有版块
+                // get all tiles
                 List<Tile> adjacentTiles = game.getTiles();
                 final Tile floodedTile = findFloodedTile(adjacentTiles, diver);
 
-                // 验证是否找到淹没岛屿
+                // Test whether flooded tile is found
                 assertNotNull("Should find an adjacent flooded tile", floodedTile);
                 System.out.println("Selected flooded tile position: X=" + floodedTile.getPositionX() + 
                                  ", Y=" + floodedTile.getPositionY());
 
-                // 记录初始位置和行动点
+                // Record initial position and action points
                 final int initialX = diver.getX();
                 final int initialY = diver.getY();
                 final int initialSteps = game.turnManage.getStep();
@@ -132,14 +134,14 @@ public class DiverTest {
                 System.out.println("Moving to tile: X=" + floodedTile.getPositionX() + 
                                  ", Y=" + floodedTile.getPositionY());
 
-                // 直接执行移动逻辑
+                // Execute move logic
                 diver.setX(floodedTile.getPositionX());
                 diver.setY(floodedTile.getPositionY());
                 diver.setLayoutX(floodedTile.getPositionX() + 30);
                 diver.setLayoutY(floodedTile.getPositionY());
                 diver.draw();
                 
-                // 更新游戏状态
+                // Update game status
                 game.turnManage.useStep();
                 game.turnManage.showRemainSteps();
                 game.changeCurrentPlayer();
@@ -147,10 +149,10 @@ public class DiverTest {
                 game.checkTreasureSubmit();
                 game.isVictory();
                 
-                // 关闭特殊模式
+                // End special mode
                 game.isSpecialMode = false;
 
-                // 等待处理完成
+                // Waiting for the processing to be completed
                 try {
                     System.out.println("Waiting for move processing...");
                     Thread.sleep(1000);
@@ -158,14 +160,14 @@ public class DiverTest {
                     e.printStackTrace();
                 }
 
-                // 验证位置已更新
+                // Test if position is updated
                 int newX = diver.getX();
                 int newY = diver.getY();
                 
                 System.out.println("After move - Initial X: " + initialX + ", New X: " + newX);
                 System.out.println("After move - Initial Y: " + initialY + ", New Y: " + newY);
                 
-                // 验证位置确实发生了变化
+                // Test if position is indeed updated
                 assertTrue("Diver should move to new position. Initial X: " + initialX + ", New X: " + newX + 
                           ", Target X: " + floodedTile.getPositionX(), 
                           newX == floodedTile.getPositionX());
@@ -173,10 +175,10 @@ public class DiverTest {
                           ", Target Y: " + floodedTile.getPositionY(), 
                           newY == floodedTile.getPositionY());
                 
-                // 验证行动点消耗
+                // Test step consumption
                 assertEquals("Should use one step", initialSteps - 1, game.turnManage.getStep());
 
-                // 验证特殊模式是否关闭
+                // Test whether special mode is disabled
                 assertFalse("Special mode should be disabled after using ability", game.isSpecialMode);
 
                 System.out.println("Test completed successfully!");
@@ -199,13 +201,13 @@ public class DiverTest {
         }
     }
 
-    // 辅助方法：查找淹没的岛屿
+    // Search for flooded tiles
     private Tile findFloodedTile(List<Tile> adjacentTiles, Diver diver) {
         for (Tile tile : adjacentTiles) {
             if (Math.abs(tile.getPositionX() - diver.getX()) <= 50 &&
                 Math.abs(tile.getPositionY() - diver.getY()) <= 50 &&
                 tile.getPositionY() != diver.getY()) {
-                tile.setState(1);  // 设置岛屿为淹没状态
+                tile.setState(1);  // Set tile to flooded
                 return tile;
             }
         }
